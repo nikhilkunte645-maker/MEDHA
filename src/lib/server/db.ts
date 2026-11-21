@@ -243,7 +243,17 @@ function readDatabase(): ServerDatabase {
   ensureDataDir();
 
   if (!fs.existsSync(DB_FILE)) {
-    const seed = initializeSeedDatabase();
+    const seedFile = path.join(DATA_DIR, 'medha_seed.json');
+    let seed: ServerDatabase;
+    if (fs.existsSync(seedFile)) {
+      try {
+        seed = JSON.parse(fs.readFileSync(seedFile, 'utf-8')) as ServerDatabase;
+      } catch {
+        seed = initializeSeedDatabase();
+      }
+    } else {
+      seed = initializeSeedDatabase();
+    }
     writeDatabase(seed);
     dbCache = seed;
     return seed;

@@ -58,29 +58,7 @@
       "createdAt": "2026-11-21T13:40:54.321Z"
     }
   ],
-  "sessions": [
-    {
-      "token": "d589df8bd427e787c7570cd708d500d31f91c62d271094db690c24f7941b9bf1",
-      "userId": "usr_student_priya",
-      "role": "student",
-      "createdAt": "2026-11-21T13:52:03.286Z",
-      "expiresAt": "2026-11-28T13:52:03.286Z"
-    },
-    {
-      "token": "fe82383d9f7792333133647ea790e84d20454c09e230111ca3471227842e3eae",
-      "userId": "usr_student_priya",
-      "role": "student",
-      "createdAt": "2026-11-21T13:52:09.695Z",
-      "expiresAt": "2026-11-28T13:52:09.695Z"
-    },
-    {
-      "token": "cae69b341ff98ad12a2439db8428e271653b57afc17836fdbe79c0b1f6b4b68f",
-      "userId": "usr_admin_master",
-      "role": "admin",
-      "createdAt": "2026-11-21T13:52:32.615Z",
-      "expiresAt": "2026-11-28T13:52:32.615Z"
-    }
-  ],
+  "sessions": [],
   "learnerProfiles": {
     "usr_student_priya": {
       "id": "usr_student_priya",
@@ -88,13 +66,20 @@
       "masteryMap": {
         "C01": {
           "conceptId": "C01",
-          "score": 36,
+          "score": 46,
           "status": "atRisk",
-          "evidenceCount": 2,
-          "lastAssessed": null,
-          "nextReviewAt": "2026-11-21T12:40:54.323Z",
-          "reviewCount": 0,
-          "history": []
+          "evidenceCount": 3,
+          "lastAssessed": "2026-11-21T15:37:16.428Z",
+          "nextReviewAt": "2026-11-22T15:37:16.428Z",
+          "reviewCount": 1,
+          "history": [
+            {
+              "timestamp": "2026-11-21T15:37:16.428Z",
+              "score": 46,
+              "attemptId": "att_1795275436428_cizu",
+              "change": 10
+            }
+          ]
         },
         "C02": {
           "conceptId": "C02",
@@ -118,13 +103,32 @@
         },
         "C04": {
           "conceptId": "C04",
-          "score": 55,
+          "score": 75,
           "status": "learning",
-          "evidenceCount": 2,
-          "lastAssessed": null,
-          "nextReviewAt": null,
-          "reviewCount": 0,
-          "history": []
+          "evidenceCount": 5,
+          "lastAssessed": "2026-11-21T14:49:51.991Z",
+          "nextReviewAt": "2026-11-24T14:49:51.991Z",
+          "reviewCount": 3,
+          "history": [
+            {
+              "timestamp": "2026-11-21T14:47:44.700Z",
+              "score": 63,
+              "attemptId": "att_1795272464700_hjkc",
+              "change": 8
+            },
+            {
+              "timestamp": "2026-11-21T14:48:22.137Z",
+              "score": 70,
+              "attemptId": "att_1795272502137_tk6s",
+              "change": 7
+            },
+            {
+              "timestamp": "2026-11-21T14:49:51.991Z",
+              "score": 75,
+              "attemptId": "att_1795272591991_i4ae",
+              "change": 5
+            }
+          ]
         },
         "C05": {
           "conceptId": "C05",
@@ -208,11 +212,242 @@
           "confidence": 0.94,
           "nextLearningAction": "Practice distinguishing charge rate (current) from energy push (potential difference).",
           "isOfflineFallback": true
+        },
+        {
+          "id": "att_1795272464700_hjkc",
+          "learnerId": "usr_student_priya",
+          "questionId": "P_TEST_01",
+          "selectedAnswer": "A",
+          "writtenReasoning": "According to Ohm law, V = IR, so R = V/I. With 12V and 2A, resistance is 6 ohms.",
+          "isCorrect": true,
+          "targetConceptIds": [
+            "C04"
+          ],
+          "difficulty": 2,
+          "timestamp": "2026-11-21T14:47:44.700Z",
+          "reasoningQuality": "sound",
+          "misconceptionDetected": false,
+          "misconceptionStatus": "unverified",
+          "evidence": [],
+          "explanation": "",
+          "recommendedConceptIds": [
+            "C04"
+          ],
+          "confidence": 0.85,
+          "nextLearningAction": "Continue targeted practice.",
+          "isOfflineFallback": false
+        },
+        {
+          "id": "att_1795272502137_tk6s",
+          "learnerId": "usr_student_priya",
+          "questionId": "P_TEST_01",
+          "selectedAnswer": "A",
+          "writtenReasoning": "According to Ohm law, V = IR, so R = V/I. With 12V and 2A, resistance is 6 ohms.",
+          "isCorrect": true,
+          "targetConceptIds": [
+            "C04"
+          ],
+          "difficulty": 2,
+          "timestamp": "2026-11-21T14:48:22.137Z",
+          "reasoningQuality": "sound",
+          "misconceptionDetected": false,
+          "misconceptionStatus": "unverified",
+          "evidence": [],
+          "explanation": "",
+          "recommendedConceptIds": [
+            "C04"
+          ],
+          "confidence": 0.85,
+          "nextLearningAction": "Continue targeted practice.",
+          "isOfflineFallback": false
+        },
+        {
+          "id": "att_1795272591991_i4ae",
+          "learnerId": "usr_student_priya",
+          "questionId": "P_TEST_01",
+          "selectedAnswer": "A",
+          "writtenReasoning": "According to Ohm law, V = IR, so R = V/I. With 12V and 2A, resistance is 6 ohms.",
+          "isCorrect": true,
+          "targetConceptIds": [
+            "C04"
+          ],
+          "difficulty": 2,
+          "timestamp": "2026-11-21T14:49:51.991Z",
+          "reasoningQuality": "sound",
+          "misconceptionDetected": false,
+          "misconceptionStatus": "unverified",
+          "evidence": [],
+          "explanation": "",
+          "recommendedConceptIds": [
+            "C04"
+          ],
+          "confidence": 0.85,
+          "nextLearningAction": "Continue targeted practice.",
+          "isOfflineFallback": false
+        },
+        {
+          "id": "att_1795275436428_cizu",
+          "learnerId": "usr_student_priya",
+          "questionId": "IDOR_TEST_Q1",
+          "selectedAnswer": "A",
+          "writtenReasoning": "IDOR probe test",
+          "isCorrect": true,
+          "targetConceptIds": [
+            "C01"
+          ],
+          "difficulty": 2,
+          "timestamp": "2026-11-21T15:37:16.428Z",
+          "reasoningQuality": "insufficient_evidence",
+          "misconceptionDetected": false,
+          "misconceptionStatus": "unverified",
+          "evidence": [],
+          "explanation": "",
+          "recommendedConceptIds": [
+            "C01"
+          ],
+          "confidence": 0.85,
+          "nextLearningAction": "Continue targeted practice.",
+          "isOfflineFallback": false
         }
       ],
       "diagnosticCompleted": true,
       "createdAt": "2026-11-21T13:40:54.321Z",
-      "lastActive": "2026-11-21T13:40:54.321Z"
+      "lastActive": "2026-11-21T15:37:16.429Z",
+      "profile": {
+        "id": "student_mwqj62ea",
+        "name": "Ananya Student",
+        "masteryMap": {
+          "C01": {
+            "conceptId": "C01",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C02": {
+            "conceptId": "C02",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C03": {
+            "conceptId": "C03",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C04": {
+            "conceptId": "C04",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C05": {
+            "conceptId": "C05",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C06": {
+            "conceptId": "C06",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C07": {
+            "conceptId": "C07",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C08": {
+            "conceptId": "C08",
+            "score": null,
+            "status": "unassessed",
+            "evidenceCount": 0,
+            "lastAssessed": null,
+            "nextReviewAt": null,
+            "reviewCount": 0,
+            "history": []
+          },
+          "C09": {
+            "conceptId": "C09",
+            "score": 40,
+            "status": "atRisk",
+            "evidenceCount": 1,
+            "lastAssessed": "2026-11-21T14:56:01.181Z",
+            "nextReviewAt": "2026-11-22T14:56:01.181Z",
+            "reviewCount": 1,
+            "history": [
+              {
+                "timestamp": "2026-11-21T14:56:01.181Z",
+                "score": 40,
+                "attemptId": "att_1795272961181",
+                "change": 40
+              }
+            ]
+          }
+        },
+        "attempts": [
+          {
+            "id": "att_1795272961181",
+            "learnerId": "active_student",
+            "questionId": "gen_C09_1795272950935",
+            "selectedAnswer": "The 100 W bulb glows brighter because it has a higher wattage rating",
+            "writtenReasoning": "hkjgk,",
+            "isCorrect": false,
+            "targetConceptIds": [
+              "C09"
+            ],
+            "difficulty": 3,
+            "timestamp": "2026-11-21T14:56:01.181Z",
+            "reasoningQuality": "fair",
+            "misconceptionDetected": false,
+            "misconceptionStatus": "suspected",
+            "evidence": [
+              "hkjgk,"
+            ],
+            "explanation": "The student selected an incorrect option. The written reasoning showed partial understanding with an error in mathematical execution or application of the rule.",
+            "correctPrinciple": "Check algebraic steps and SI unit substitutions.",
+            "recommendedConceptIds": [
+              "C09"
+            ],
+            "confidence": 0.72,
+            "nextLearningAction": "Review the underlying formula and practice step-by-step problem solving.",
+            "isOfflineFallback": true
+          }
+        ],
+        "diagnosticCompleted": false,
+        "createdAt": "2026-11-21T14:56:01.186Z",
+        "lastActive": "2026-11-21T14:56:01.187Z"
+      }
     },
     "usr_student_aarav": {
       "id": "usr_student_aarav",
@@ -423,7 +658,8 @@
       "section": "A",
       "studentIds": [
         "usr_student_priya",
-        "usr_student_aarav"
+        "usr_student_aarav",
+        "usr_student_1795273111758_7tx7"
       ],
       "teacherIds": [
         "usr_teacher_sharma"
@@ -444,46 +680,14 @@
   ],
   "auditLogs": [
     {
-      "event": "USER_LOGIN_SUCCESS",
+      "id": "audit_init_seed",
+      "timestamp": "2026-11-21T00:00:00.000Z",
+      "event": "SYSTEM_INITIALIZED",
       "userId": "usr_admin_master",
       "role": "admin",
-      "ip": "::1",
+      "ip": "127.0.0.1",
       "details": {
-        "email": "admin@medha.edu"
-      },
-      "id": "audit_1795269152620_zno2d",
-      "timestamp": "2026-11-21T13:52:32.620Z"
-    },
-    {
-      "event": "USER_LOGIN_SUCCESS",
-      "userId": "usr_student_priya",
-      "role": "student",
-      "ip": "::1",
-      "details": {
-        "email": "priya@student.medha.edu"
-      },
-      "id": "audit_1795269129698_p5k5r",
-      "timestamp": "2026-11-21T13:52:09.698Z"
-    },
-    {
-      "event": "USER_LOGIN_SUCCESS",
-      "userId": "usr_student_priya",
-      "role": "student",
-      "ip": "::1",
-      "details": {
-        "email": "priya@student.medha.edu"
-      },
-      "id": "audit_1795269123289_rqeri",
-      "timestamp": "2026-11-21T13:52:03.289Z"
-    },
-    {
-      "id": "audit_init_1795268454323",
-      "timestamp": "2026-11-21T13:40:54.321Z",
-      "event": "SYSTEM_DATABASE_INITIALIZED",
-      "userId": "system",
-      "role": "system",
-      "details": {
-        "message": "Database initialized with verified seed accounts and assigned classes."
+        "message": "MEDHA seed database provisioned with standard Class 10 Physics cohort"
       }
     }
   ]

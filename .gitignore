@@ -20,3 +20,6 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 *.tsbuildinfo
+
+# Local Database runtime mutations
+data/medha_server_db.json
