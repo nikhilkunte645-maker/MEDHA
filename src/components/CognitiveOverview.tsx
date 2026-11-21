@@ -189,7 +189,7 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
             <span className="text-[11px] font-mono text-text-muted">of 9</span>
           </div>
           <p className="text-[11px] text-text-secondary pt-1">
-            Score $\ge 80\%$ with verified evidence
+            Score ≥ 80% with verified evidence
           </p>
         </div>
 

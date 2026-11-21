@@ -107,7 +107,7 @@ export const RevisionScheduleView: React.FC<RevisionScheduleViewProps> = ({
           <Info className="w-4 h-4 text-accent-secondary shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong className="text-text-primary">Spaced Retention Protocol: </strong>
-            Concepts requiring attention (&lt;40%) schedule at +1 day; Developing concepts (40–79%) schedule at +3 days; Mastered concepts (≥80%) schedule at +7 days. Completing a review only updates mastery when fresh reasoning evidence is demonstrated.
+            Concepts requiring attention (&lt;50%) schedule at +1 day; Developing concepts (50–79%) schedule at +3 days; Mastered concepts (≥80%) schedule at +7 days. Completing a review only updates mastery when fresh reasoning evidence is demonstrated.
           </p>
         </div>
       </div>

@@ -256,10 +256,10 @@ export const TeacherAnalyticsView: React.FC = () => {
               <span className="w-2.5 h-2.5 rounded bg-mastery-masteredLight border border-mastery-mastered/40"></span> ≥80%
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded bg-mastery-learningLight border border-mastery-learning/40"></span> 40–79%
+              <span className="w-2.5 h-2.5 rounded bg-mastery-learningLight border border-mastery-learning/40"></span> 50–79%
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded bg-mastery-atRiskLight border border-mastery-atRisk/40"></span> &lt;40%
+              <span className="w-2.5 h-2.5 rounded bg-mastery-atRiskLight border border-mastery-atRisk/40"></span> &lt;50%
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded bg-surface-secondary border border-outline-variant"></span> Unassessed

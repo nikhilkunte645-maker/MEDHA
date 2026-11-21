@@ -72,7 +72,7 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
         text: 'text-mastery-atRisk',
         border: 'border-mastery-atRisk/30',
         badge: 'bg-mastery-atRiskLight text-mastery-atRisk',
-        label: 'At Risk (<40%)'
+        label: 'At Risk (<50%)'
       };
     }
     if (mastery.status === 'learning') {
@@ -82,7 +82,7 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
         text: 'text-mastery-learning',
         border: 'border-mastery-learning/30',
         badge: 'bg-mastery-learningLight text-mastery-learning',
-        label: 'Developing (40–79%)'
+        label: 'Developing (50–79%)'
       };
     }
     return {
@@ -133,7 +133,7 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
               {mode === 'all'
                 ? 'All Nodes'
                 : mode === 'atRisk'
-                  ? 'At Risk (<40%)'
+                  ? 'At Risk (<50%)'
                   : mode === 'learning'
                     ? 'Developing'
                     : 'Mastered'}

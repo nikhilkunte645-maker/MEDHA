@@ -246,7 +246,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
                       ? 'bg-mastery-unassessed'
                       : score >= 80
                       ? 'bg-mastery-mastered'
-                      : score >= 40
+                      : score >= 50
                       ? 'bg-mastery-learning'
                       : 'bg-mastery-atRisk'
                   }`}
