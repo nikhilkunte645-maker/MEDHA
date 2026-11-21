@@ -118,6 +118,35 @@ export async function GET(req: NextRequest) {
     }
   });
 
+  // Calculate summary metrics
+  const allAssessedScores: number[] = [];
+  studentSummaries.forEach((s) => {
+    Object.values(s.masteryMap).forEach((val) => {
+      if (typeof val === 'number') allAssessedScores.push(val);
+    });
+  });
+  const classAverageMastery = allAssessedScores.length > 0
+    ? Math.round(allAssessedScores.reduce((a, b) => a + b, 0) / allAssessedScores.length)
+    : 0;
+
+  const studentsNeedingAttention = studentSummaries.filter((s) => {
+    const scores = Object.values(s.masteryMap).filter((v): v is number => typeof v === 'number');
+    if (scores.length === 0) return false;
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return avg < 50;
+  }).length;
+
+  const activeMisconceptionsCount = Object.values(misconceptionCounts).reduce((a, b) => a + b.count, 0);
+
+  const misconceptionFrequencies = Object.entries(misconceptionCounts).map(([code, item]) => ({
+    code,
+    title: item.title,
+    count: item.count,
+    conceptId: item.conceptId,
+    description: 'Observed in evaluated student written explanations during diagnostic and practice tests.',
+    correction: 'Electric charge is strictly conserved and voltage represents the electrical potential push per unit charge.'
+  }));
+
   return NextResponse.json({
     success: true,
     class: {
@@ -126,9 +155,15 @@ export async function GET(req: NextRequest) {
       grade: cls.grade,
       section: cls.section
     },
-    studentCount: studentSummaries.length,
+    summary: {
+      enrolledStudents: studentSummaries.length,
+      classAverageMastery,
+      activeMisconceptionsCount,
+      studentsNeedingAttention
+    },
     conceptAverages,
     students: studentSummaries,
-    misconceptionDistribution: misconceptionCounts
+    misconceptionDistribution: misconceptionCounts,
+    misconceptionFrequencies
   });
 }
