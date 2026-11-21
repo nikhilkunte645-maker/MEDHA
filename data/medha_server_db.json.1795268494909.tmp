@@ -1,0 +1,435 @@
+{
+  "users": [
+    {
+      "id": "usr_student_priya",
+      "email": "priya@student.medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "Priya Sharma",
+      "role": "student",
+      "classId": "CLASS-10A",
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    },
+    {
+      "id": "usr_student_aarav",
+      "email": "aarav@student.medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "Aarav Patel",
+      "role": "student",
+      "classId": "CLASS-10A",
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    },
+    {
+      "id": "usr_student_rohit",
+      "email": "rohit@student.medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "Rohit Kumar",
+      "role": "student",
+      "classId": "CLASS-10B",
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    },
+    {
+      "id": "usr_teacher_sharma",
+      "email": "sharma@teacher.medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "Dr. Alok Sharma",
+      "role": "teacher",
+      "assignedClassIds": [
+        "CLASS-10A"
+      ],
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    },
+    {
+      "id": "usr_teacher_verma",
+      "email": "verma@teacher.medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "Prof. Sunita Verma",
+      "role": "teacher",
+      "assignedClassIds": [
+        "CLASS-10B"
+      ],
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    },
+    {
+      "id": "usr_admin_master",
+      "email": "admin@medha.edu",
+      "passwordHash": "$2b$10$M4innBX.1gRO.Jrt3MNSAuDjgsl5ihYLSe2DAb.Gdfp5PJZuyJ2kO",
+      "name": "MEDHA System Administrator",
+      "role": "admin",
+      "createdAt": "2026-11-21T13:40:54.321Z"
+    }
+  ],
+  "sessions": [],
+  "learnerProfiles": {
+    "usr_student_priya": {
+      "id": "usr_student_priya",
+      "name": "Priya Sharma",
+      "masteryMap": {
+        "C01": {
+          "conceptId": "C01",
+          "score": 36,
+          "status": "atRisk",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": "2026-11-21T12:40:54.323Z",
+          "reviewCount": 0,
+          "history": []
+        },
+        "C02": {
+          "conceptId": "C02",
+          "score": 34,
+          "status": "atRisk",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": "2026-11-21T13:40:54.323Z",
+          "reviewCount": 0,
+          "history": []
+        },
+        "C03": {
+          "conceptId": "C03",
+          "score": 72,
+          "status": "learning",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C04": {
+          "conceptId": "C04",
+          "score": 55,
+          "status": "learning",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C05": {
+          "conceptId": "C05",
+          "score": 48,
+          "status": "atRisk",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C06": {
+          "conceptId": "C06",
+          "score": 65,
+          "status": "learning",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C07": {
+          "conceptId": "C07",
+          "score": 38,
+          "status": "atRisk",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C08": {
+          "conceptId": "C08",
+          "score": 68,
+          "status": "learning",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C09": {
+          "conceptId": "C09",
+          "score": 52,
+          "status": "learning",
+          "evidenceCount": 2,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        }
+      },
+      "attempts": [
+        {
+          "id": "att_seed_01",
+          "learnerId": "usr_student_priya",
+          "questionId": "DQ02",
+          "selectedAnswer": "The statement is correct; energy is lost so current decreases.",
+          "writtenReasoning": "Current is the electrical push from the battery that gets used up as it passes through the lamp so fewer electrons return.",
+          "isCorrect": false,
+          "targetConceptIds": [
+            "C01",
+            "C02"
+          ],
+          "difficulty": 2,
+          "timestamp": "2026-11-20T13:40:54.323Z",
+          "reasoningQuality": "poor",
+          "misconceptionDetected": true,
+          "misconceptionCode": "CURRENT_VOLTAGE_CONFUSION",
+          "misconceptionTitle": "Confusing current with voltage and violating charge conservation",
+          "misconceptionStatus": "detected",
+          "evidence": [
+            "Current is the electrical push from the battery that gets used up"
+          ],
+          "explanation": "The student treats current as the push and presumes current is consumed by bulbs.",
+          "correctPrinciple": "Potential difference (voltage) provides the electrical pressure; electric charge is strictly conserved.",
+          "recommendedConceptIds": [
+            "C01",
+            "C02"
+          ],
+          "confidence": 0.94,
+          "nextLearningAction": "Practice distinguishing charge rate (current) from energy push (potential difference).",
+          "isOfflineFallback": true
+        }
+      ],
+      "diagnosticCompleted": true,
+      "createdAt": "2026-11-21T13:40:54.321Z",
+      "lastActive": "2026-11-21T13:40:54.321Z"
+    },
+    "usr_student_aarav": {
+      "id": "usr_student_aarav",
+      "name": "Aarav Patel",
+      "masteryMap": {
+        "C01": {
+          "conceptId": "C01",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C02": {
+          "conceptId": "C02",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C03": {
+          "conceptId": "C03",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C04": {
+          "conceptId": "C04",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C05": {
+          "conceptId": "C05",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C06": {
+          "conceptId": "C06",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C07": {
+          "conceptId": "C07",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C08": {
+          "conceptId": "C08",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C09": {
+          "conceptId": "C09",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        }
+      },
+      "attempts": [],
+      "diagnosticCompleted": false,
+      "createdAt": "2026-11-21T13:40:54.321Z",
+      "lastActive": "2026-11-21T13:40:54.321Z"
+    },
+    "usr_student_rohit": {
+      "id": "usr_student_rohit",
+      "name": "Rohit Kumar",
+      "masteryMap": {
+        "C01": {
+          "conceptId": "C01",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C02": {
+          "conceptId": "C02",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C03": {
+          "conceptId": "C03",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C04": {
+          "conceptId": "C04",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C05": {
+          "conceptId": "C05",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C06": {
+          "conceptId": "C06",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C07": {
+          "conceptId": "C07",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C08": {
+          "conceptId": "C08",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        },
+        "C09": {
+          "conceptId": "C09",
+          "score": null,
+          "status": "unassessed",
+          "evidenceCount": 0,
+          "lastAssessed": null,
+          "nextReviewAt": null,
+          "reviewCount": 0,
+          "history": []
+        }
+      },
+      "attempts": [],
+      "diagnosticCompleted": false,
+      "createdAt": "2026-11-21T13:40:54.321Z",
+      "lastActive": "2026-11-21T13:40:54.321Z"
+    }
+  },
+  "classes": [
+    {
+      "id": "CLASS-10A",
+      "name": "Class 10 - Section A (Physics)",
+      "grade": "Class 10",
+      "section": "A",
+      "studentIds": [
+        "usr_student_priya",
+        "usr_student_aarav"
+      ],
+      "teacherIds": [
+        "usr_teacher_sharma"
+      ]
+    },
+    {
+      "id": "CLASS-10B",
+      "name": "Class 10 - Section B (Physics)",
+      "grade": "Class 10",
+      "section": "B",
+      "studentIds": [
+        "usr_student_rohit"
+      ],
+      "teacherIds": [
+        "usr_teacher_verma"
+      ]
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit_init_1795268454323",
+      "timestamp": "2026-11-21T13:40:54.321Z",
+      "event": "SYSTEM_DATABASE_INITIALIZED",
+      "userId": "system",
+      "role": "system",
+      "details": {
+        "message": "Database initialized with verified seed accounts and assigned classes."
+      }
+    }
+  ]
+}

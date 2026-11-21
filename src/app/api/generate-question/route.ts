@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAdaptiveQuestion } from '@/lib/gemini';
+import { authenticateRequest } from '@/lib/server/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await authenticateRequest(req);
+    const isDemo = req.headers.get('x-medha-demo') === 'true';
+    if (!auth && !isDemo) {
+      return NextResponse.json(
+        { error: 'Unauthenticated: Valid session required to generate targeted adaptive questions' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { conceptId, currentMastery, requestedDifficulty, previousMistakeCodes } = body;
 

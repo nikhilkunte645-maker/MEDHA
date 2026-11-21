@@ -134,3 +134,44 @@ export interface GeneratedQuestion {
   selection_reason?: string;
   is_offline_fallback?: boolean;
 }
+
+export type UserRole = 'student' | 'teacher' | 'admin';
+
+export interface User {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+  role: UserRole;
+  classId?: string; // for students: e.g. 'CLASS-10A'
+  assignedClassIds?: string[]; // for teachers: e.g. ['CLASS-10A']
+  createdAt: string;
+  isDeactivated?: boolean;
+}
+
+export interface UserSession {
+  token: string;
+  userId: string;
+  role: UserRole;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface SchoolClass {
+  id: string;
+  name: string;
+  grade: string;
+  section: string;
+  studentIds: string[];
+  teacherIds: string[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  event: string;
+  userId: string;
+  role: string;
+  ip?: string;
+  details?: Record<string, unknown>;
+}
