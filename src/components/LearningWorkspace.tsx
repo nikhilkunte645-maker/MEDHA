@@ -95,6 +95,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       const res = await fetch('/api/generate-question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           conceptId: cId,
           currentMastery: currentScore,
@@ -104,12 +105,15 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       });
 
       const data = await res.json();
-      if (data.question) {
-        setActiveQuestion(data.question);
+      if (!res.ok || !data.question) {
+        throw new Error(data.error || 'Failed to generate targeted adaptive question');
       }
-    } catch (err) {
+
+      setActiveQuestion(data.question);
+    } catch (err: unknown) {
       console.error('Failed to generate adaptive question:', err);
-      setApiError('Unable to generate targeted adaptive question. Please check connectivity or retry.');
+      const msg = err instanceof Error ? err.message : 'Unable to generate targeted adaptive question';
+      setApiError(`${msg}. Please check connectivity or retry.`);
     } finally {
       setIsGenerating(false);
     }
@@ -137,6 +141,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       const res = await fetch('/api/diagnose-reasoning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           questionPrompt: activeQuestion.question,
           expectedAnswer: activeQuestion.correct_answer,
@@ -147,6 +152,10 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       });
 
       const data = await res.json();
+      if (!res.ok || !data.analysis) {
+        throw new Error(data.error || 'Failed to complete reasoning diagnosis from server');
+      }
+
       const analysis: MisconceptionAnalysis = data.analysis;
       setAnalysisResult(analysis);
 
@@ -189,14 +198,24 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
         await fetch('/api/student/attempts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ ...attempt, attempt })
         });
       } catch (syncErr) {
         console.error('Server attempt sync error:', syncErr);
       }
-    } catch (err) {
+
+      // Smoothly scroll to the AI feedback section so the student immediately sees their diagnosis
+      setTimeout(() => {
+        const feedbackEl = document.getElementById('ai-feedback-section');
+        if (feedbackEl) {
+          feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    } catch (err: unknown) {
       console.error('Error submitting answer:', err);
-      setApiError('Unable to complete reasoning diagnosis. Please check network connectivity or retry.');
+      const msg = err instanceof Error ? err.message : 'Unable to complete reasoning diagnosis';
+      setApiError(`${msg}. Please check network connectivity or retry.`);
     } finally {
       setIsEvaluating(false);
     }
@@ -271,7 +290,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
               {currentConcept.description}
             </p>
             <div className="text-xs font-mono text-text-muted pt-1">
-              Formula: <strong className="text-text-primary font-bold">{currentConcept.formulas.join(', ')}</strong>
+              Formula: <strong className="text-text-primary font-bold">{currentConcept.formulas.map(f => f.latex).join(', ')}</strong>
             </div>
           </div>
 
@@ -345,12 +364,17 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
             {activeQuestion.options.map((opt, idx) => {
               const letter = String.fromCharCode(65 + idx);
               const isSelected = selectedOption === opt;
+              const isLocked = Boolean(analysisResult);
 
               return (
                 <div
                   key={opt}
-                  onClick={() => setSelectedOption(opt)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3.5 ${
+                  onClick={() => {
+                    if (!isLocked) setSelectedOption(opt);
+                  }}
+                  className={`p-4 rounded-xl border transition-all flex items-start gap-3.5 ${
+                    isLocked ? 'cursor-default opacity-85' : 'cursor-pointer'
+                  } ${
                     isSelected
                       ? 'border-accent-primary bg-accent-primaryLight text-accent-primary shadow-sm'
                       : 'border-outline-variant bg-surface hover:border-outline-variant/80 hover:bg-surface-secondary/40'
@@ -420,13 +444,18 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
 
             <button
               onClick={handleSubmitAnswer}
-              disabled={isEvaluating}
+              disabled={isEvaluating || Boolean(analysisResult)}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover disabled:opacity-50 transition-all"
             >
               {isEvaluating ? (
                 <>
                   <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
                   <span>Diagnosing Reasoning...</span>
+                </>
+              ) : analysisResult ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>Diagnosed & Recorded</span>
                 </>
               ) : (
                 <>
@@ -460,16 +489,21 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
 
       {/* 3. Diagnostic Feedback Card */}
       {analysisResult && activeQuestion && (
-        <AIFeedbackCard
-          analysis={analysisResult}
-          questionPrompt={activeQuestion.question}
-          studentAnswer={selectedOption}
-          expectedAnswer={activeQuestion.correct_answer}
-          studentReasoning={studentReasoning}
-          scoreChange={scoreDelta ?? undefined}
-          onContinue={() => handleGenerateQuestion()}
-          continueLabel="Next Adaptive Challenge"
-        />
+        <div id="ai-feedback-section" className="scroll-mt-6">
+          <AIFeedbackCard
+            analysis={analysisResult}
+            questionPrompt={activeQuestion.question}
+            studentAnswer={selectedOption}
+            expectedAnswer={activeQuestion.correct_answer}
+            studentReasoning={studentReasoning}
+            scoreChange={scoreDelta ?? undefined}
+            onContinue={() => {
+              handleGenerateQuestion();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            continueLabel="Next Adaptive Challenge"
+          />
+        </div>
       )}
     </div>
   );

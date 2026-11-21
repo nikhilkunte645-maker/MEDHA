@@ -56,7 +56,11 @@ export const HackathonDemoRunner: React.FC<HackathonDemoRunnerProps> = ({
     try {
       const res = await fetch('/api/diagnose-reasoning', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-medha-demo': 'true'
+        },
+        credentials: 'include',
         body: JSON.stringify({
           questionPrompt: demoQuestion.prompt,
           expectedAnswer: demoQuestion.expectedAnswer,
@@ -67,6 +71,10 @@ export const HackathonDemoRunner: React.FC<HackathonDemoRunnerProps> = ({
       });
 
       const data = await res.json();
+      if (!res.ok || !data.analysis) {
+        throw new Error(data.error || 'Demo reasoning diagnosis failed');
+      }
+
       const analysis: MisconceptionAnalysis = data.analysis;
       setAnalysisResult(analysis);
 

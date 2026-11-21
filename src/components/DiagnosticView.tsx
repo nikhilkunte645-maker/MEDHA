@@ -83,6 +83,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       const res = await fetch('/api/diagnose-reasoning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           questionPrompt: currentQuestion.prompt,
           expectedAnswer: currentQuestion.correctAnswer,
@@ -93,6 +94,10 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       });
 
       const data = await res.json();
+      if (!res.ok || !data.analysis) {
+        throw new Error(data.error || 'Failed to complete diagnostic evaluation');
+      }
+
       const analysis: MisconceptionAnalysis = data.analysis;
 
       const newAttempt: Attempt = {
@@ -154,6 +159,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       await fetch('/api/student/diagnostic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ attempts: allAttempts })
       });
     } catch (e) {

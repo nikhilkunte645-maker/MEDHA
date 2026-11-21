@@ -173,25 +173,29 @@ export async function requireAuth(
   return auth;
 }
 
-export function setSessionCookie(response: NextResponse, token: string): void {
+export function setSessionCookie(response: NextResponse, token: string, isHttps = false): void {
   const isProduction = process.env.NODE_ENV === 'production';
+  // Over http://localhost (development and local production testing), secure must be false so browsers accept and send it.
+  const isSecure = isProduction && (isHttps || process.env.COOKIE_SECURE === 'true' || Boolean(process.env.VERCEL));
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: isProduction,
+    secure: isSecure,
     sameSite: 'lax',
     path: '/',
     maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60
   });
 }
 
-export function clearSessionCookie(response: NextResponse): void {
+export function clearSessionCookie(response: NextResponse, isHttps = false): void {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isSecure = isProduction && (isHttps || process.env.COOKIE_SECURE === 'true' || Boolean(process.env.VERCEL));
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: '',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure,
     sameSite: 'lax',
     path: '/',
     maxAge: 0

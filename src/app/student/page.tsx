@@ -390,6 +390,7 @@ export default function StudentPortalPage() {
                 fetch('/api/student/profile', {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
                   body: JSON.stringify({ profile: updatedProfile })
                 }).catch((err) => console.error('Failed to sync profile:', err));
               }}

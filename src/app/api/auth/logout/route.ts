@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
     }
 
     const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
-    clearSessionCookie(response);
+    const isHttps = req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https';
+    clearSessionCookie(response, isHttps);
     return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal Server Error';

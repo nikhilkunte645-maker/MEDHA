@@ -353,7 +353,7 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
             <div className="p-4 rounded-xl bg-canvas border border-outline-variant flex items-center justify-between text-xs font-mono">
               <span className="text-text-secondary font-medium">Mathematical Formula:</span>
               <span className="font-bold text-text-primary text-sm">
-                {activeModalConcept.formulas.join(', ')}
+                {activeModalConcept.formulas.map(f => f.latex).join(', ')}
               </span>
             </div>
 

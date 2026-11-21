@@ -394,7 +394,7 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
                 {/* Mathematical Formula Preview */}
                 <div className="p-2 rounded-lg bg-surface-secondary/70 border border-outline-variant/60 flex items-center justify-between text-xs font-mono text-text-secondary">
                   <span>Formula:</span>
-                  <span className="font-bold text-text-primary">{concept.formulas.join(', ')}</span>
+                  <span className="font-bold text-text-primary">{concept.formulas.map(f => f.latex).join(', ')}</span>
                 </div>
 
                 {/* Mastery Progress Bar */}

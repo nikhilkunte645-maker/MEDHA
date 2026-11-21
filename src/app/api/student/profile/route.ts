@@ -22,11 +22,12 @@ export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     const existing = getLearnerProfile(auth.user.id);
+    const profileData = (body.profile && typeof body.profile === 'object') ? body.profile : body;
 
     // Update caller's own profile only
     const updated = {
       ...existing,
-      ...body,
+      ...profileData,
       id: auth.user.id, // Immutable ID lock
       name: auth.user.name
     };
