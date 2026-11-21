@@ -25,6 +25,7 @@ interface AIFeedbackCardProps {
 
 export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
   analysis,
+  questionPrompt,
   studentAnswer,
   expectedAnswer,
   studentReasoning,
@@ -88,6 +89,19 @@ export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Contextual Question Prompt */}
+      {questionPrompt && (
+        <div className="p-3.5 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-1">
+          <span className="text-[10px] font-mono uppercase text-accent-secondary flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5 text-accent-secondary" />
+            Evaluated Question Prompt
+          </span>
+          <p className="text-xs text-text-primary font-medium">
+            {questionPrompt}
+          </p>
+        </div>
+      )}
 
       {/* Outcome Banner */}
       <div

@@ -91,9 +91,6 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
   };
 
   const handleNodeClick = (concept: Concept) => {
-    if (onSelectConcept) {
-      onSelectConcept(concept.id);
-    }
     setActiveModalConcept(concept);
   };
 

@@ -49,6 +49,13 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
     ? Math.round(totalAssessedScores.reduce((a, b) => a + b, 0) / assessedItems.length)
     : null;
 
+  const lowestConceptItem = assessedItems.length > 0
+    ? [...assessedItems].sort((a, b) => (a.mastery!.score ?? 0) - (b.mastery!.score ?? 0))[0]
+    : null;
+  const nextReviewConceptName = lowestConceptItem
+    ? `${lowestConceptItem.concept.id} ${lowestConceptItem.concept.name}`
+    : 'Take Diagnostic to Target Review';
+
   // Recent detected misconception for preview
   const recentMisconceptionAttempt = profile.attempts
     .slice()
@@ -441,7 +448,7 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
                     Diagnostic Baseline
                   </span>
                   <div className="text-2xl font-bold font-heading text-text-primary">
-                    {Math.round(totalAssessedScores[0] || 40)}%
+                    {totalAssessedScores.length > 0 ? `${Math.round(totalAssessedScores[0])}%` : '---'}
                   </div>
                   <span className="text-[11px] text-text-secondary">
                     Initial test baseline
@@ -465,7 +472,7 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
               <div className="p-3 rounded-xl bg-surface-deep border border-outline-variant/20 text-xs text-text-secondary flex items-center justify-between">
                 <span>Next recommended review:</span>
                 <span className="font-mono text-accent-secondary font-semibold">
-                  C01 Electric Charge & Current
+                  {nextReviewConceptName}
                 </span>
               </div>
             </div>

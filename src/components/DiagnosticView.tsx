@@ -33,11 +33,13 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
   const [recordedAttempts, setRecordedAttempts] = useState<Attempt[]>([]);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
 
   const currentQuestion = DIAGNOSTIC_QUESTIONS[currentIndex];
   const progressPercent = Math.round(((currentIndex + 1) / DIAGNOSTIC_QUESTIONS.length) * 100);
 
   const handleSelectOption = (option: string) => {
+    setErrorBanner(null);
     setSelectedAnswers((prev) => ({
       ...prev,
       [currentQuestion.id]: option
@@ -45,6 +47,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   };
 
   const handleReasoningChange = (reasoning: string) => {
+    setErrorBanner(null);
     setWrittenReasonings((prev) => ({
       ...prev,
       [currentQuestion.id]: reasoning
@@ -54,16 +57,17 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   const handleNextOrSubmit = async () => {
     const selected = selectedAnswers[currentQuestion.id];
     if (!selected) {
-      alert('Please select an option before continuing.');
+      setErrorBanner('Please select an answer option before continuing.');
       return;
     }
 
     if (currentQuestion.reasoningRequired && (!writtenReasonings[currentQuestion.id] || writtenReasonings[currentQuestion.id].trim().length < 5)) {
-      alert('Please write a brief explanation of your reasoning to enable conceptual diagnosis.');
+      setErrorBanner('Please write a brief explanation of your reasoning to enable conceptual diagnosis.');
       return;
     }
 
     setIsSubmitting(true);
+    setErrorBanner(null);
 
     try {
       const reasoning = writtenReasonings[currentQuestion.id] || '';
@@ -107,7 +111,8 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
         isOfflineFallback: analysis.is_offline_fallback
       };
 
-      const updatedAttempts = [...recordedAttempts, newAttempt];
+      const existingFiltered = recordedAttempts.filter((a) => a.questionId !== currentQuestion.id);
+      const updatedAttempts = [...existingFiltered, newAttempt];
       setRecordedAttempts(updatedAttempts);
 
       if (currentIndex < DIAGNOSTIC_QUESTIONS.length - 1) {
@@ -117,6 +122,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       }
     } catch (err) {
       console.error('Error during diagnostic evaluation:', err);
+      setErrorBanner('Diagnostic evaluation service experienced a temporary network issue. Please retry.');
     } finally {
       setIsSubmitting(false);
     }
@@ -277,6 +283,26 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
             {currentQuestion.prompt}
           </h3>
         </div>
+
+        {/* Error Banner */}
+        {errorBanner && (
+          <div
+            role="alert"
+            className="p-3.5 rounded-2xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-mastery-atRisk" />
+              <span>{errorBanner}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorBanner(null)}
+              className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Options Selection */}
         <div className="space-y-3">

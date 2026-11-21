@@ -15,6 +15,7 @@ import {
   Lightbulb,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   Clock
 } from 'lucide-react';
 
@@ -41,6 +42,8 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
   const [masteryMap, setMasteryMap] = useState<Record<string, ConceptMastery>>({});
   const [showHint, setShowHint] = useState<boolean>(false);
   const [recentAttempts, setRecentAttempts] = useState<Attempt[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     refreshLearnerData();
@@ -70,6 +73,8 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
     setAnalysisResult(null);
     setScoreDelta(null);
     setShowHint(false);
+    setValidationError(null);
+    setApiError(null);
 
     try {
       const currentScore = masteryMap[cId]?.score ?? 50;
@@ -90,6 +95,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       }
     } catch (err) {
       console.error('Failed to generate adaptive question:', err);
+      setApiError('Unable to generate targeted adaptive question. Please check connectivity or retry.');
     } finally {
       setIsGenerating(false);
     }
@@ -98,16 +104,18 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
   // Submit Answer & Evaluate Reasoning
   const handleSubmitAnswer = async () => {
     if (!activeQuestion || !selectedOption) {
-      alert('Please select an answer option.');
+      setValidationError('Please select an answer option.');
       return;
     }
 
     if (!studentReasoning || studentReasoning.trim().length < 5) {
-      alert('Please explain your reasoning. MEDHA evaluates your step-by-step thinking to detect misconceptions!');
+      setValidationError('Please explain your reasoning. MEDHA evaluates your step-by-step thinking to detect misconceptions!');
       return;
     }
 
     setIsEvaluating(true);
+    setValidationError(null);
+    setApiError(null);
 
     try {
       const previousScore = masteryMap[selectedConceptId]?.score ?? 0;
@@ -159,6 +167,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       setRecentAttempts(updatedProfile.attempts.slice(-5).reverse());
     } catch (err) {
       console.error('Error submitting answer:', err);
+      setApiError('Unable to complete reasoning diagnosis. Please check network connectivity or retry.');
     } finally {
       setIsEvaluating(false);
     }
@@ -330,6 +339,45 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
             </div>
           )}
 
+          {/* Validation or API Error Banners */}
+          {validationError && (
+            <div
+              role="alert"
+              className="p-3.5 rounded-2xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-mastery-atRisk" />
+                <span>{validationError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setValidationError(null)}
+                className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {apiError && (
+            <div
+              role="alert"
+              className="p-3.5 rounded-2xl bg-mastery-learning/15 border border-mastery-learning/40 text-mastery-learning text-xs flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-mastery-learning" />
+                <span>{apiError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setApiError(null)}
+                className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
           {/* Options */}
           <div className="space-y-3">
             {activeQuestion.options.map((opt, idx) => {
@@ -341,7 +389,10 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
                   key={idx}
                   type="button"
                   disabled={Boolean(analysisResult)}
-                  onClick={() => setSelectedOption(opt)}
+                  onClick={() => {
+                    setSelectedOption(opt);
+                    setValidationError(null);
+                  }}
                   className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
                     isSelected
                       ? 'bg-accent-primaryContainer/20 border-accent-primary text-text-primary font-semibold shadow-neonPrimary'
@@ -378,7 +429,10 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
               rows={3}
               disabled={Boolean(analysisResult)}
               value={studentReasoning}
-              onChange={(e) => setStudentReasoning(e.target.value)}
+              onChange={(e) => {
+                setStudentReasoning(e.target.value);
+                setValidationError(null);
+              }}
               placeholder="State which scientific principles or formulas you used and why other choices are ruled out..."
               className="w-full rounded-xl bg-surface border border-outline-variant/40 p-3 text-xs text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-accent-primary transition-colors resize-none disabled:opacity-70"
             />
