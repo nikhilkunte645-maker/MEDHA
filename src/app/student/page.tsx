@@ -12,7 +12,7 @@ import { HackathonDemoRunner } from '@/components/HackathonDemoRunner';
 import { LearnerProfile, User } from '@/types/mastery';
 import { getInitialLearnerProfile } from '@/lib/storage';
 import {
-  Brain,
+  Compass,
   Layers,
   HelpCircle,
   Sparkles,
@@ -20,10 +20,12 @@ import {
   Calendar,
   LogOut,
   Play,
-  RotateCcw,
   GraduationCap,
   Menu,
-  X
+  X,
+  BookOpen,
+  ArrowRight,
+  User as UserIcon
 } from 'lucide-react';
 
 export default function StudentPortalPage() {
@@ -97,48 +99,50 @@ export default function StudentPortalPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface-deep flex items-center justify-center text-text-primary">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-accent-primaryContainer border-t-white rounded-full animate-spin"></div>
-          <span className="text-xs font-mono text-text-secondary">Authenticating Student Portal...</span>
+      <div className="min-h-screen bg-canvas flex items-center justify-center text-text-primary">
+        <div className="flex flex-col items-center gap-3 bg-surface p-8 rounded-2xl border border-outline-variant shadow-card">
+          <div className="w-9 h-9 border-3 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono text-text-secondary tracking-wide">
+            Authenticating Learning Studio...
+          </span>
         </div>
       </div>
     );
   }
 
   const studentNavItems = [
-    { id: 'overview', label: 'Cognitive Overview', icon: Brain, badge: null },
-    { id: 'diagnostic', label: 'Diagnostic Test', icon: HelpCircle, badge: 'Baseline' },
-    { id: 'graph', label: 'Concept Graph', icon: Layers, badge: '9 Nodes' },
-    { id: 'misconceptions', label: 'Misconceptions', icon: ShieldAlert, badge: 'AI Root-Cause' },
+    { id: 'overview', label: 'Cognitive Overview', icon: Compass, badge: null },
+    { id: 'diagnostic', label: 'Diagnostic Assessment', icon: HelpCircle, badge: 'Baseline' },
+    { id: 'graph', label: 'Concept Topology', icon: Layers, badge: '9 Nodes' },
+    { id: 'misconceptions', label: 'Misconception Studio', icon: ShieldAlert, badge: 'AI Root-Cause' },
     { id: 'workspace', label: 'Adaptive Practice', icon: Sparkles, badge: 'Targeted' },
-    { id: 'revision', label: 'Revision Schedule', icon: Calendar, badge: null }
+    { id: 'revision', label: 'Spaced Revision', icon: Calendar, badge: '1/3/7d' }
   ];
 
   return (
-    <div className="min-h-screen bg-surface-deep text-text-primary flex flex-col md:flex-row antialiased selection:bg-accent-primaryContainer selection:text-white">
+    <div className="min-h-screen bg-canvas text-text-primary flex flex-col md:flex-row antialiased">
       {/* Mobile Top Header */}
-      <header className="md:hidden sticky top-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 px-4 py-3 flex items-center justify-between">
+      <header className="md:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setCurrentTab('overview')}>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer flex items-center justify-center text-white shadow-neonPrimary">
-            <Brain className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg bg-accent-primary text-white flex items-center justify-center shadow-sm font-heading font-black text-sm">
+            M
           </div>
           <div>
-            <span className="font-heading font-bold text-base tracking-wider text-text-primary">MEDHA</span>
-            <span className="block text-[9px] font-mono text-accent-secondary">Student Portal</span>
+            <span className="font-heading font-bold text-base tracking-tight text-text-primary">MEDHA</span>
+            <span className="block text-[10px] font-mono text-accent-primary font-medium">Student Studio</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsDemoOpen(true)}
-            className="px-2.5 py-1 rounded-lg bg-accent-primary/10 border border-accent-primary/30 text-accent-primary text-xs font-semibold"
+            className="px-2.5 py-1 rounded-lg bg-accent-primary/10 border border-accent-primary/20 text-accent-primary text-xs font-semibold"
           >
             Demo
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
+            className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
             aria-label="Toggle navigation"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -147,35 +151,40 @@ export default function StudentPortalPage() {
       </header>
 
       {/* Persistent Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-surface border-r border-outline-variant/40 shrink-0 sticky top-0 h-screen select-none z-30">
-        {/* Brand Area */}
-        <div className="p-5 border-b border-outline-variant/30">
+      <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-surface border-r border-outline-variant shrink-0 sticky top-0 h-screen select-none z-30">
+        {/* Brand Header */}
+        <div className="p-6 border-b border-outline-variant">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setCurrentTab('overview')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer flex items-center justify-center text-white shadow-neonPrimary group-hover:scale-105 transition-transform">
-              <Brain className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-accent-primary text-white flex items-center justify-center shadow-cobalt font-heading font-black text-lg transition-transform group-hover:scale-105">
+              M
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-heading font-extrabold text-xl tracking-wider text-text-primary">MEDHA</span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono uppercase bg-accent-primary/10 border border-accent-primary/30 text-accent-primary font-bold">
-                  Student
+              <div className="flex items-center gap-2">
+                <span className="font-heading font-extrabold text-xl tracking-tight text-text-primary">MEDHA</span>
+                <span className="px-2 py-0.5 rounded-md text-[9px] font-mono uppercase bg-accent-primary/10 text-accent-primary font-bold">
+                  Studio
                 </span>
               </div>
-              <p className="text-[11px] text-text-secondary font-medium">Know what you know. Fix what you don&apos;t.</p>
+              <p className="text-[11px] text-text-secondary font-medium tracking-tight mt-0.5">
+                Adaptive Learning Intelligence
+              </p>
             </div>
           </div>
 
-          {/* Academic Scope & Class Pill */}
-          <div className="mt-3.5 px-3 py-1.5 rounded-lg bg-surface-elevated border border-outline-variant/30 flex items-center justify-between text-xs">
-            <span className="text-text-secondary font-mono text-[11px]">Class 10 Physics</span>
-            <span className="text-accent-secondary font-mono text-[11px] font-semibold">
+          {/* Academic Scope & Cohort Badge */}
+          <div className="mt-4 px-3 py-2 rounded-xl bg-surface-secondary border border-outline-variant/60 flex items-center justify-between text-xs">
+            <span className="text-text-secondary font-medium text-[11px] flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-accent-secondary" />
+              Class 10 Physics
+            </span>
+            <span className="text-accent-primary font-mono text-[11px] font-bold">
               {currentUser?.classId || 'Class 10-A'}
             </span>
           </div>
         </div>
 
         {/* Navigation Items (STRICTLY STUDENT ONLY) */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
           {studentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
@@ -188,8 +197,8 @@ export default function StudentPortalPage() {
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-surface-higher text-text-primary font-semibold border border-accent-primary/40 shadow-neonPrimary'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated'
+                    ? 'bg-accent-primary/10 text-accent-primary font-bold border border-accent-primary/20 shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -201,7 +210,7 @@ export default function StudentPortalPage() {
                     className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
                       isActive
                         ? 'bg-accent-primary/20 text-accent-primary border-accent-primary/30'
-                        : 'bg-surface-deep text-text-secondary border-outline-variant/40'
+                        : 'bg-surface text-text-muted border-outline-variant'
                     }`}
                   >
                     {item.badge}
@@ -213,27 +222,27 @@ export default function StudentPortalPage() {
         </nav>
 
         {/* Student Session & Actions Footer */}
-        <div className="p-4 border-t border-outline-variant/30 space-y-3 bg-surface-deep/40">
-          {/* Quick Demo Walkthrough CTA */}
+        <div className="p-4 border-t border-outline-variant space-y-3 bg-surface-secondary/40">
+          {/* 60s Demo Walkthrough CTA */}
           <button
             onClick={() => setIsDemoOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-90 transition-opacity"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
-            <span>60s Demo Walkthrough</span>
+            <span>60s Walkthrough</span>
           </button>
 
           {/* Student Profile & Sign Out */}
           <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-7 h-7 rounded-full bg-accent-primaryContainer/20 border border-accent-primary/30 text-accent-primary text-[11px] font-bold flex items-center justify-center font-mono">
+            <div className="flex items-center gap-2.5 text-xs">
+              <div className="w-8 h-8 rounded-full bg-accent-primary/10 border border-accent-primary/20 text-accent-primary text-xs font-bold flex items-center justify-center font-heading">
                 {currentUser?.name?.charAt(0) || 'S'}
               </div>
               <div className="truncate max-w-[120px]">
-                <span className="text-text-primary text-[11px] font-semibold block truncate">
+                <span className="text-text-primary text-[12px] font-semibold block truncate">
                   {currentUser?.name || 'Student'}
                 </span>
-                <span className="text-text-secondary text-[9px] font-mono block">
+                <span className="text-text-secondary text-[10px] font-mono block truncate">
                   {currentUser?.email || ''}
                 </span>
               </div>
@@ -241,9 +250,8 @@ export default function StudentPortalPage() {
 
             <button
               onClick={handleLogout}
-              title="Sign out of student portal"
-              aria-label="Sign out"
-              className="p-1.5 rounded-lg text-text-secondary hover:text-mastery-atRisk hover:bg-surface-elevated transition-colors"
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-text-secondary hover:text-mastery-atRisk hover:bg-mastery-atRiskLight transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -251,52 +259,64 @@ export default function StudentPortalPage() {
         </div>
       </aside>
 
-      {/* Mobile Nav Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col">
-          <div className="p-4 bg-surface border-b border-outline-variant flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer flex items-center justify-center text-white">
-                <Brain className="w-4 h-4" />
+        <div className="md:hidden fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex flex-col justify-end">
+          <div className="bg-surface border-t border-outline-variant p-6 space-y-4 rounded-t-3xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-outline-variant pb-4">
+              <div>
+                <h3 className="font-heading font-bold text-lg text-text-primary">MEDHA Student Studio</h3>
+                <p className="text-xs text-text-secondary font-mono">{currentUser?.email}</p>
               </div>
-              <span className="font-heading font-bold text-lg text-text-primary">MEDHA Student</span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-xl text-text-secondary hover:bg-surface-secondary"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary">
-              <X className="w-6 h-6" />
+
+            <nav className="space-y-1">
+              {studentNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentTab(item.id);
+                      setMobileMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl text-sm font-medium ${
+                      isActive
+                        ? 'bg-accent-primary/10 text-accent-primary font-bold border border-accent-primary/20'
+                        : 'text-text-secondary hover:bg-surface-secondary'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4 text-accent-primary" />
+                      <span>{item.label}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-mastery-atRiskLight text-mastery-atRisk text-xs font-bold border border-mastery-atRisk/20"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out of Student Portal</span>
             </button>
           </div>
-
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto bg-surface-deep">
-            {studentNavItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setCurrentTab(item.id);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl text-sm font-medium ${
-                    isActive
-                      ? 'bg-surface-higher text-text-primary font-bold border border-accent-primary/40'
-                      : 'text-text-secondary hover:bg-surface'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-accent-primary" />
-                    <span>{item.label}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
         </div>
       )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Screen 1 — Cognitive Overview */}
           {currentTab === 'overview' && (
             <CognitiveOverview
@@ -322,21 +342,26 @@ export default function StudentPortalPage() {
 
           {/* Screen 3 — Concept Graph */}
           {currentTab === 'graph' && (
-            <div className="space-y-4 py-2">
-              <div className="flex items-center justify-between">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-outline-variant">
                 <div>
-                  <h2 className="font-heading font-bold text-2xl text-text-primary">
-                    Class 10 Physics Knowledge Topology
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-accent-secondaryLight text-accent-secondary text-xs font-mono font-semibold mb-2">
+                    <span>9 Interconnected Physics Concepts</span>
+                  </div>
+                  <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-text-primary tracking-tight">
+                    Concept Prerequisite Topology
                   </h2>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Prerequisite Directed Acyclic Graph across all 9 Electricity concepts.
+                  <p className="text-sm text-text-secondary mt-1">
+                    Direct Acyclic Graph (DAG) visualizing foundational dependencies and real-time conceptual mastery.
                   </p>
                 </div>
                 <button
                   onClick={() => handleNavigate('workspace')}
-                  className="px-4 py-2 rounded-xl bg-accent-primaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-90"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all self-start sm:self-auto"
                 >
-                  Practice in Workspace
+                  <Sparkles className="w-4 h-4" />
+                  <span>Practice in Workspace</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
@@ -359,42 +384,36 @@ export default function StudentPortalPage() {
           {currentTab === 'workspace' && (
             <LearningWorkspace
               initialConceptId={selectedWorkspaceConceptId}
-              onViewGraph={() => handleNavigate('graph')}
-              onViewRevision={() => handleNavigate('revision')}
+              profile={profile}
+              onProfileUpdate={(updatedProfile) => {
+                setProfile(updatedProfile);
+                fetch('/api/student/profile', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ profile: updatedProfile })
+                }).catch((err) => console.error('Failed to sync profile:', err));
+              }}
             />
           )}
 
-          {/* Screen 6 — Spaced Repetition */}
+          {/* Screen 6 — Revision Schedule */}
           {currentTab === 'revision' && (
             <RevisionScheduleView
+              profile={profile}
               onPracticeConcept={(cId) => handleNavigate('workspace', cId)}
-              onViewGraph={() => handleNavigate('graph')}
             />
           )}
         </main>
-
-        {/* Global Student Footer */}
-        <footer className="w-full border-t border-outline-variant/30 bg-surface/50 py-5 text-xs text-text-secondary font-mono">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span>MEDHA © 2026 • Authenticated Student Portal</span>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span>Class 10 Physics • Electricity (9 Concepts)</span>
-              <span className="text-accent-secondary">Evidence-Based Mastery Engine</span>
-            </div>
-          </div>
-        </footer>
       </div>
 
-      {/* Demo Runner Modal */}
+      {/* 60s Demo Runner Modal */}
       <HackathonDemoRunner
         isOpen={isDemoOpen}
-        onClose={() => {
-          setIsDemoOpen(false);
+        onClose={() => setIsDemoOpen(false)}
+        onComplete={() => {
           fetchSessionAndProfile();
-        }}
-        onNavigateToTab={(tab, conceptId) => {
           setIsDemoOpen(false);
-          handleNavigate(tab, conceptId);
+          handleNavigate('overview');
         }}
       />
     </div>

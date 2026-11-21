@@ -58,7 +58,29 @@
       "createdAt": "2026-11-21T13:40:54.321Z"
     }
   ],
-  "sessions": [],
+  "sessions": [
+    {
+      "token": "d589df8bd427e787c7570cd708d500d31f91c62d271094db690c24f7941b9bf1",
+      "userId": "usr_student_priya",
+      "role": "student",
+      "createdAt": "2026-11-21T13:52:03.286Z",
+      "expiresAt": "2026-11-28T13:52:03.286Z"
+    },
+    {
+      "token": "fe82383d9f7792333133647ea790e84d20454c09e230111ca3471227842e3eae",
+      "userId": "usr_student_priya",
+      "role": "student",
+      "createdAt": "2026-11-21T13:52:09.695Z",
+      "expiresAt": "2026-11-28T13:52:09.695Z"
+    },
+    {
+      "token": "cae69b341ff98ad12a2439db8428e271653b57afc17836fdbe79c0b1f6b4b68f",
+      "userId": "usr_admin_master",
+      "role": "admin",
+      "createdAt": "2026-11-21T13:52:32.615Z",
+      "expiresAt": "2026-11-28T13:52:32.615Z"
+    }
+  ],
   "learnerProfiles": {
     "usr_student_priya": {
       "id": "usr_student_priya",
@@ -421,6 +443,39 @@
     }
   ],
   "auditLogs": [
+    {
+      "event": "USER_LOGIN_SUCCESS",
+      "userId": "usr_admin_master",
+      "role": "admin",
+      "ip": "::1",
+      "details": {
+        "email": "admin@medha.edu"
+      },
+      "id": "audit_1795269152620_zno2d",
+      "timestamp": "2026-11-21T13:52:32.620Z"
+    },
+    {
+      "event": "USER_LOGIN_SUCCESS",
+      "userId": "usr_student_priya",
+      "role": "student",
+      "ip": "::1",
+      "details": {
+        "email": "priya@student.medha.edu"
+      },
+      "id": "audit_1795269129698_p5k5r",
+      "timestamp": "2026-11-21T13:52:09.698Z"
+    },
+    {
+      "event": "USER_LOGIN_SUCCESS",
+      "userId": "usr_student_priya",
+      "role": "student",
+      "ip": "::1",
+      "details": {
+        "email": "priya@student.medha.edu"
+      },
+      "id": "audit_1795269123289_rqeri",
+      "timestamp": "2026-11-21T13:52:03.289Z"
+    },
     {
       "id": "audit_init_1795268454323",
       "timestamp": "2026-11-21T13:40:54.321Z",

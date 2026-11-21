@@ -3,16 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  Brain,
+  Compass,
   Activity,
-  GitBranch,
   Layers,
   Calendar,
   Users,
   Sparkles,
   HelpCircle,
   RotateCcw,
-  Play
+  Play,
+  BookOpen
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -58,44 +58,43 @@ export const Navigation: React.FC<NavigationProps> = ({
   }, []);
 
   const navItems = [
-    { id: 'landing', label: 'Overview', icon: Brain },
-    { id: 'dashboard', label: 'Student Dashboard', icon: Activity },
+    { id: 'overview', label: 'Overview', icon: Compass },
     { id: 'diagnostic', label: 'Diagnostic Test', icon: HelpCircle },
     { id: 'workspace', label: 'Adaptive Practice', icon: Sparkles },
-    { id: 'graph', label: 'Concept Graph', icon: Layers },
+    { id: 'graph', label: 'Concept Topology', icon: Layers },
     { id: 'revision', label: 'Revision Schedule', icon: Calendar },
     { id: 'teacher', label: 'Teacher Analytics', icon: Users }
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-surface-border bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-outline-variant bg-surface/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo & Tagline */}
           <div
             className="flex items-center gap-3 cursor-pointer select-none"
-            onClick={() => onTabChange('landing')}
+            onClick={() => onTabChange('overview')}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center shadow-lg shadow-brand-violet/25">
-              <Brain className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-accent-primary flex items-center justify-center text-white shadow-cobalt font-heading font-black text-lg">
+              M
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-heading font-black text-xl tracking-wider text-white">
-                  MASTERY
+                <span className="font-heading font-extrabold text-xl tracking-tight text-text-primary">
+                  MEDHA
                 </span>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-brand-violet/20 text-brand-violet border border-brand-violet/30 font-semibold">
-                  PS-2 Hackathon
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-accent-primaryLight text-accent-primary font-bold">
+                  Studio
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                Know what you know. Discover what you don&apos;t.
+              <p className="text-[11px] text-text-secondary font-medium hidden sm:block">
+                Know what you know. Fix what you don&apos;t.
               </p>
             </div>
           </div>
 
           {/* Central Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-surface/80 p-1 rounded-xl border border-surface-border">
+          <nav className="hidden md:flex items-center gap-1 bg-surface-secondary/70 p-1 rounded-xl border border-outline-variant">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -105,8 +104,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onClick={() => onTabChange(item.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-brand-violet text-white shadow-md shadow-brand-violet/20 font-semibold'
-                      : 'text-slate-400 hover:text-white hover:bg-surface-elevated'
+                      ? 'bg-accent-primary text-white shadow-sm font-semibold'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -118,73 +117,26 @@ export const Navigation: React.FC<NavigationProps> = ({
 
           {/* Right Action Area */}
           <div className="flex items-center gap-2">
-            {/* AI Engine Status Badge */}
-            <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border ${
-                apiStatus.hasApiKey
-                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                  : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
-              }`}
-              title={
-                apiStatus.hasApiKey
-                  ? 'Connected to Gemini API (Server-side)'
-                  : 'Demo Mode: Rule-based verified heuristic. Set GEMINI_API_KEY for live LLM.'
-              }
-            >
+            {/* Live AI Status Pill */}
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-secondary text-[10px] font-mono border border-outline-variant text-text-secondary">
               <span
                 className={`w-2 h-2 rounded-full ${
-                  apiStatus.hasApiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  apiStatus.hasApiKey ? 'bg-mastery-mastered animate-pulse' : 'bg-mastery-learning'
                 }`}
-              ></span>
-              <span className="hidden lg:inline text-[11px]">
-                {apiStatus.hasApiKey ? 'Gemini 2.5 Flash' : 'Offline Engine'}
-              </span>
+              />
+              <span>{apiStatus.hasApiKey ? 'Gemini 2.5' : 'Diagnostic Heuristic'}</span>
             </div>
 
-            {/* Run Live Demo Walkthrough CTA */}
             {onRunDemo && (
               <button
                 onClick={onRunDemo}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-brand-violet to-brand-cyan hover:opacity-90 text-white text-xs font-bold shadow-lg shadow-brand-violet/25 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span className="hidden sm:inline">Demo Walkthrough</span>
-              </button>
-            )}
-
-            {/* Reset Data Button */}
-            {onResetData && (
-              <button
-                onClick={onResetData}
-                title="Reset learner storage to baseline"
-                className="p-2 text-slate-400 hover:text-white hover:bg-surface rounded-lg transition-colors"
-              >
-                <RotateCcw className="w-4 h-4" />
+                <span className="hidden sm:inline">60s Demo</span>
               </button>
             )}
           </div>
-        </div>
-
-        {/* Mobile Navigation bar */}
-        <div className="md:hidden flex items-center overflow-x-auto py-2 gap-1 border-t border-surface-border/60">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-brand-violet text-white font-semibold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Icon className="w-3 h-3" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
         </div>
       </div>
     </header>

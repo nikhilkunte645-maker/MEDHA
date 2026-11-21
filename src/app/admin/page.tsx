@@ -15,7 +15,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Trash2
+  Trash2,
+  FileText,
+  Sparkles
 } from 'lucide-react';
 
 export default function AdminPortalPage() {
@@ -132,47 +134,50 @@ export default function AdminPortalPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface-deep flex items-center justify-center text-text-primary">
-        <div className="w-10 h-10 border-4 border-accent-tertiaryContainer border-t-white rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-canvas flex items-center justify-center text-text-primary">
+        <div className="flex flex-col items-center gap-3 bg-surface p-8 rounded-2xl border border-outline-variant shadow-card">
+          <div className="w-9 h-9 border-3 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono text-text-secondary">Authenticating Governance Console...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-deep text-text-primary flex flex-col antialiased selection:bg-accent-tertiaryContainer selection:text-white">
+    <div className="min-h-screen bg-canvas text-text-primary flex flex-col antialiased">
       {/* Top Admin Header */}
-      <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-md border-b border-outline-variant px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-tertiaryContainer to-accent-primaryContainer flex items-center justify-center text-white shadow-neonPrimary">
-            <Lock className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-accent-primary text-white flex items-center justify-center shadow-cobalt font-heading font-black text-lg">
+            A
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-heading font-extrabold text-xl tracking-wider text-text-primary">
+              <span className="font-heading font-extrabold text-xl tracking-tight text-text-primary">
                 MEDHA
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-accent-tertiary/15 border border-accent-tertiary/30 text-accent-tertiary font-bold">
-                Root Admin Command Center
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase bg-accent-primaryLight text-accent-primary font-bold">
+                Governance Console
               </span>
             </div>
-            <p className="text-xs text-text-secondary font-mono">
-              Role Assignments • Class Mapping • Audit Security Logs
+            <p className="text-xs text-text-secondary">
+              Role Assignments · Cohort Mappings · System Security Audit Logs
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex flex-col text-right">
-            <span className="text-xs font-bold text-text-primary">{currentUser?.name}</span>
-            <span className="text-[10px] font-mono text-accent-tertiary">{currentUser?.email}</span>
+            <span className="text-xs font-semibold text-text-primary">{currentUser?.name}</span>
+            <span className="text-[11px] font-mono text-text-secondary">{currentUser?.email}</span>
           </div>
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-elevated hover:bg-surface-higher border border-outline-variant/30 text-xs font-mono text-text-secondary hover:text-mastery-atRisk transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-outline-variant bg-surface hover:bg-surface-secondary text-xs text-text-secondary hover:text-mastery-atRisk transition-all"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sign Out</span>
+            <span className="hidden sm:inline font-medium">Sign Out</span>
           </button>
         </div>
       </header>
@@ -180,7 +185,7 @@ export default function AdminPortalPage() {
       {/* Main Tabs */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 flex-1">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-3">
+        <div className="flex items-center gap-2 border-b border-outline-variant pb-4">
           {[
             { id: 'users', label: 'User Accounts', icon: Users },
             { id: 'classes', label: 'Class Mappings', icon: Layers },
@@ -192,10 +197,10 @@ export default function AdminPortalPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-accent-tertiaryContainer text-white shadow-neonPrimary'
-                    : 'bg-surface-elevated text-text-secondary hover:text-text-primary border border-outline-variant/30'
+                    ? 'bg-accent-primary text-white shadow-cobalt'
+                    : 'bg-surface hover:bg-surface-secondary text-text-secondary border border-outline-variant'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -205,75 +210,75 @@ export default function AdminPortalPage() {
           })}
         </div>
 
-        {/* Tab 1: User Management */}
+        {/* Action Notifications */}
+        {actionSuccess && (
+          <div className="p-4 rounded-2xl bg-mastery-masteredLight border border-mastery-mastered/30 text-xs text-mastery-mastered flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{actionSuccess}</span>
+          </div>
+        )}
+        {actionError && (
+          <div className="p-4 rounded-2xl bg-mastery-atRiskLight border border-mastery-atRisk/30 text-xs text-mastery-atRisk flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{actionError}</span>
+          </div>
+        )}
+
+        {/* Tab 1: Users */}
         {activeTab === 'users' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Create Account Card */}
-            <div className="lg:col-span-5 bg-surface rounded-3xl border border-outline-variant/40 p-6 shadow-xl space-y-4">
-              <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-3">
-                <UserPlus className="w-5 h-5 text-accent-primary" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Create New User Form (4 cols) */}
+            <div className="lg:col-span-4 bg-surface rounded-3xl border border-outline-variant p-6 shadow-card space-y-4">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-accent-primary" />
                 <h3 className="font-heading font-bold text-base text-text-primary">
-                  Provision New Account
+                  Provision Account
                 </h3>
               </div>
 
-              {actionSuccess && (
-                <div className="p-3 rounded-xl bg-mastery-mastered/15 border border-mastery-mastered/40 text-mastery-mastered text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>{actionSuccess}</span>
-                </div>
-              )}
-
-              {actionError && (
-                <div className="p-3 rounded-xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{actionError}</span>
-                </div>
-              )}
-
               <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-mono text-text-secondary mb-1">Full Name</label>
+                  <label className="font-medium text-text-primary block mb-1">Full Name</label>
                   <input
                     type="text"
-                    required
                     value={newUserName}
                     onChange={(e) => setNewUserName(e.target.value)}
-                    placeholder="e.g. Meera Nambiar"
-                    className="w-full px-3 py-2 rounded-xl bg-surface-deep border border-outline-variant/40 text-text-primary focus:outline-none focus:border-accent-primary"
+                    placeholder="e.g. Suman Rao"
+                    required
+                    className="w-full p-2.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-mono text-text-secondary mb-1">Academic Email</label>
+                  <label className="font-medium text-text-primary block mb-1">Email Address</label>
                   <input
                     type="email"
-                    required
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    placeholder="e.g. meera@student.medha.edu"
-                    className="w-full px-3 py-2 rounded-xl bg-surface-deep border border-outline-variant/40 text-text-primary focus:outline-none focus:border-accent-primary"
+                    placeholder="user@student.medha.edu"
+                    required
+                    className="w-full p-2.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface outline-none font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-mono text-text-secondary mb-1">Initial Password</label>
+                  <label className="font-medium text-text-primary block mb-1">Initial Password</label>
                   <input
                     type="text"
-                    required
                     value={newUserPassword}
                     onChange={(e) => setNewUserPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface-deep border border-outline-variant/40 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
+                    required
+                    className="w-full p-2.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface outline-none font-mono"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-mono text-text-secondary mb-1">Role</label>
+                    <label className="font-medium text-text-primary block mb-1">Role</label>
                     <select
                       value={newUserRole}
                       onChange={(e) => setNewUserRole(e.target.value as any)}
-                      className="w-full px-3 py-2 rounded-xl bg-surface-deep border border-outline-variant/40 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
+                      className="w-full p-2.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface outline-none capitalize"
                     >
                       <option value="student">Student</option>
                       <option value="teacher">Teacher</option>
@@ -281,68 +286,78 @@ export default function AdminPortalPage() {
                   </div>
 
                   <div>
-                    <label className="block font-mono text-text-secondary mb-1">Class</label>
+                    <label className="font-medium text-text-primary block mb-1">Class</label>
                     <select
                       value={newUserClassId}
                       onChange={(e) => setNewUserClassId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-surface-deep border border-outline-variant/40 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
+                      className="w-full p-2.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface outline-none"
                     >
-                      {classes.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
+                      <option value="CLASS-10A">Class 10-A</option>
+                      <option value="CLASS-10B">Class 10-B</option>
                     </select>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 rounded-xl bg-accent-primaryContainer hover:opacity-90 text-white font-bold font-mono text-xs shadow-neonPrimary transition-all mt-2"
+                  className="w-full py-2.5 px-4 rounded-xl bg-accent-primary text-white font-semibold text-xs shadow-cobalt hover:bg-accent-primaryHover transition-all mt-2"
                 >
-                  Create & Hash Password (Bcrypt)
+                  Create Authenticated User
                 </button>
               </form>
             </div>
 
-            {/* Existing Accounts Table */}
-            <div className="lg:col-span-7 bg-surface rounded-3xl border border-outline-variant/40 p-6 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                <h3 className="font-heading font-bold text-base text-text-primary">
-                  Registered Accounts ({users.length})
-                </h3>
-                <span className="text-xs font-mono text-text-secondary">Server Database</span>
+            {/* Users Roster Table (8 cols) */}
+            <div className="lg:col-span-8 bg-surface rounded-3xl border border-outline-variant p-6 shadow-card space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-heading font-bold text-lg text-text-primary">
+                    Managed User Directory
+                  </h3>
+                  <p className="text-xs text-text-secondary">
+                    Real bcrypt password hashes protected. Passwords omitted in responses.
+                  </p>
+                </div>
+                <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-surface-secondary text-text-primary border border-outline-variant">
+                  {users.length} Accounts
+                </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-outline-variant/30 text-text-secondary font-mono">
-                      <th className="py-2.5 px-2">Name</th>
-                      <th className="py-2.5 px-2">Role</th>
-                      <th className="py-2.5 px-2">Assigned Class</th>
+              <div className="overflow-x-auto rounded-2xl border border-outline-variant">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-surface-secondary text-text-secondary font-mono uppercase text-[10px] border-b border-outline-variant">
+                    <tr>
+                      <th className="py-2.5 px-4">User</th>
+                      <th className="py-2.5 px-3">Role</th>
+                      <th className="py-2.5 px-3">Scope / Cohort</th>
+                      <th className="py-2.5 px-3 text-right">Created</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/20 font-mono">
+                  <tbody className="divide-y divide-outline-variant">
                     {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-surface-elevated">
-                        <td className="py-3 px-2">
-                          <span className="font-semibold text-text-primary block font-sans">{u.name}</span>
-                          <span className="text-[10px] text-text-secondary">{u.email}</span>
+                      <tr key={u.id} className="hover:bg-surface-secondary/40">
+                        <td className="py-3 px-4">
+                          <span className="font-semibold text-text-primary block">{u.name}</span>
+                          <span className="text-[10px] font-mono text-text-muted">{u.email}</span>
                         </td>
-                        <td className="py-3 px-2">
+                        <td className="py-3 px-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold ${
                               u.role === 'admin'
-                                ? 'bg-accent-tertiary/20 text-accent-tertiary'
+                                ? 'bg-accent-warmLight text-accent-warm'
                                 : u.role === 'teacher'
-                                ? 'bg-accent-secondary/20 text-accent-secondary'
-                                : 'bg-accent-primary/20 text-accent-primary'
+                                ? 'bg-accent-secondaryLight text-accent-secondary'
+                                : 'bg-accent-primaryLight text-accent-primary'
                             }`}
                           >
                             {u.role}
                           </span>
                         </td>
-                        <td className="py-3 px-2 text-text-secondary text-[11px]">
-                          {u.classId || (u.assignedClassIds ? u.assignedClassIds.join(', ') : 'Global')}
+                        <td className="py-3 px-3 font-mono text-[11px] text-text-secondary">
+                          {u.classId || (u.assignedClassIds && u.assignedClassIds.join(', ')) || 'Global'}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-[10px] text-text-muted">
+                          {new Date(u.createdAt).toLocaleDateString()}
                         </td>
                       </tr>
                     ))}
@@ -353,51 +368,47 @@ export default function AdminPortalPage() {
           </div>
         )}
 
-        {/* Tab 2: Class Assignments */}
+        {/* Tab 2: Classes */}
         {activeTab === 'classes' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-6">
+            <div>
+              <h3 className="font-heading font-bold text-xl text-text-primary">
+                Active Cohorts & Teacher Scopes
+              </h3>
+              <p className="text-xs text-text-secondary">
+                Enforces strict class isolation so teachers only access students in their assigned sections.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {classes.map((cls) => (
-                <div key={cls.id} className="bg-surface rounded-3xl border border-outline-variant/40 p-6 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                    <h3 className="font-heading font-bold text-base text-text-primary">
-                      {cls.name}
-                    </h3>
-                    <span className="px-2 py-0.5 rounded bg-accent-secondary/15 text-accent-secondary font-mono text-[10px] font-bold">
+                <div
+                  key={cls.id}
+                  className="p-5 rounded-2xl bg-canvas border border-outline-variant space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-accent-primary bg-accent-primaryLight px-2 py-0.5 rounded">
                       {cls.id}
                     </span>
+                    <span className="text-xs font-mono text-text-muted">Section {cls.section}</span>
                   </div>
 
-                  <div className="space-y-2 text-xs">
-                    <span className="font-mono text-text-secondary block">
-                      Assigned Teachers ({cls.teacherIds.length}):
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {cls.teacherIds.map((tId) => {
-                        const tUser = users.find((u) => u.id === tId);
-                        return (
-                          <span key={tId} className="px-2.5 py-1 rounded-lg bg-surface-deep border border-outline-variant/30 text-text-primary font-mono text-[11px]">
-                            {tUser?.name || tId}
-                          </span>
-                        );
-                      })}
-                    </div>
+                  <div>
+                    <h4 className="font-heading font-bold text-lg text-text-primary">
+                      {cls.name}
+                    </h4>
+                    <p className="text-xs text-text-secondary">
+                      Grade {cls.grade} · Enrolled: {cls.studentIds.length} Students
+                    </p>
                   </div>
 
-                  <div className="space-y-2 text-xs pt-2">
-                    <span className="font-mono text-text-secondary block">
-                      Enrolled Students ({cls.studentIds.length}):
+                  <div className="pt-2 border-t border-outline-variant text-xs text-text-secondary space-y-1">
+                    <span className="font-mono text-[10px] text-text-muted uppercase block">
+                      Assigned Teachers:
                     </span>
-                    <div className="flex flex-wrap gap-2">
-                      {cls.studentIds.map((sId) => {
-                        const sUser = users.find((u) => u.id === sId);
-                        return (
-                          <span key={sId} className="px-2.5 py-1 rounded-lg bg-surface-deep border border-outline-variant/30 text-accent-primary font-mono text-[11px]">
-                            {sUser?.name || sId}
-                          </span>
-                        );
-                      })}
-                    </div>
+                    <p className="font-medium text-text-primary">
+                      {cls.teacherIds.join(', ')}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -405,57 +416,53 @@ export default function AdminPortalPage() {
           </div>
         )}
 
-        {/* Tab 3: Security Audit Trail */}
+        {/* Tab 3: Security Audit Logs */}
         {activeTab === 'logs' && (
-          <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-mastery-mastered" />
-                <h3 className="font-heading font-bold text-base text-text-primary">
-                  Security Event Audit Log Trail
+          <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-heading font-bold text-xl text-text-primary">
+                  Immutable Security Audit Trail
                 </h3>
+                <p className="text-xs text-text-secondary">
+                  Captures authentications, diagnostic attempts, telemetry exports, and administrative state changes.
+                </p>
               </div>
-              <span className="text-xs font-mono text-text-secondary">
-                Immutable Server-Side Logs ({auditLogs.length})
+              <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-surface-secondary text-text-primary border border-outline-variant">
+                {auditLogs.length} Events
               </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead>
-                  <tr className="border-b border-outline-variant/30 text-text-secondary">
-                    <th className="py-2.5 px-3">Timestamp</th>
+            <div className="overflow-x-auto rounded-2xl border border-outline-variant">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-surface-secondary text-text-secondary font-mono uppercase text-[10px] border-b border-outline-variant">
+                  <tr>
+                    <th className="py-2.5 px-4">Timestamp</th>
                     <th className="py-2.5 px-3">Event</th>
-                    <th className="py-2.5 px-3">User</th>
-                    <th className="py-2.5 px-3">Role</th>
-                    <th className="py-2.5 px-3">IP</th>
+                    <th className="py-2.5 px-3">User & Role</th>
+                    <th className="py-2.5 px-3">IP Address</th>
+                    <th className="py-2.5 px-3 text-right">Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant/20">
+                <tbody className="divide-y divide-outline-variant font-mono text-[11px]">
                   {auditLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-surface-elevated">
-                      <td className="py-2.5 px-3 text-text-secondary text-[11px]">
+                    <tr key={log.id} className="hover:bg-surface-secondary/40">
+                      <td className="py-2.5 px-4 text-text-muted whitespace-nowrap">
                         {new Date(log.timestamp).toLocaleTimeString()}
                       </td>
                       <td className="py-2.5 px-3">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            log.event.includes('UNAUTHORIZED') || log.event.includes('FAILED')
-                              ? 'bg-mastery-atRisk/20 text-mastery-atRisk'
-                              : 'bg-mastery-mastered/20 text-mastery-mastered'
-                          }`}
-                        >
+                        <span className="px-2 py-0.5 rounded bg-surface-secondary text-text-primary font-bold">
                           {log.event}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-text-primary truncate max-w-[150px]">
-                        {log.userId}
+                      <td className="py-2.5 px-3 text-accent-primary font-semibold">
+                        {log.userId} ({log.role})
                       </td>
                       <td className="py-2.5 px-3 text-text-secondary">
-                        {log.role}
-                      </td>
-                      <td className="py-2.5 px-3 text-text-secondary text-[11px]">
                         {log.ip || '127.0.0.1'}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-text-muted truncate max-w-[200px]">
+                        {JSON.stringify(log.details || {})}
                       </td>
                     </tr>
                   ))}

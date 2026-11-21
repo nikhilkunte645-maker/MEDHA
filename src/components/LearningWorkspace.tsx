@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { CONCEPTS } from '@/data/concepts';
-import { ConceptMastery, GeneratedQuestion, MisconceptionAnalysis, Attempt } from '@/types/mastery';
+import {
+  ConceptMastery,
+  GeneratedQuestion,
+  MisconceptionAnalysis,
+  Attempt,
+  LearnerProfile
+} from '@/types/mastery';
 import { loadLearnerProfile, recordAttemptAndUpdateMastery } from '@/lib/storage';
 import { AIFeedbackCard } from './AIFeedbackCard';
 import {
@@ -16,17 +22,25 @@ import {
   CheckCircle2,
   AlertTriangle,
   AlertCircle,
-  Clock
+  Clock,
+  BookOpen,
+  ChevronRight,
+  Zap,
+  RotateCcw
 } from 'lucide-react';
 
 interface LearningWorkspaceProps {
   initialConceptId?: string;
+  profile?: LearnerProfile;
+  onProfileUpdate?: (updatedProfile: LearnerProfile) => void;
   onViewGraph?: () => void;
   onViewRevision?: () => void;
 }
 
 export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
   initialConceptId,
+  profile: propProfile,
+  onProfileUpdate,
   onViewGraph,
   onViewRevision
 }) => {
@@ -47,7 +61,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
 
   useEffect(() => {
     refreshLearnerData();
-  }, []);
+  }, [propProfile]);
 
   useEffect(() => {
     if (initialConceptId) {
@@ -56,7 +70,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
   }, [initialConceptId]);
 
   const refreshLearnerData = () => {
-    const profile = loadLearnerProfile();
+    const profile = propProfile || loadLearnerProfile();
     setMasteryMap(profile.masteryMap);
     setRecentAttempts(profile.attempts.slice(-5).reverse());
   };
@@ -109,7 +123,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
     }
 
     if (!studentReasoning || studentReasoning.trim().length < 5) {
-      setValidationError('Please explain your reasoning. MEDHA evaluates your step-by-step thinking to detect misconceptions!');
+      setValidationError('Please explain your reasoning (at least 5 characters). MEDHA evaluates your step-by-step thinking to detect misconceptions!');
       return;
     }
 
@@ -165,6 +179,21 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
       const newScore = updatedProfile.masteryMap[selectedConceptId]?.score ?? 0;
       setScoreDelta(newScore - previousScore);
       setRecentAttempts(updatedProfile.attempts.slice(-5).reverse());
+
+      if (onProfileUpdate) {
+        onProfileUpdate(updatedProfile);
+      }
+
+      // Sync attempt to authenticated server endpoint
+      try {
+        await fetch('/api/student/attempts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attempt })
+        });
+      } catch (syncErr) {
+        console.error('Server attempt sync error:', syncErr);
+      }
     } catch (err) {
       console.error('Error submitting answer:', err);
       setApiError('Unable to complete reasoning diagnosis. Please check network connectivity or retry.');
@@ -174,374 +203,273 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 py-4">
-      {/* Workspace Header & Concept Selection */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-5 lg:p-7 shadow-xl space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-accent-primary" />
-              <h2 className="font-heading font-bold text-xl text-text-primary">
-                Adaptive Learning Workspace
-              </h2>
-            </div>
-            <p className="text-xs text-text-secondary mt-1">
-              Select a concept node, calibrate difficulty, and explain your reasoning to receive AI cognitive diagnosis.
-            </p>
-          </div>
-
-          {/* Current Concept Status Badge */}
-          <div className="flex items-center gap-3 bg-surface-deep px-4 py-2 rounded-2xl border border-outline-variant/30">
-            <span className="text-xs text-text-secondary">Current Mastery:</span>
-            <span className="font-heading text-lg font-bold text-text-primary">
-              {currentConceptMastery?.score !== null && currentConceptMastery?.score !== undefined
-                ? `${currentConceptMastery?.score}%`
-                : 'Unassessed'}
-            </span>
-            <span
-              className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full border ${
-                currentConceptMastery?.status === 'atRisk'
-                  ? 'bg-mastery-atRisk/20 text-mastery-atRisk border-mastery-atRisk/40'
-                  : currentConceptMastery?.status === 'learning'
-                  ? 'bg-mastery-learning/20 text-mastery-learning border-mastery-learning/40'
-                  : currentConceptMastery?.status === 'mastered'
-                  ? 'bg-mastery-mastered/20 text-mastery-mastered border-mastery-mastered/40'
-                  : 'bg-mastery-unassessed/20 text-mastery-unassessed border-mastery-unassessed/40'
-              }`}
-            >
-              {currentConceptMastery?.status || 'unassessed'}
-            </span>
-          </div>
+    <div className="max-w-4xl mx-auto space-y-8 py-2">
+      {/* 1. Concept Horizontal Carousel Selector */}
+      <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-6">
+        <div>
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent-primary">
+            Adaptive Workspace
+          </span>
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-text-primary tracking-tight mt-1">
+            Targeted Conceptual Practice
+          </h2>
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
+            Select any concept from the Class 10 curriculum. MEDHA generates calibrated challenges and diagnoses your physical reasoning.
+          </p>
         </div>
 
-        {/* 9 Concept Selector Carousel */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {CONCEPTS.map((c) => {
-            const isSelected = c.id === selectedConceptId;
-            const m = masteryMap[c.id];
-            const hasScore = m && m.score !== null;
+        {/* 9-Concept Horizontal Pills */}
+        <div className="flex gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none">
+          {CONCEPTS.map((concept) => {
+            const isSelected = concept.id === selectedConceptId;
+            const mastery = masteryMap[concept.id];
+            const score = mastery?.score;
 
             return (
               <button
-                key={c.id}
+                key={concept.id}
                 onClick={() => {
-                  setSelectedConceptId(c.id);
-                  handleGenerateQuestion(c.id, difficulty);
+                  setSelectedConceptId(concept.id);
+                  setActiveQuestion(null);
+                  setAnalysisResult(null);
                 }}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs whitespace-nowrap border transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium shrink-0 transition-all ${
                   isSelected
-                    ? 'bg-accent-primaryContainer text-white border-accent-primary shadow-neonPrimary font-bold'
-                    : 'bg-surface-elevated hover:bg-surface-higher text-text-secondary border-outline-variant/30'
+                    ? 'bg-accent-primary text-white shadow-cobalt font-bold'
+                    : 'bg-surface-secondary text-text-secondary hover:text-text-primary border border-outline-variant hover:bg-outline-variant/40'
                 }`}
               >
-                <span className="font-mono text-[11px] font-bold">{c.code}</span>
-                <span className="max-w-[130px] truncate">{c.name}</span>
-                <span className="text-[10px] opacity-75 font-mono">
-                  ({hasScore ? `${m.score}%` : '---'})
-                </span>
+                <span>{concept.id}</span>
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    score === null || score === undefined
+                      ? 'bg-mastery-unassessed'
+                      : score >= 80
+                      ? 'bg-mastery-mastered'
+                      : score >= 40
+                      ? 'bg-mastery-learning'
+                      : 'bg-mastery-atRisk'
+                  }`}
+                />
               </button>
             );
           })}
         </div>
 
-        {/* Difficulty Calibration & Question Action */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-outline-variant/30">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-text-secondary font-mono">Difficulty:</span>
-            {[
-              { level: 1, label: 'Level 1 (Foundational)' },
-              { level: 2, label: 'Level 2 (Application)' },
-              { level: 3, label: 'Level 3 (Challenging)' }
-            ].map((diff) => (
-              <button
-                key={diff.level}
-                onClick={() => setDifficulty(diff.level)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                  difficulty === diff.level
-                    ? 'bg-accent-secondary/20 border border-accent-secondary text-accent-secondary font-bold'
-                    : 'bg-surface-deep text-text-secondary hover:text-text-primary border border-outline-variant/30'
-                }`}
-              >
-                {diff.label}
-              </button>
-            ))}
+        {/* Selected Concept Overview Banner */}
+        <div className="p-5 rounded-2xl bg-canvas border border-outline-variant flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-accent-primary bg-accent-primaryLight px-2 py-0.5 rounded">
+                {currentConcept.id}
+              </span>
+              <h3 className="font-heading font-bold text-lg text-text-primary">
+                {currentConcept.name}
+              </h3>
+            </div>
+            <p className="text-xs text-text-secondary line-clamp-2">
+              {currentConcept.description}
+            </p>
+            <div className="text-xs font-mono text-text-muted pt-1">
+              Formula: <strong className="text-text-primary font-bold">{currentConcept.formulas.join(', ')}</strong>
+            </div>
           </div>
 
-          <button
-            onClick={() => handleGenerateQuestion(selectedConceptId, difficulty)}
-            disabled={isGenerating}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-95 disabled:opacity-50 transition-all"
-          >
-            {isGenerating ? (
-              <span className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Synthesizing Question...
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                Generate Targeted Question
-              </span>
-            )}
-          </button>
+          {/* Difficulty Selection & Generate CTA */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center bg-surface p-1 rounded-xl border border-outline-variant">
+              {[1, 2, 3].map((lvl) => (
+                <button
+                  key={lvl}
+                  onClick={() => setDifficulty(lvl)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all ${
+                    difficulty === lvl
+                      ? 'bg-accent-primary text-white shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  L{lvl}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handleGenerateQuestion()}
+              disabled={isGenerating}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover disabled:opacity-50 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isGenerating ? 'Generating...' : 'Generate Challenge'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Practice Question */}
+      {/* 2. Active Question Workspace */}
       {activeQuestion ? (
-        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-2xl space-y-6">
-          {/* Explanation of Why Selected Banner */}
-          {activeQuestion.selection_reason && (
-            <div className="p-3 rounded-xl bg-surface-deep border border-outline-variant/30 flex items-center justify-between text-xs text-text-secondary">
-              <span className="flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-accent-secondary" />
-                <strong>Why this question was selected:</strong> {activeQuestion.selection_reason}
-              </span>
-              <span className="font-mono text-[10px] text-accent-primary">
-                Target: {currentConcept.code}
-              </span>
-            </div>
-          )}
+        <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-6">
+          <div className="flex items-center justify-between border-b border-outline-variant pb-4">
+            <span className="text-xs font-mono font-bold text-accent-primary bg-accent-primaryLight px-2.5 py-1 rounded">
+              {selectedConceptId} · Level {activeQuestion.difficulty} Challenge
+            </span>
 
-          {/* Prompt */}
-          <div>
-            <div className="flex items-center justify-between text-xs text-text-secondary mb-2">
-              <span className="font-mono text-accent-primary font-bold">
-                {currentConcept.code} — {currentConcept.name}
-              </span>
-              <span className="px-2 py-0.5 rounded bg-surface-deep border border-outline-variant/30 font-mono text-[10px]">
-                Difficulty {activeQuestion.difficulty}/3
-              </span>
-            </div>
-            <h3 className="font-heading text-lg lg:text-xl font-bold text-text-primary leading-relaxed">
-              {activeQuestion.question}
-            </h3>
-            <p className="text-xs text-accent-secondary/90 mt-1 font-mono">
-              Objective: {activeQuestion.learning_objective}
-            </p>
-          </div>
-
-          {/* Hint Toggle Button */}
-          {activeQuestion.hint && (
-            <div>
+            {/* Hint Toggle */}
+            {activeQuestion.hint && (
               <button
                 onClick={() => setShowHint(!showHint)}
-                className="text-xs font-mono text-mastery-learning hover:underline flex items-center gap-1"
+                className="inline-flex items-center gap-1.5 text-xs text-accent-warm hover:underline font-medium"
               >
                 <Lightbulb className="w-3.5 h-3.5" />
-                {showHint ? 'Hide Physics Hint' : 'Show Physics Hint'}
+                <span>{showHint ? 'Hide Hint' : 'Reveal Guiding Hint'}</span>
               </button>
-              {showHint && (
-                <div className="mt-2 p-3 rounded-xl bg-mastery-learning/10 border border-mastery-learning/30 text-xs text-mastery-learning">
-                  💡 {activeQuestion.hint}
-                </div>
-              )}
+            )}
+          </div>
+
+          {/* Guiding Hint Accordion */}
+          {showHint && activeQuestion.hint && (
+            <div className="p-4 rounded-xl bg-accent-warmLight/70 border border-accent-warm/30 text-xs text-text-primary space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-accent-warm block">
+                Guiding Conceptual Hint:
+              </span>
+              <p className="leading-relaxed">{activeQuestion.hint}</p>
             </div>
           )}
 
-          {/* Validation or API Error Banners */}
-          {validationError && (
-            <div
-              role="alert"
-              className="p-3.5 rounded-2xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center justify-between"
-            >
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-mastery-atRisk" />
-                <span>{validationError}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setValidationError(null)}
-                className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
+          {/* Question Prompt */}
+          <h3 className="font-heading font-bold text-xl sm:text-2xl text-text-primary leading-snug">
+            {activeQuestion.question}
+          </h3>
 
-          {apiError && (
-            <div
-              role="alert"
-              className="p-3.5 rounded-2xl bg-mastery-learning/15 border border-mastery-learning/40 text-mastery-learning text-xs flex items-center justify-between"
-            >
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-mastery-learning" />
-                <span>{apiError}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setApiError(null)}
-                className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
-
-          {/* Options */}
-          <div className="space-y-3">
+          {/* Option Cards */}
+          <div className="space-y-2.5">
             {activeQuestion.options.map((opt, idx) => {
-              const isSelected = selectedOption === opt;
               const letter = String.fromCharCode(65 + idx);
+              const isSelected = selectedOption === opt;
 
               return (
-                <button
-                  key={idx}
-                  type="button"
-                  disabled={Boolean(analysisResult)}
-                  onClick={() => {
-                    setSelectedOption(opt);
-                    setValidationError(null);
-                  }}
-                  className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
+                <div
+                  key={opt}
+                  onClick={() => setSelectedOption(opt)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     isSelected
-                      ? 'bg-accent-primaryContainer/20 border-accent-primary text-text-primary font-semibold shadow-neonPrimary'
-                      : 'bg-surface-elevated hover:bg-surface-higher border-outline-variant/40 text-text-secondary'
+                      ? 'border-accent-primary bg-accent-primaryLight text-accent-primary shadow-sm'
+                      : 'border-outline-variant bg-surface hover:border-outline-variant/80 hover:bg-surface-secondary/40'
                   }`}
                 >
-                  <span
-                    className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${
+                  <div
+                    className={`w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
                       isSelected
-                        ? 'bg-accent-primaryContainer text-white'
-                        : 'bg-surface text-text-secondary border border-outline-variant/40'
+                        ? 'bg-accent-primary text-white shadow-sm'
+                        : 'bg-surface-secondary text-text-secondary border border-outline-variant'
                     }`}
                   >
                     {letter}
+                  </div>
+                  <span className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-text-primary' : 'text-text-primary'}`}>
+                    {opt}
                   </span>
-                  <span className="text-sm">{opt}</span>
-                </button>
+                </div>
               );
             })}
           </div>
 
-          {/* Reasoning Input */}
-          <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
+          {/* Reasoning Canvas */}
+          <div className="space-y-2 pt-2 border-t border-outline-variant">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                <Brain className="w-3.5 h-3.5 text-accent-primary" />
-                Write Out Your Reasoning Step-by-Step (Evaluated by AI Engine):
+                <Lightbulb className="w-3.5 h-3.5 text-accent-warm" />
+                <span>Explain your thinking step-by-step:</span>
               </label>
-              <span className="text-[10px] text-accent-primary font-mono font-bold uppercase">
-                Cognitive Diagnosis
+              <span className="text-[10px] font-mono text-text-muted">
+                {studentReasoning.length} characters
               </span>
             </div>
+
             <textarea
-              rows={3}
-              disabled={Boolean(analysisResult)}
               value={studentReasoning}
-              onChange={(e) => {
-                setStudentReasoning(e.target.value);
-                setValidationError(null);
-              }}
-              placeholder="State which scientific principles or formulas you used and why other choices are ruled out..."
-              className="w-full rounded-xl bg-surface border border-outline-variant/40 p-3 text-xs text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-accent-primary transition-colors resize-none disabled:opacity-70"
+              onChange={(e) => setStudentReasoning(e.target.value)}
+              placeholder="State your physical reasoning or formula manipulation. E.g. 'Since resistors are in series, current is identical across both...'"
+              rows={3}
+              className="w-full p-3.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface focus:border-accent-primary focus:ring-1 focus:ring-accent-primary outline-none text-sm text-text-primary placeholder:text-text-muted font-sans resize-none transition-colors"
             />
           </div>
 
-          {/* Submit Action */}
-          {!analysisResult && (
-            <div className="flex items-center justify-end pt-2">
-              <button
-                type="button"
-                disabled={isEvaluating || !selectedOption}
-                onClick={handleSubmitAnswer}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-neonPrimary transition-all"
-              >
-                {isEvaluating ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Diagnosing Reasoning with AI...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1.5">
-                    Submit Reasoning for AI Diagnosis <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                )}
-              </button>
+          {/* Validation or API Errors */}
+          {validationError && (
+            <div className="p-3.5 rounded-xl bg-mastery-atRiskLight border border-mastery-atRisk/20 flex items-center gap-2.5 text-xs text-mastery-atRisk">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{validationError}</span>
+            </div>
+          )}
+          {apiError && (
+            <div className="p-3.5 rounded-xl bg-mastery-atRiskLight border border-mastery-atRisk/20 flex items-center gap-2.5 text-xs text-mastery-atRisk">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{apiError}</span>
             </div>
           )}
 
-          {/* AI Feedback Card */}
-          {analysisResult && (
-            <AIFeedbackCard
-              analysis={analysisResult}
-              questionPrompt={activeQuestion.question}
-              studentAnswer={selectedOption}
-              expectedAnswer={activeQuestion.correct_answer}
-              studentReasoning={studentReasoning}
-              scoreChange={scoreDelta || undefined}
-              onContinue={() => handleGenerateQuestion(selectedConceptId, difficulty)}
-              continueLabel="Generate Next Adaptive Question"
-            />
-          )}
-        </div>
-      ) : (
-        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-accent-primary/15 border border-accent-primary/30 mx-auto flex items-center justify-center text-accent-primary">
-            <Target className="w-6 h-6" />
+          {/* Submit Action */}
+          <div className="flex items-center justify-between pt-2">
+            <button
+              onClick={() => handleGenerateQuestion()}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Regenerate Different Question</span>
+            </button>
+
+            <button
+              onClick={handleSubmitAnswer}
+              disabled={isEvaluating}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover disabled:opacity-50 transition-all"
+            >
+              {isEvaluating ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                  <span>Diagnosing Reasoning...</span>
+                </>
+              ) : (
+                <>
+                  <span>Submit & Diagnose</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </div>
-          <h3 className="font-heading text-lg font-bold text-text-primary">
-            Ready to Practice: {currentConcept.name} ({currentConcept.code})
+        </div>
+      ) : !isGenerating && (
+        <div className="p-12 text-center bg-surface rounded-3xl border border-outline-variant space-y-4 shadow-card">
+          <div className="w-16 h-16 rounded-2xl bg-accent-primaryLight border border-accent-primary/20 flex items-center justify-center mx-auto text-accent-primary">
+            <Target className="w-8 h-8" />
+          </div>
+          <h3 className="font-heading font-extrabold text-xl text-text-primary">
+            Ready to Practice {currentConcept.id} · {currentConcept.name}
           </h3>
-          <p className="text-xs text-text-secondary max-w-md mx-auto">
-            Click &quot;Generate Targeted Question&quot; above to synthesize a fresh question calibrated to your current mastery and previous cognitive errors.
+          <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
+            Click below to generate a calibrated adaptive question based on your current evidence score ({currentConceptMastery?.score ?? 0}%).
           </p>
           <button
-            onClick={() => handleGenerateQuestion(selectedConceptId, difficulty)}
-            className="px-6 py-2.5 rounded-xl bg-accent-primaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-90 inline-flex items-center gap-2"
+            onClick={() => handleGenerateQuestion()}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Generate First Question</span>
+            <span>Generate Adaptive Challenge</span>
           </button>
         </div>
       )}
 
-      {/* Recent Evaluated Attempts History */}
-      {recentAttempts.length > 0 && (
-        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-5 space-y-3">
-          <h4 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-2">
-            <Clock className="w-3.5 h-3.5 text-accent-secondary" />
-            Recent Evaluated Attempts
-          </h4>
-          <div className="space-y-2">
-            {recentAttempts.map((att) => (
-              <div
-                key={att.id}
-                className="p-3 rounded-xl bg-surface-deep border border-outline-variant/30 flex items-center justify-between text-xs"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      att.isCorrect ? 'bg-mastery-mastered' : 'bg-mastery-atRisk'
-                    }`}
-                  ></span>
-                  <div>
-                    <span className="font-mono text-accent-primary font-semibold mr-2">
-                      {att.targetConceptIds.join(', ')}
-                    </span>
-                    <span className="text-text-secondary">
-                      {att.isCorrect ? 'Correct reasoning' : att.misconceptionTitle || 'Incorrect attempt'}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-text-secondary font-mono">
-                    {new Date(att.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
-                      att.isCorrect
-                        ? 'bg-mastery-mastered/20 text-mastery-mastered'
-                        : 'bg-mastery-atRisk/20 text-mastery-atRisk'
-                    }`}
-                  >
-                    {att.reasoningQuality}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* 3. Diagnostic Feedback Card */}
+      {analysisResult && activeQuestion && (
+        <AIFeedbackCard
+          analysis={analysisResult}
+          questionPrompt={activeQuestion.question}
+          studentAnswer={selectedOption}
+          expectedAnswer={activeQuestion.correct_answer}
+          studentReasoning={studentReasoning}
+          scoreChange={scoreDelta ?? undefined}
+          onContinue={() => handleGenerateQuestion()}
+          continueLabel="Next Adaptive Challenge"
+        />
       )}
     </div>
   );

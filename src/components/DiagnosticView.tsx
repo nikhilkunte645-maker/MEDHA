@@ -15,7 +15,11 @@ import {
   AlertCircle,
   Layers,
   Brain,
-  Lightbulb
+  Lightbulb,
+  Check,
+  AlertTriangle,
+  Award,
+  BookOpen
 } from 'lucide-react';
 
 interface DiagnosticViewProps {
@@ -58,12 +62,15 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   const handleNextOrSubmit = async () => {
     const selected = selectedAnswers[currentQuestion.id];
     if (!selected) {
-      setErrorBanner('Please select an answer option before continuing.');
+      setErrorBanner('Please select an answer option to proceed.');
       return;
     }
 
-    if (currentQuestion.reasoningRequired && (!writtenReasonings[currentQuestion.id] || writtenReasonings[currentQuestion.id].trim().length < 5)) {
-      setErrorBanner('Please write a brief explanation of your reasoning to enable conceptual diagnosis.');
+    if (
+      currentQuestion.reasoningRequired &&
+      (!writtenReasonings[currentQuestion.id] || writtenReasonings[currentQuestion.id].trim().length < 5)
+    ) {
+      setErrorBanner('Please explain your reasoning (at least 5 characters) so MEDHA can diagnose conceptual understanding.');
       return;
     }
 
@@ -119,7 +126,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       if (currentIndex < DIAGNOSTIC_QUESTIONS.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
-        finishDiagnostic(updatedAttempts);
+        await finishDiagnostic(updatedAttempts);
       }
     } catch (err) {
       console.error('Error during diagnostic evaluation:', err);
@@ -129,7 +136,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     }
   };
 
-  const finishDiagnostic = (allAttempts: Attempt[]) => {
+  const finishDiagnostic = async (allAttempts: Attempt[]) => {
     const profile = loadLearnerProfile();
     profile.attempts.push(...allAttempts);
     profile.diagnosticCompleted = true;
@@ -141,8 +148,22 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     saveLearnerProfile(profile);
     setCalibratedProfile(profile);
     setDiagnosticCompleted(true);
+
+    // Sync to authenticated server session
+    try {
+      await fetch('/api/student/diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attempts: allAttempts })
+      });
+    } catch (e) {
+      console.error('Server diagnostic sync error:', e);
+    }
   };
 
+  // --------------------------------------------------------------------------
+  // COMPLETED STATE
+  // --------------------------------------------------------------------------
   if (diagnosticCompleted) {
     const profile = calibratedProfile || loadLearnerProfile();
     const atRiskConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'atRisk');
@@ -150,97 +171,73 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     const masteredConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'mastered');
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6 py-6">
-        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-10 text-center space-y-6 shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer mx-auto flex items-center justify-center shadow-neonPrimary">
-            <CheckCircle2 className="w-8 h-8 text-white" />
+      <div className="max-w-3xl mx-auto space-y-8 py-6">
+        <div className="bg-surface rounded-3xl border border-outline-variant p-8 sm:p-12 shadow-card text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-mastery-masteredLight border border-mastery-mastered/20 mx-auto flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-mastery-mastered" />
           </div>
 
           <div className="space-y-2">
-            <h2 className="font-heading text-2xl lg:text-3xl font-extrabold text-text-primary">
-              Diagnostic Baseline Successfully Calibrated
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent-primary">
+              Diagnostic Complete
+            </span>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-text-primary tracking-tight">
+              Conceptual Baseline Established
             </h2>
-            <p className="text-xs sm:text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
-              MEDHA has evaluated your answers and conceptual reasoning across all 9 Electricity concepts. Your individualized prerequisite knowledge topology has been initialized.
+            <p className="text-sm text-text-secondary max-w-lg mx-auto">
+              MEDHA has analyzed your answers and underlying reasoning across all 9 Electricity concepts. Your individualized cognitive map is now active.
             </p>
           </div>
 
-          {/* 3 Status Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-left">
-            {/* At Risk */}
-            <div className="p-4 rounded-2xl bg-mastery-atRisk/10 border border-mastery-atRisk/30 space-y-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-atRisk font-bold block">
-                At Risk (&lt;50%)
+          {/* Calibrated Baseline Summary Cards */}
+          <div className="grid grid-cols-3 gap-3 pt-4 text-left">
+            <div className="p-4 rounded-xl bg-mastery-masteredLight/60 border border-mastery-mastered/20">
+              <span className="text-[11px] font-mono font-bold text-mastery-mastered uppercase block">
+                Mastered
               </span>
-              <div className="text-xl font-bold font-heading text-text-primary">
-                {atRiskConcepts.length} Concept{atRiskConcepts.length !== 1 ? 's' : ''}
-              </div>
-              <ul className="space-y-1">
-                {atRiskConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-atRisk"></span>
-                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
-                    <span className="truncate">{c.name}</span>
-                  </li>
-                ))}
-              </ul>
+              <span className="font-heading font-extrabold text-2xl text-text-primary mt-1 block">
+                {masteredConcepts.length}
+              </span>
+              <span className="text-[11px] text-text-secondary">Concepts validated</span>
             </div>
 
-            {/* Learning */}
-            <div className="p-4 rounded-2xl bg-mastery-learning/10 border border-mastery-learning/30 space-y-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-learning font-bold block">
-                Learning (50–79%)
+            <div className="p-4 rounded-xl bg-mastery-learningLight/60 border border-mastery-learning/20">
+              <span className="text-[11px] font-mono font-bold text-mastery-learning uppercase block">
+                Developing
               </span>
-              <div className="text-xl font-bold font-heading text-text-primary">
-                {learningConcepts.length} Concept{learningConcepts.length !== 1 ? 's' : ''}
-              </div>
-              <ul className="space-y-1">
-                {learningConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-learning"></span>
-                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
-                    <span className="truncate">{c.name}</span>
-                  </li>
-                ))}
-              </ul>
+              <span className="font-heading font-extrabold text-2xl text-text-primary mt-1 block">
+                {learningConcepts.length}
+              </span>
+              <span className="text-[11px] text-text-secondary">Ready for practice</span>
             </div>
 
-            {/* Mastered */}
-            <div className="p-4 rounded-2xl bg-mastery-mastered/10 border border-mastery-mastered/30 space-y-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-mastered font-bold block">
-                Mastered (≥80%)
+            <div className="p-4 rounded-xl bg-mastery-atRiskLight/60 border border-mastery-atRisk/20">
+              <span className="text-[11px] font-mono font-bold text-mastery-atRisk uppercase block">
+                Requires Focus
               </span>
-              <div className="text-xl font-bold font-heading text-text-primary">
-                {masteredConcepts.length} Concept{masteredConcepts.length !== 1 ? 's' : ''}
-              </div>
-              <ul className="space-y-1">
-                {masteredConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-mastered"></span>
-                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
-                    <span className="truncate">{c.name}</span>
-                  </li>
-                ))}
-              </ul>
+              <span className="font-heading font-extrabold text-2xl text-text-primary mt-1 block">
+                {atRiskConcepts.length}
+              </span>
+              <span className="text-[11px] text-text-secondary">Friction detected</span>
             </div>
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <button
-              onClick={onViewGraph}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-elevated hover:bg-surface-higher text-text-primary border border-outline-variant/60 font-semibold text-xs transition-all"
-            >
-              <Layers className="w-4 h-4 text-accent-secondary" />
-              <span>Inspect Concept Graph</span>
-            </button>
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={onCompleteDiagnostic}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white font-bold text-xs shadow-neonPrimary hover:opacity-90 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Begin Adaptive Practice</span>
+              <span>Begin Targeted Practice</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onViewGraph}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-surface-secondary hover:bg-outline-variant/60 text-text-primary text-xs font-semibold border border-outline-variant transition-colors"
+            >
+              <Layers className="w-4 h-4 text-accent-secondary" />
+              <span>Inspect Concept Topology</span>
             </button>
           </div>
         </div>
@@ -248,157 +245,151 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     );
   }
 
+  // --------------------------------------------------------------------------
+  // ACTIVE QUESTION WORKSPACE
+  // --------------------------------------------------------------------------
+  const selectedOption = selectedAnswers[currentQuestion.id] || '';
+  const currentReasoning = writtenReasonings[currentQuestion.id] || '';
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6 py-4">
-      {/* Question Progress Header */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-5 shadow-xl space-y-3">
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Top Header & Progress */}
+      <div className="bg-surface rounded-2xl border border-outline-variant p-4 sm:p-5 shadow-card space-y-3">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-mono font-bold text-accent-primary">
-              QUESTION {currentIndex + 1} OF {DIAGNOSTIC_QUESTIONS.length}
+            <span className="font-heading font-bold text-sm text-text-primary">
+              Question {currentIndex + 1} of {DIAGNOSTIC_QUESTIONS.length}
             </span>
-            <span className="px-2 py-0.5 rounded bg-surface-elevated border border-outline-variant/30 text-text-secondary font-mono text-[10px]">
-              Difficulty Level {currentQuestion.difficulty}/3
-            </span>
-            <span className="px-2 py-0.5 rounded bg-accent-secondary/15 border border-accent-secondary/30 text-accent-secondary font-mono text-[10px]">
-              {currentQuestion.conceptIds.join(', ')}
+            <span className="text-text-muted">·</span>
+            <span className="font-mono text-accent-primary font-bold">
+              {progressPercent}% Complete
             </span>
           </div>
-          <span className="font-mono text-text-secondary">{progressPercent}% Completed</span>
+
+          <div className="flex items-center gap-1.5">
+            {currentQuestion.conceptIds.map((cId) => (
+              <span
+                key={cId}
+                className="px-2 py-0.5 rounded bg-accent-secondaryLight text-accent-secondary text-[10px] font-mono font-bold"
+              >
+                {cId}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="w-full h-2 rounded-full bg-surface-deep overflow-hidden">
+        {/* Minimal Progress Bar */}
+        <div className="w-full h-1.5 bg-surface-secondary rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer transition-all duration-300"
+            className="h-full bg-accent-primary transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           ></div>
         </div>
       </div>
 
       {/* Main Question Card */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-2xl space-y-6">
-        <div>
-          <span className="text-xs font-mono text-accent-secondary block mb-1">
-            Learning Objective: {currentQuestion.learningObjective}
+      <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-6">
+        {/* Question Prompt */}
+        <div className="space-y-2">
+          <span className="text-[11px] font-mono font-bold text-text-muted uppercase tracking-wider">
+            Concept Diagnostic
           </span>
-          <h3 className="font-heading text-lg lg:text-xl font-bold text-text-primary leading-relaxed">
+          <h3 className="font-heading font-bold text-xl sm:text-2xl text-text-primary leading-snug">
             {currentQuestion.prompt}
           </h3>
         </div>
 
-        {/* Error Banner */}
-        {errorBanner && (
-          <div
-            role="alert"
-            className="p-3.5 rounded-2xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-mastery-atRisk" />
-              <span>{errorBanner}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setErrorBanner(null)}
-              className="text-text-secondary hover:text-text-primary text-xs underline ml-2"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        {/* Options Selection */}
-        <div className="space-y-3">
+        {/* Answer Options */}
+        <div className="space-y-2.5">
           {currentQuestion.options.map((option, idx) => {
-            const isSelected = selectedAnswers[currentQuestion.id] === option;
             const letter = String.fromCharCode(65 + idx);
+            const isSelected = selectedOption === option;
 
             return (
-              <button
-                key={idx}
-                type="button"
+              <div
+                key={option}
                 onClick={() => handleSelectOption(option)}
-                className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
-                  isSelected
-                    ? 'bg-accent-primaryContainer/20 border-accent-primary text-text-primary shadow-neonPrimary font-semibold'
-                    : 'bg-surface-elevated hover:bg-surface-higher border-outline-variant/40 text-text-secondary'
-                }`}
-              >
-                <span
-                  className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${
-                    isSelected
-                      ? 'bg-accent-primaryContainer text-white'
-                      : 'bg-surface text-text-secondary border border-outline-variant/40'
+                className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3.5 ${isSelected
+                  ? 'border-accent-primary bg-accent-primaryLight text-accent-primary shadow-sm'
+                  : 'border-outline-variant bg-surface hover:border-outline-variant/80 hover:bg-surface-secondary/40'
                   }`}
+              >
+                <div
+                  className={`w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${isSelected
+                    ? 'bg-accent-primary text-white shadow-sm'
+                    : 'bg-surface-secondary text-text-secondary border border-outline-variant'
+                    }`}
                 >
                   {letter}
+                </div>
+                <span className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-text-primary' : 'text-text-primary'}`}>
+                  {option}
                 </span>
-                <span className="text-sm leading-normal">{option}</span>
-              </button>
+              </div>
             );
           })}
         </div>
 
-        {/* Reasoning Text Input */}
-        {currentQuestion.reasoningRequired && (
-          <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                <Brain className="w-3.5 h-3.5 text-accent-primary" />
-                Explain Your Thinking & Reasoning:
-              </label>
-              <span className="text-[10px] text-accent-primary font-mono font-bold uppercase">
-                AI Diagnostic Input
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary">
-              Why did you select this option? If there is a calculation or physical law, write out your thought process.
-            </p>
-            <textarea
-              rows={3}
-              value={writtenReasonings[currentQuestion.id] || ''}
-              onChange={(e) => handleReasoningChange(e.target.value)}
-              placeholder="e.g. By Ohm's law V = IR, when temperature is constant... or because charge cannot be destroyed inside the lamp..."
-              className="w-full rounded-xl bg-surface border border-outline-variant/40 p-3 text-xs text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-accent-primary transition-colors resize-none"
-            />
-            {currentQuestion.hint && (
-              <p className="text-[11px] text-mastery-learning italic flex items-center gap-1">
-                <Lightbulb className="w-3.5 h-3.5 text-mastery-learning" /> Hint: {currentQuestion.hint}
-              </p>
-            )}
+        {/* Reasoning Capture Canvas */}
+        <div className="space-y-2 pt-2 border-t border-outline-variant">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5 text-accent-warm" />
+              <span>How did you arrive at this answer?</span>
+            </label>
+            <span className="text-[10px] font-mono text-text-muted">
+              {currentReasoning.length} characters
+            </span>
+          </div>
+
+          <textarea
+            value={currentReasoning}
+            onChange={(e) => handleReasoningChange(e.target.value)}
+            placeholder="Explain your scientific thinking or calculation steps. MEDHA uses this to diagnose what you understand..."
+            rows={3}
+            className="w-full p-3.5 rounded-xl border border-outline-variant bg-canvas focus:bg-surface focus:border-accent-primary focus:ring-1 focus:ring-accent-primary outline-none text-sm text-text-primary placeholder:text-text-muted font-sans resize-none transition-colors"
+          />
+        </div>
+
+        {/* Error Notification */}
+        {errorBanner && (
+          <div className="p-3.5 rounded-xl bg-mastery-atRiskLight border border-mastery-atRisk/20 flex items-center gap-2.5 text-xs text-mastery-atRisk">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorBanner}</span>
           </div>
         )}
 
-        {/* Navigation & Submit Action */}
-        <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
+        {/* Navigation Actions */}
+        <div className="flex items-center justify-between pt-2">
           <button
-            type="button"
-            disabled={currentIndex === 0 || isSubmitting}
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            disabled={currentIndex === 0 || isSubmitting}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-outline-variant text-text-secondary hover:text-text-primary hover:bg-surface-secondary disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Previous
+            <span>Previous</span>
           </button>
 
           <button
-            type="button"
-            disabled={isSubmitting || !selectedAnswers[currentQuestion.id]}
             onClick={handleNextOrSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-neonPrimary transition-all"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover disabled:opacity-50 transition-all"
           >
             {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Evaluating Reasoning...
-              </span>
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                <span>Diagnosing Understanding...</span>
+              </>
             ) : currentIndex === DIAGNOSTIC_QUESTIONS.length - 1 ? (
-              <span className="flex items-center gap-1.5">
-                Complete Diagnostic <Sparkles className="w-3.5 h-3.5" />
-              </span>
+              <>
+                <span>Complete Assessment</span>
+                <Check className="w-4 h-4" />
+              </>
             ) : (
-              <span className="flex items-center gap-1.5">
-                Submit & Next <ArrowRight className="w-3.5 h-3.5" />
-              </span>
+              <>
+                <span>Next Question</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
           </button>
         </div>

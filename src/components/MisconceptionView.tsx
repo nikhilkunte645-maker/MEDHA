@@ -12,7 +12,11 @@ import {
   ArrowRight,
   BookOpen,
   Sparkles,
-  Target
+  Target,
+  ArrowUpRight,
+  Cpu,
+  Layers,
+  Zap
 } from 'lucide-react';
 
 interface MisconceptionViewProps {
@@ -32,28 +36,30 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
     .reverse()
     .filter((a) => a.misconceptionDetected);
 
-  const activeAttempt = misconceptionAttempts.find((a) => a.id === selectedAttemptId) || misconceptionAttempts[0];
+  const activeAttempt =
+    misconceptionAttempts.find((a) => a.id === selectedAttemptId) || misconceptionAttempts[0];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 py-2">
-      {/* Header */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-mastery-atRisk" />
-              <h2 className="font-heading font-bold text-xl lg:text-2xl text-text-primary">
-                Misconception Intelligence & Root-Cause Remediation
-              </h2>
+    <div className="space-y-8">
+      {/* Studio Header Banner */}
+      <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="max-w-2xl space-y-1">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-accent-warmLight text-accent-warm text-xs font-mono font-bold mb-1">
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Diagnostic Cognitive Remediation</span>
             </div>
-            <p className="text-xs text-text-secondary mt-1 max-w-2xl">
-              MEDHA isolates the precise reason behind mistakes by evaluating your written thought process, distinguishing genuine cognitive fallacies from unit conversion slips or math errors.
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-text-primary tracking-tight">
+              Misconception Intelligence
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+              MEDHA isolates why misunderstandings occur by analyzing your written reasoning, distinguishing genuine cognitive fallacies from unit conversion slips or math errors.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono px-3 py-1.5 rounded-xl bg-mastery-atRisk/15 border border-mastery-atRisk/30 text-mastery-atRisk font-bold">
-              {misconceptionAttempts.length} Detected in History
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="text-xs font-mono px-3 py-1.5 rounded-xl bg-accent-primaryLight text-accent-primary font-bold border border-accent-primary/20">
+              {misconceptionAttempts.length} Active in History
             </span>
           </div>
         </div>
@@ -63,8 +69,8 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Attempt History List */}
           <div className="lg:col-span-4 space-y-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-text-secondary block px-1">
-              Evaluated Misconceptions
+            <span className="text-xs font-mono uppercase tracking-wider text-text-muted block px-1">
+              Detected Cognitive Slips
             </span>
 
             {misconceptionAttempts.map((att) => {
@@ -77,26 +83,26 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
                   onClick={() => setSelectedAttemptId(att.id)}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-2 ${
                     isSelected
-                      ? 'bg-surface-elevated border-accent-primary shadow-neonPrimary'
-                      : 'bg-surface border-outline-variant/30 hover:border-outline-variant/60'
+                      ? 'bg-surface border-accent-primary shadow-elevated ring-1 ring-accent-primary/20'
+                      : 'bg-surface border-outline-variant hover:border-outline-variant/80'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-bold text-accent-primary">
+                    <span className="font-mono font-bold text-accent-primary bg-accent-primaryLight px-2 py-0.5 rounded text-[11px]">
                       {att.targetConceptIds.join(', ')}
                     </span>
                     <span
-                      className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded-full border ${
+                      className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded-full font-bold border ${
                         status === 'detected'
-                          ? 'bg-mastery-atRisk/20 text-mastery-atRisk border-mastery-atRisk/40'
-                          : 'bg-mastery-learning/20 text-mastery-learning border-mastery-learning/40'
+                          ? 'bg-mastery-atRiskLight text-mastery-atRisk border-mastery-atRisk/30'
+                          : 'bg-mastery-learningLight text-mastery-learning border-mastery-learning/30'
                       }`}
                     >
                       {status}
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-semibold text-text-primary line-clamp-1">
+                  <h4 className="text-xs font-bold text-text-primary line-clamp-1">
                     {att.misconceptionTitle || 'Conceptual confusion'}
                   </h4>
 
@@ -104,7 +110,7 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
                     &ldquo;{att.writtenReasoning}&rdquo;
                   </p>
 
-                  <div className="text-[10px] text-text-secondary font-mono pt-1">
+                  <div className="text-[10px] text-text-muted font-mono pt-1">
                     Confidence: {Math.round(att.confidence * 100)}% • {new Date(att.timestamp).toLocaleDateString()}
                   </div>
                 </div>
@@ -112,146 +118,145 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
             })}
           </div>
 
-          {/* Right Column: Detailed Remediation Card */}
-          <div className="lg:col-span-8 bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 space-y-6 shadow-xl">
+          {/* Right Column: Comparative Remediation Studio */}
+          <div className="lg:col-span-8 bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 space-y-6 shadow-card">
             {/* Status & Confidence Badge */}
-            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
+            <div className="flex items-center justify-between border-b border-outline-variant pb-4">
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold border uppercase ${
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border uppercase ${
                     (activeAttempt.misconceptionStatus || 'detected') === 'detected'
-                      ? 'bg-mastery-atRisk/20 text-mastery-atRisk border-mastery-atRisk/40'
-                      : 'bg-mastery-learning/20 text-mastery-learning border-mastery-learning/40'
+                      ? 'bg-mastery-atRiskLight text-mastery-atRisk border-mastery-atRisk/30'
+                      : 'bg-mastery-learningLight text-mastery-learning border-mastery-learning/30'
                   }`}
                 >
                   Status: {activeAttempt.misconceptionStatus || 'detected'}
                 </span>
-                <span className="text-xs font-mono text-text-secondary">
-                  Diagnostic Confidence: {Math.round(activeAttempt.confidence * 100)}%
+                <span className="text-xs font-mono text-text-muted">
+                  Confidence: {Math.round(activeAttempt.confidence * 100)}%
                 </span>
               </div>
 
               <span className="text-xs font-mono text-accent-primary font-bold">
-                Target Concepts: {activeAttempt.targetConceptIds.join(', ')}
+                Target: {activeAttempt.targetConceptIds.join(', ')}
               </span>
             </div>
 
             {/* Identified Misconception Title */}
             <div>
-              <span className="text-[11px] font-mono uppercase text-mastery-atRisk block mb-1">
-                Identified Cognitive Misconception
+              <span className="text-[11px] font-mono uppercase text-accent-warm font-bold block mb-1">
+                Conceptual Friction Identified
               </span>
-              <h3 className="font-heading font-bold text-xl text-text-primary">
+              <h3 className="font-heading font-extrabold text-2xl text-text-primary">
                 {activeAttempt.misconceptionTitle}
               </h3>
-              <p className="text-xs font-mono text-text-secondary mt-0.5">
-                Code: {activeAttempt.misconceptionCode || 'COGNITIVE_ERROR'}
+              <p className="text-xs font-mono text-text-muted mt-0.5">
+                Taxonomy Code: {activeAttempt.misconceptionCode || 'COGNITIVE_ERROR'}
               </p>
             </div>
 
-            {/* Student's reasoning & Highlighted problematic statements */}
-            <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
-              <span className="text-xs font-mono uppercase text-accent-secondary flex items-center gap-1.5">
-                <HelpCircle className="w-3.5 h-3.5" />
-                Submitted Student Reasoning & Problematic Text
-              </span>
-              <p className="text-xs text-text-primary italic p-3 rounded-xl bg-surface/80 border border-outline-variant/20">
-                &ldquo;{activeAttempt.writtenReasoning}&rdquo;
-              </p>
-
-              {activeAttempt.evidence && activeAttempt.evidence.length > 0 && (
-                <div className="pt-2">
-                  <span className="text-[10px] font-mono uppercase text-mastery-atRisk block mb-1">
-                    Problematic Excerpts Flagged by Diagnostic Engine:
-                  </span>
-                  <ul className="space-y-1">
-                    {activeAttempt.evidence.map((ev, i) => (
-                      <li key={i} className="text-xs text-mastery-atRisk flex items-start gap-2">
-                        <span>•</span>
-                        <span className="underline decoration-mastery-atRisk/60">{ev}</span>
-                      </li>
-                    ))}
-                  </ul>
+            {/* Side-by-Side Comparative Studio: What You Thought vs What Actually Happens */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Box 1: What You Thought */}
+              <div className="p-5 rounded-2xl bg-canvas border border-outline-variant space-y-3">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-accent-warm uppercase">
+                  <HelpCircle className="w-4 h-4" />
+                  <span>What You Thought</span>
                 </div>
-              )}
-            </div>
 
-            {/* Explanation of Error & Correct Physics Principle */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-surface-elevated border border-outline-variant/30 space-y-1.5">
-                <span className="text-[11px] font-mono uppercase text-text-secondary flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-mastery-atRisk" />
-                  Why This Reasoning is Flawed
-                </span>
-                <p className="text-xs text-text-secondary leading-relaxed">
+                <div className="p-3 bg-surface rounded-xl border border-outline-variant text-xs text-text-primary italic leading-relaxed">
+                  &ldquo;{activeAttempt.writtenReasoning}&rdquo;
+                </div>
+
+                {activeAttempt.evidence && activeAttempt.evidence.length > 0 && (
+                  <div className="space-y-1 pt-1">
+                    <span className="text-[10px] font-mono text-mastery-atRisk font-bold uppercase block">
+                      Specific Flaw Flagged:
+                    </span>
+                    <p className="text-xs text-mastery-atRisk font-medium">
+                      &ldquo;{activeAttempt.evidence.join('; ')}&rdquo;
+                    </p>
+                  </div>
+                )}
+
+                <p className="text-xs text-text-secondary leading-relaxed pt-1">
                   {activeAttempt.explanation}
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-surface-elevated border border-mastery-mastered/40 space-y-1.5">
-                <span className="text-[11px] font-mono uppercase text-mastery-mastered flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-mastery-mastered" />
-                  Correct Physics Principle
-                </span>
-                <p className="text-xs text-text-primary leading-relaxed">
+              {/* Box 2: What Actually Happens in Physics */}
+              <div className="p-5 rounded-2xl bg-mastery-masteredLight/40 border border-mastery-mastered/30 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-mastery-mastered uppercase">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>What Actually Happens</span>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-mastery-mastered/20 text-xs font-medium text-text-primary leading-relaxed">
                   {activeAttempt.correctPrinciple ||
-                    'Electric charge is strictly conserved. Voltage provides electrical pressure; charges deliver energy without being consumed.'}
-                </p>
+                    'Electric charge is strictly conserved. Charges are not consumed by resistors; they deliver electrical potential energy as heat or light, while the current flow rate remains constant throughout a series path.'}
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-mastery-mastered/20 text-xs text-text-secondary space-y-1">
+                  <span className="text-[10px] font-mono text-accent-primary font-bold block uppercase">
+                    Scientific Law:
+                  </span>
+                  <p className="text-xs text-text-primary">
+                    Kirchhoff&apos;s Current Law / Charge Conservation: I₁ = I₂ = I_total in series.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Actionable Next Step CTA */}
-            <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase text-accent-secondary">
-                  Targeted Learning Action:
-                </span>
-                <p className="text-xs font-semibold text-text-primary">
-                  {activeAttempt.nextLearningAction}
-                </p>
-              </div>
+            {/* Targeted Practice CTA */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-outline-variant">
+              <span className="text-xs text-text-secondary font-medium">
+                Ready to replace this misconception with verified mastery?
+              </span>
 
               <button
-                onClick={() => onPracticeConcept(activeAttempt.targetConceptIds[0])}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-90 shrink-0 flex items-center gap-1.5"
+                onClick={() => onPracticeConcept(activeAttempt.targetConceptIds[0] || 'C01')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
               >
-                <span>Practice Remediation Question</span>
+                <Sparkles className="w-4 h-4" />
+                <span>Practice {activeAttempt.targetConceptIds[0] || 'C01'} in Workspace</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-12 text-center bg-surface rounded-3xl border border-outline-variant/30 space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-surface-elevated border border-outline-variant/40 flex items-center justify-center text-accent-secondary mx-auto">
+        <div className="p-12 text-center bg-surface rounded-3xl border border-outline-variant space-y-4 shadow-card">
+          <div className="w-16 h-16 rounded-2xl bg-mastery-masteredLight border border-mastery-mastered/20 flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-8 h-8 text-mastery-mastered" />
           </div>
-          <h3 className="font-heading font-bold text-lg text-text-primary">
+          <h3 className="font-heading font-extrabold text-xl text-text-primary">
             No Active Misconceptions Detected
           </h3>
-          <p className="text-xs text-text-secondary max-w-md mx-auto">
-            Your evaluated attempts show sound reasoning or you have not yet completed the baseline diagnostic. Start the diagnostic to detect any latent conceptual misunderstandings.
+          <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
+            Your evaluated attempts show sound physical reasoning. If you have unassessed concepts, complete the diagnostic or adaptive practice to ensure no latent fallacies remain.
           </p>
           <button
             onClick={() => onPracticeConcept('C01')}
-            className="px-6 py-2.5 rounded-xl bg-accent-primaryContainer text-white text-xs font-bold shadow-neonPrimary hover:opacity-90"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all"
           >
-            Practice In Learning Workspace
+            <span>Practice in Learning Workspace</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Common Physics Misconception Catalog */}
-      <section className="space-y-4 pt-4 border-t border-outline-variant/30">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-xs font-mono font-bold text-accent-primary uppercase tracking-wider">
-              CLASS 10 PHYSICS CURRICULUM
-            </span>
-            <h3 className="font-heading font-bold text-lg text-text-primary mt-0.5">
-              Known Cognitive Misconception Taxonomy
-            </h3>
-          </div>
+      {/* Curriculum Misconception Taxonomy Catalog */}
+      <section className="space-y-4 pt-4 border-t border-outline-variant">
+        <div>
+          <span className="text-xs font-mono font-bold text-accent-primary uppercase tracking-wider">
+            Class 10 Physics Taxonomy
+          </span>
+          <h3 className="font-heading font-extrabold text-xl text-text-primary mt-0.5">
+            Known Conceptual Misconceptions
+          </h3>
+          <p className="text-xs text-text-secondary">
+            Common cognitive fallacies mapped across the Class 10 Electricity syllabus.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -259,25 +264,30 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
             c.commonMisconceptions.map((m) => (
               <div
                 key={m.code}
-                className="p-4 rounded-2xl bg-surface border border-outline-variant/30 space-y-2 hover:border-accent-primary/40 transition-colors"
+                className="p-5 rounded-2xl bg-surface border border-outline-variant hover:border-accent-primary/40 hover:shadow-card transition-all space-y-2.5"
               >
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-mono text-[10px] font-bold text-accent-primary px-2 py-0.5 rounded bg-surface-deep border border-outline-variant/30">
-                    {c.code}
+                  <span className="font-mono text-[10px] font-bold text-accent-primary px-2 py-0.5 rounded bg-accent-primaryLight">
+                    {c.id} · {c.name}
                   </span>
-                  <span className="font-mono text-[10px] text-text-secondary">
+                  <span className="font-mono text-[10px] text-text-muted">
                     {m.code}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold text-mastery-atRisk">
-                  ⚠️ {m.title}
+
+                <h4 className="text-xs font-bold text-text-primary flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-accent-warm shrink-0"></span>
+                  <span>{m.title}</span>
                 </h4>
-                <p className="text-xs text-text-secondary">
+
+                <p className="text-xs text-text-secondary leading-relaxed">
                   {m.description}
                 </p>
-                <p className="text-[11px] text-mastery-mastered font-medium pt-1">
-                  <strong>Scientific Truth:</strong> {m.correction}
-                </p>
+
+                <div className="p-2.5 rounded-xl bg-canvas border border-outline-variant text-[11px] text-text-primary">
+                  <strong className="text-mastery-mastered font-semibold">Physical Truth: </strong>
+                  {m.correction}
+                </div>
               </div>
             ))
           )}

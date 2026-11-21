@@ -22,7 +22,13 @@ import {
   LogOut,
   Brain,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  FileSpreadsheet,
+  FileText,
+  Search,
+  Filter,
+  Award,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface StudentSummary {
@@ -159,10 +165,10 @@ export default function TeacherPortalPage() {
 
   if (isLoadingClasses) {
     return (
-      <div className="min-h-screen bg-surface-deep flex items-center justify-center text-text-primary">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-accent-secondaryContainer border-t-white rounded-full animate-spin"></div>
-          <span className="text-xs font-mono text-text-secondary">Authenticating Teacher Portal...</span>
+      <div className="min-h-screen bg-canvas flex items-center justify-center text-text-primary">
+        <div className="flex flex-col items-center gap-3 bg-surface p-8 rounded-2xl border border-outline-variant shadow-card">
+          <div className="w-9 h-9 border-3 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono text-text-secondary">Authenticating Teacher Studio...</span>
         </div>
       </div>
     );
@@ -171,387 +177,405 @@ export default function TeacherPortalPage() {
   const selectedClass = assignedClasses.find((c) => c.id === selectedClassId);
 
   return (
-    <div className="min-h-screen bg-surface-deep text-text-primary flex flex-col antialiased selection:bg-accent-secondaryContainer selection:text-white">
-      {/* Top Professional Teacher Header */}
-      <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-canvas text-text-primary flex flex-col antialiased">
+      {/* Top Professional Teacher Studio Header */}
+      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-md border-b border-outline-variant px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-secondaryContainer to-accent-primaryContainer flex items-center justify-center text-white shadow-neonSecondary">
-            <Users className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-accent-secondary text-white flex items-center justify-center shadow-sm font-heading font-black text-lg">
+            T
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-heading font-extrabold text-xl tracking-wider text-text-primary">
+              <span className="font-heading font-extrabold text-xl tracking-tight text-text-primary">
                 MEDHA
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-accent-secondary/15 border border-accent-secondary/30 text-accent-secondary font-bold">
-                Teacher Intelligence
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase bg-accent-secondaryLight text-accent-secondary font-bold">
+                Teacher Studio
               </span>
             </div>
-            <p className="text-xs text-text-secondary font-mono">
-              Role-Authorized Pedagogical Analytics & Intervention Portal
+            <p className="text-xs text-text-secondary">
+              Pedagogical Analytics & Intervention Intelligence · Class 10 Physics
             </p>
           </div>
         </div>
 
-        {/* Teacher Identity & Logout */}
+        {/* Teacher Identity & Sign Out */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex flex-col text-right">
-            <span className="text-xs font-bold text-text-primary">{currentUser?.name || 'Teacher'}</span>
-            <span className="text-[10px] font-mono text-accent-secondary">{currentUser?.email}</span>
+            <span className="text-xs font-semibold text-text-primary">{currentUser?.name || 'Teacher'}</span>
+            <span className="text-[11px] font-mono text-text-secondary">{currentUser?.email}</span>
           </div>
 
           <button
             onClick={handleLogout}
             title="Sign out of teacher portal"
             aria-label="Sign out"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-elevated hover:bg-surface-higher border border-outline-variant/30 text-xs font-mono text-text-secondary hover:text-mastery-atRisk transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-outline-variant bg-surface hover:bg-surface-secondary text-xs text-text-secondary hover:text-mastery-atRisk transition-all"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sign Out</span>
+            <span className="hidden sm:inline font-medium">Sign Out</span>
           </button>
         </div>
       </header>
 
       {/* Main Container */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1">
-        {/* Class Selector Bar */}
-        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        {/* Class Selector & Export Bar */}
+        <div className="bg-surface rounded-3xl border border-outline-variant p-6 shadow-card flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-mono uppercase tracking-wider text-text-secondary">
-              Authorized Assigned Classes:
+            <span className="text-xs font-mono uppercase tracking-wider text-text-muted">
+              Assigned Cohort:
             </span>
-            {assignedClasses.length > 0 ? (
-              assignedClasses.map((cls) => (
-                <button
-                  key={cls.id}
-                  onClick={() => handleClassChange(cls.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
-                    selectedClassId === cls.id
-                      ? 'bg-accent-secondaryContainer text-white shadow-neonSecondary'
-                      : 'bg-surface-elevated text-text-secondary hover:text-text-primary border border-outline-variant/30'
-                  }`}
-                >
-                  {cls.name} ({cls.id})
-                </button>
-              ))
-            ) : (
-              <span className="text-xs text-mastery-atRisk font-mono">No assigned classes found</span>
-            )}
+            <div className="flex items-center gap-2">
+              {assignedClasses.map((cls) => {
+                const isSelected = cls.id === selectedClassId;
+                return (
+                  <button
+                    key={cls.id}
+                    onClick={() => handleClassChange(cls.id)}
+                    className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all ${isSelected
+                      ? 'bg-accent-primary text-white shadow-cobalt'
+                      : 'bg-surface-secondary text-text-secondary hover:text-text-primary border border-outline-variant hover:bg-outline-variant/40'
+                      }`}
+                  >
+                    {cls.name} ({cls.grade})
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Export Actions */}
+          {/* Export Gradebook Buttons */}
           <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-text-muted mr-1 hidden sm:inline">Export:</span>
             <button
               onClick={() => handleExport('csv')}
-              disabled={!selectedClassId || isLoadingAnalytics}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-elevated hover:bg-surface-higher border border-outline-variant/40 text-text-primary text-xs font-mono font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary hover:bg-outline-variant/60 border border-outline-variant text-xs font-mono font-medium text-text-primary transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-accent-secondary" />
-              <span>Export CSV</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-mastery-mastered" />
+              <span>CSV</span>
             </button>
             <button
               onClick={() => handleExport('json')}
-              disabled={!selectedClassId || isLoadingAnalytics}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-elevated hover:bg-surface-higher border border-outline-variant/40 text-text-primary text-xs font-mono font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-secondary hover:bg-outline-variant/60 border border-outline-variant text-xs font-mono font-medium text-text-primary transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-accent-primary" />
-              <span>Export JSON</span>
+              <FileText className="w-3.5 h-3.5 text-accent-primary" />
+              <span>JSON</span>
             </button>
           </div>
         </div>
 
-        {/* Error Alert */}
+        {/* Error Banner if any */}
         {errorMessage && (
-          <div role="alert" className="p-4 rounded-2xl bg-mastery-atRisk/15 border border-mastery-atRisk/40 text-mastery-atRisk text-xs flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
+          <div className="p-4 rounded-2xl bg-mastery-atRiskLight border border-mastery-atRisk/30 text-xs text-mastery-atRisk flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        {/* Analytics Overview Cards */}
+        {/* Analytics Data Presentation */}
         {analyticsData && (
           <div className="space-y-8">
-            {/* 3 Metric Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="p-6 rounded-3xl bg-surface border border-outline-variant/40 space-y-2 shadow-xl">
-                <span className="text-[11px] font-mono uppercase text-text-secondary block">
-                  Enrolled Students in {selectedClass?.section ? `Section ${selectedClass.section}` : 'Class'}
+            {/* 1. Summary Cards Matrix */}
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-surface p-5 rounded-2xl border border-outline-variant shadow-card space-y-1">
+                <span className="text-xs font-medium text-text-secondary block">Enrolled Students</span>
+                <span className="font-heading font-extrabold text-3xl text-text-primary block">
+                  {analyticsData.summary?.enrolledStudents ?? 0}
                 </span>
-                <div className="text-3xl font-extrabold font-heading text-text-primary">
-                  {analyticsData.studentCount} Students
-                </div>
-                <span className="text-xs text-accent-secondary font-mono">
-                  Strictly isolated to your assigned roster
+                <span className="text-[11px] text-text-muted">
+                  {selectedClass?.name || 'Class Cohort'}
                 </span>
               </div>
 
-              <div className="p-6 rounded-3xl bg-surface border border-mastery-atRisk/40 space-y-2 shadow-xl">
-                <span className="text-[11px] font-mono uppercase text-mastery-atRisk font-bold block">
-                  Critical Conceptual Bottleneck
+              <div className="bg-surface p-5 rounded-2xl border border-outline-variant shadow-card space-y-1">
+                <span className="text-xs font-medium text-text-secondary block">Cohort Average Mastery</span>
+                <span className="font-heading font-extrabold text-3xl text-accent-primary block">
+                  {analyticsData.summary?.classAverageMastery ?? 0}%
                 </span>
-                <div className="text-xl font-bold font-heading text-text-primary truncate">
-                  C01 Electric Charge & Current
-                </div>
-                <span className="text-xs text-mastery-atRisk font-mono flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  Highest error rate in reasoning diagnostic
-                </span>
+                <span className="text-[11px] text-text-muted">Across 9 concepts</span>
               </div>
 
-              <div className="p-6 rounded-3xl bg-surface border border-mastery-mastered/40 space-y-2 shadow-xl">
-                <span className="text-[11px] font-mono uppercase text-mastery-mastered font-bold block">
-                  Recommended Intervention
+              <div className="bg-surface p-5 rounded-2xl border border-outline-variant shadow-card space-y-1">
+                <span className="text-xs font-medium text-text-secondary block">Active Misconceptions</span>
+                <span className="font-heading font-extrabold text-3xl text-accent-warm block">
+                  {analyticsData.summary?.activeMisconceptionsCount ?? 0}
                 </span>
-                <div className="text-sm font-semibold text-text-primary">
-                  Physical 2-Ammeter Conservation Lab
-                </div>
-                <p className="text-xs text-text-secondary mt-1">
-                  Demonstrate charge invariance before and after lamp load to dismantle current consumption fallacy.
-                </p>
+                <span className="text-[11px] text-text-muted">Flagged in student reasoning</span>
               </div>
-            </div>
 
-            {/* Concept Mastery Benchmark Chart */}
-            <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-accent-secondary" />
-                  <h3 className="font-heading font-bold text-base text-text-primary">
-                    Class Mastery Benchmark Across All 9 Concepts
+              <div className="bg-surface p-5 rounded-2xl border border-outline-variant shadow-card space-y-1">
+                <span className="text-xs font-medium text-text-secondary block">Students Requiring Focus</span>
+                <span className="font-heading font-extrabold text-3xl text-mastery-atRisk block">
+                  {analyticsData.summary?.studentsNeedingAttention ?? 0}
+                </span>
+                <span className="text-[11px] text-text-muted">Mastery &lt; 40%</span>
+              </div>
+            </section>
+
+            {/* 2. Class Concept Mastery Heatmap Matrix */}
+            <section className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h3 className="font-heading font-bold text-xl text-text-primary tracking-tight">
+                    Class Concept Mastery Matrix
                   </h3>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    Click any student row to inspect their diagnostic reasoning and learning history.
+                  </p>
                 </div>
-                <span className="text-xs font-mono text-text-secondary">
-                  Target: ≥80% (Mastered)
-                </span>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                {analyticsData.conceptAverages.map((item: any) => {
-                  const { concept, avgScore, atRiskCount } = item;
-                  const isAssessed = avgScore !== null;
-                  const score = avgScore ?? 0;
-
-                  return (
-                    <div key={concept.id} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-mono text-text-primary font-semibold flex items-center gap-2">
-                          <span className="text-accent-secondary">{concept.code}</span>
-                          <span>{concept.name}</span>
-                        </span>
-                        <span className="font-mono text-text-secondary">
-                          {isAssessed ? `${score}% average (${atRiskCount} at-risk)` : 'Unassessed'}
-                        </span>
-                      </div>
-                      <div className="w-full h-2.5 rounded-full bg-surface-deep overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-500 rounded-full ${
-                            !isAssessed
-                              ? 'bg-mastery-unassessed'
-                              : score >= 80
-                              ? 'bg-mastery-mastered shadow-neonMastered'
-                              : score >= 50
-                              ? 'bg-mastery-learning'
-                              : 'bg-mastery-atRisk shadow-neonAtRisk'
-                          }`}
-                          style={{ width: `${Math.max(6, score)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Student × Concept Heatmap Matrix */}
-            <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-accent-primary" />
-                  <h3 className="font-heading font-bold text-base text-text-primary">
-                    Student × Concept Heatmap Matrix ({selectedClass?.name})
-                  </h3>
+                <div className="flex items-center gap-3 text-xs font-mono text-text-muted">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded bg-mastery-masteredLight border border-mastery-mastered/40"></span> ≥80%
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded bg-mastery-learningLight border border-mastery-learning/40"></span> 40–79%
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded bg-mastery-atRiskLight border border-mastery-atRisk/40"></span> &lt;40%
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded bg-surface-secondary border border-outline-variant"></span> Unassessed
+                  </span>
                 </div>
-                <span className="text-xs font-mono text-text-secondary">
-                  Click student row to inspect authorized learning details
-                </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-outline-variant/30 text-text-secondary font-mono">
-                      <th className="py-3 px-3">Student</th>
+              {/* Heatmap Table */}
+              <div className="overflow-x-auto rounded-2xl border border-outline-variant">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-surface-secondary text-text-secondary font-mono uppercase text-[10px] border-b border-outline-variant">
+                    <tr>
+                      <th className="py-3 px-4 font-semibold">Student</th>
                       {CONCEPTS.map((c) => (
-                        <th key={c.id} className="py-3 px-2 text-center" title={c.name}>
-                          {c.code}
+                        <th key={c.id} className="py-3 px-2 text-center font-bold" title={c.name}>
+                          {c.id}
                         </th>
                       ))}
-                      <th className="py-3 px-3 text-right">Action</th>
+                      <th className="py-3 px-4 text-right font-semibold">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/20">
-                    {analyticsData.students.map((student: StudentSummary) => (
-                      <tr
-                        key={student.id}
-                        onClick={() => handleSelectStudent(student.id)}
-                        className={`cursor-pointer transition-colors ${
-                          selectedStudentId === student.id
-                            ? 'bg-accent-secondaryContainer/20'
-                            : 'hover:bg-surface-elevated'
-                        }`}
-                      >
-                        <td className="py-3 px-3 font-semibold text-text-primary flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-accent-primary/20 text-accent-primary text-[10px] font-bold flex items-center justify-center font-mono">
-                            {student.name.charAt(0)}
-                          </div>
-                          <div>
-                            <span className="block truncate max-w-[140px]">{student.name}</span>
-                            <span className="block text-[10px] font-mono text-text-secondary">{student.email}</span>
-                          </div>
-                        </td>
+                  <tbody className="divide-y divide-outline-variant">
+                    {analyticsData.students?.map((s: StudentSummary) => {
+                      const isSelected = selectedStudentId === s.id;
+                      return (
+                        <tr
+                          key={s.id}
+                          onClick={() => handleSelectStudent(s.id)}
+                          className={`cursor-pointer transition-colors ${isSelected ? 'bg-accent-primaryLight/50' : 'hover:bg-surface-secondary/50'
+                            }`}
+                        >
+                          <td className="py-3.5 px-4">
+                            <span className="font-semibold text-text-primary block">{s.name}</span>
+                            <span className="text-[10px] font-mono text-text-muted block truncate max-w-[140px]">
+                              {s.email}
+                            </span>
+                          </td>
 
-                        {CONCEPTS.map((c) => {
-                          const score = student.masteryMap[c.id];
-                          let bg = 'bg-surface-deep text-text-secondary';
-                          if (score !== null && score !== undefined) {
-                            if (score >= 80) bg = 'bg-mastery-mastered/20 text-mastery-mastered border border-mastery-mastered/40';
-                            else if (score >= 50) bg = 'bg-mastery-learning/20 text-mastery-learning border border-mastery-learning/40';
-                            else bg = 'bg-mastery-atRisk/20 text-mastery-atRisk border border-mastery-atRisk/40';
-                          }
+                          {CONCEPTS.map((c) => {
+                            const score = s.masteryMap[c.id];
+                            const cellStyle =
+                              score === null || score === undefined
+                                ? 'bg-surface-secondary text-text-muted border-outline-variant'
+                                : score >= 80
+                                  ? 'bg-mastery-masteredLight text-mastery-mastered border-mastery-mastered/30 font-bold'
+                                  : score >= 40
+                                    ? 'bg-mastery-learningLight text-mastery-learning border-mastery-learning/30 font-bold'
+                                    : 'bg-mastery-atRiskLight text-mastery-atRisk border-mastery-atRisk/30 font-bold';
 
-                          return (
-                            <td key={c.id} className="py-3 px-2 text-center">
-                              <span className={`inline-block px-2 py-0.5 rounded font-mono text-[10px] font-bold ${bg}`}>
-                                {score !== null && score !== undefined ? `${score}%` : '---'}
-                              </span>
-                            </td>
-                          );
-                        })}
+                            return (
+                              <td key={c.id} className="py-3.5 px-1.5 text-center">
+                                <span
+                                  className={`inline-block w-8 py-1 rounded text-[11px] font-mono border ${cellStyle}`}
+                                >
+                                  {score !== null && score !== undefined ? `${score}%` : '—'}
+                                </span>
+                              </td>
+                            );
+                          })}
 
-                        <td className="py-3 px-3 text-right">
-                          <button className="text-accent-secondary hover:text-white font-mono text-xs flex items-center gap-1 ml-auto">
-                            <span>Inspect</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          <td className="py-3.5 px-4 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectStudent(s.id);
+                              }}
+                              className="text-xs text-accent-primary font-semibold hover:underline inline-flex items-center gap-1"
+                            >
+                              <span>Inspect</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            </div>
+            </section>
 
-            {/* Cognitive Misconception Distribution */}
-            <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 shadow-xl space-y-4">
-              <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-3">
-                <ShieldAlert className="w-5 h-5 text-mastery-atRisk" />
-                <h3 className="font-heading font-bold text-base text-text-primary">
-                  Identified Misconception Frequency in {selectedClass?.name}
-                </h3>
-              </div>
+            {/* 3. Misconception Frequency Breakdown */}
+            <section className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-4">
+              <h3 className="font-heading font-bold text-xl text-text-primary tracking-tight">
+                Cohort Misconception Frequency
+              </h3>
+              <p className="text-xs text-text-secondary">
+                Curriculum misconceptions observed across students in {selectedClass?.name || 'Class 10'}.
+              </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.entries(analyticsData.misconceptionDistribution).map(([code, m]: [string, any]) => (
-                  <div key={code} className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-1.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analyticsData.misconceptionFrequencies?.map((mf: any) => (
+                  <div
+                    key={mf.code}
+                    className="p-5 rounded-2xl bg-canvas border border-outline-variant space-y-2 hover:border-accent-primary/40 transition-all"
+                  >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-mono text-accent-secondary font-bold">{m.conceptId}</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-mastery-atRisk/15 text-mastery-atRisk font-bold">
-                        {m.count} Student{m.count !== 1 ? 's' : ''}
+                      <span className="font-mono text-[10px] font-bold text-accent-primary bg-accent-primaryLight px-2 py-0.5 rounded">
+                        {mf.conceptId} · {mf.code}
+                      </span>
+                      <span className="text-xs font-mono font-bold text-mastery-atRisk bg-mastery-atRiskLight px-2.5 py-0.5 rounded border border-mastery-atRisk/20">
+                        {mf.count} Student{mf.count === 1 ? '' : 's'} Affected
                       </span>
                     </div>
-                    <div className="font-semibold text-xs text-text-primary">{m.title}</div>
+
+                    <h4 className="text-xs font-bold text-text-primary">
+                      {mf.title}
+                    </h4>
+
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      {mf.description}
+                    </p>
+
+                    <div className="pt-1 text-[11px] text-mastery-mastered font-medium">
+                      <strong>Intervention Truth:</strong> {mf.correction}
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           </div>
         )}
-      </main>
 
-      {/* Student Drill-Down Drawer */}
-      {selectedStudentId && studentDetail && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-xl bg-surface border-l border-outline-variant h-full p-6 overflow-y-auto space-y-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
-              <div>
-                <h3 className="font-heading font-bold text-lg text-text-primary">
-                  {studentDetail.student.name}
-                </h3>
-                <p className="text-xs font-mono text-accent-secondary">
-                  Class: {studentDetail.student.classId} • {studentDetail.student.email}
-                </p>
+        {/* Student Drill-Down Inspection Modal/Drawer */}
+        {selectedStudentId && studentDetail && (
+          <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-surface rounded-3xl border border-outline-variant p-6 sm:p-8 max-w-2xl w-full shadow-float max-h-[90vh] overflow-y-auto space-y-6 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between border-b border-outline-variant pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-accent-primary bg-accent-primaryLight px-2 py-0.5 rounded">
+                      {studentDetail.student.id}
+                    </span>
+                    <span className="text-xs font-mono text-text-muted">
+                      {studentDetail.student.email}
+                    </span>
+                  </div>
+                  <h3 className="font-heading font-extrabold text-2xl text-text-primary mt-1">
+                    {studentDetail.student.name}
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedStudentId(null);
+                    setStudentDetail(null);
+                  }}
+                  className="p-1.5 rounded-xl text-text-secondary hover:bg-surface-secondary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
+
+              {/* Student Mastery Breakdown Across All 9 Concepts */}
+              <div className="space-y-3">
+                <span className="text-xs font-mono font-bold uppercase text-text-muted block">
+                  Concept Mastery Breakdown
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {CONCEPTS.map((c) => {
+                    const m = studentDetail.profile.masteryMap[c.id];
+                    const score = m?.score;
+                    return (
+                      <div
+                        key={c.id}
+                        className="p-3 rounded-xl bg-canvas border border-outline-variant text-xs space-y-1"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-text-primary">{c.id}</span>
+                          <span
+                            className={`font-mono text-[11px] font-bold ${score === null || score === undefined
+                              ? 'text-text-muted'
+                              : score >= 80
+                                ? 'text-mastery-mastered'
+                                : score >= 40
+                                  ? 'text-mastery-learning'
+                                  : 'text-mastery-atRisk'
+                              }`}
+                          >
+                            {score !== null && score !== undefined ? `${score}%` : '—'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-text-secondary truncate">{c.name}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Recent Reasoning Attempts */}
+              <div className="space-y-3">
+                <span className="text-xs font-mono font-bold uppercase text-text-muted block">
+                  Evaluated Reasoning Attempts ({studentDetail.profile.attempts.length})
+                </span>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {studentDetail.profile.attempts
+                    .slice()
+                    .reverse()
+                    .slice(0, 5)
+                    .map((att, i) => (
+                      <div
+                        key={i}
+                        className="p-3.5 rounded-xl bg-canvas border border-outline-variant text-xs space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-accent-primary">
+                            {att.targetConceptIds.join(', ')}
+                          </span>
+                          <span
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${att.isCorrect
+                              ? 'bg-mastery-masteredLight text-mastery-mastered'
+                              : 'bg-mastery-atRiskLight text-mastery-atRisk'
+                              }`}
+                          >
+                            {att.isCorrect ? 'Correct' : 'Incorrect'}
+                          </span>
+                        </div>
+                        <p className="italic text-text-primary text-[11px]">
+                          &ldquo;{att.writtenReasoning}&rdquo;
+                        </p>
+                        {att.misconceptionTitle && (
+                          <p className="text-[11px] text-mastery-atRisk font-medium">
+                            ⚠️ {att.misconceptionTitle}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+
               <button
                 onClick={() => {
                   setSelectedStudentId(null);
                   setStudentDetail(null);
                 }}
-                className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary"
+                className="w-full py-2.5 px-4 rounded-xl bg-surface-secondary hover:bg-outline-variant/60 text-text-primary text-xs font-semibold border border-outline-variant transition-colors"
               >
-                <X className="w-5 h-5" />
+                Close Student Inspector
               </button>
             </div>
-
-            <div className="space-y-4">
-              <h4 className="text-xs font-mono uppercase text-text-secondary">
-                Concept-by-Concept Verified Telemetry:
-              </h4>
-              <div className="grid grid-cols-1 gap-2">
-                {CONCEPTS.map((c) => {
-                  const m = studentDetail.profile.masteryMap[c.id];
-                  const score = m?.score;
-                  const status = m?.status || 'unassessed';
-
-                  return (
-                    <div key={c.id} className="p-3 rounded-xl bg-surface-deep border border-outline-variant/30 flex items-center justify-between text-xs">
-                      <div>
-                        <span className="font-mono font-bold text-accent-primary mr-2">{c.code}</span>
-                        <span className="text-text-primary">{c.name}</span>
-                      </div>
-                      <span
-                        className={`font-mono text-xs font-bold px-2 py-0.5 rounded ${
-                          status === 'mastered'
-                            ? 'bg-mastery-mastered/20 text-mastery-mastered'
-                            : status === 'learning'
-                            ? 'bg-mastery-learning/20 text-mastery-learning'
-                            : status === 'atRisk'
-                            ? 'bg-mastery-atRisk/20 text-mastery-atRisk'
-                            : 'bg-surface text-text-secondary'
-                        }`}
-                      >
-                        {score !== null && score !== undefined ? `${score}%` : 'Unassessed'}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {studentDetail.profile.attempts.length > 0 && (
-                <div className="pt-4 border-t border-outline-variant/30 space-y-3">
-                  <h4 className="text-xs font-mono uppercase text-text-secondary">
-                    Recent Submitted Reasoning Attempts ({studentDetail.profile.attempts.length}):
-                  </h4>
-                  <div className="space-y-2">
-                    {studentDetail.profile.attempts.slice(-3).reverse().map((att: any) => (
-                      <div key={att.id} className="p-3 rounded-xl bg-surface-deep border border-outline-variant/30 text-xs space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-accent-secondary">{att.targetConceptIds.join(', ')}</span>
-                          <span className={`font-mono text-[10px] uppercase ${att.isCorrect ? 'text-mastery-mastered' : 'text-mastery-atRisk'}`}>
-                            {att.isCorrect ? 'Correct Reasoning' : 'Misconception Detected'}
-                          </span>
-                        </div>
-                        <p className="italic text-text-secondary bg-surface p-2 rounded">
-                          &ldquo;{att.writtenReasoning}&rdquo;
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }

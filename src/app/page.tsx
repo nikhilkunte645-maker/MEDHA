@@ -7,7 +7,7 @@ import { HackathonDemoRunner } from '@/components/HackathonDemoRunner';
 import { loadLearnerProfile, getInitialLearnerProfile } from '@/lib/storage';
 import { LearnerProfile } from '@/types/mastery';
 import {
-  Brain,
+  Compass,
   GraduationCap,
   Users,
   Lock,
@@ -15,7 +15,9 @@ import {
   Sparkles,
   ShieldCheck,
   Play,
-  Layers
+  Layers,
+  BookOpen,
+  ArrowUpRight
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -45,24 +47,24 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-surface-deep text-text-primary selection:bg-accent-primaryContainer selection:text-white flex flex-col">
-      {/* Top Portal Navigation Header */}
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 px-6 py-4">
+    <div className="min-h-screen bg-canvas text-text-primary flex flex-col antialiased">
+      {/* Top Studio Navigation Header */}
+      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer flex items-center justify-center text-white shadow-neonPrimary">
-              <Brain className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-accent-primary text-white flex items-center justify-center shadow-cobalt font-heading font-black text-lg">
+              M
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-heading font-extrabold text-xl tracking-wider text-text-primary">
+                <span className="font-heading font-extrabold text-xl tracking-tight text-text-primary">
                   MEDHA
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-accent-primary/10 border border-accent-primary/30 text-accent-primary font-bold">
-                  Role-Protected Portals
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase bg-accent-primaryLight text-accent-primary font-bold">
+                  Learning Studio
                 </span>
               </div>
-              <p className="text-[11px] text-text-secondary font-mono">
+              <p className="text-xs text-text-secondary">
                 Know what you know. Fix what you don&apos;t.
               </p>
             </div>
@@ -71,15 +73,15 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsDemoOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-elevated hover:bg-surface-higher border border-outline-variant/40 text-text-primary text-xs font-mono font-semibold"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface hover:bg-surface-secondary border border-outline-variant text-text-primary text-xs font-semibold shadow-sm transition-colors"
             >
-              <Play className="w-3.5 h-3.5 text-accent-secondary fill-current" />
+              <Play className="w-3.5 h-3.5 text-accent-primary fill-current" />
               <span>60s Walkthrough</span>
             </button>
 
             <button
               onClick={() => router.push('/login')}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white font-mono font-bold text-xs shadow-neonPrimary hover:opacity-90 transition-all"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-accent-primary hover:bg-accent-primaryHover text-white font-semibold text-xs shadow-cobalt transition-all"
             >
               <Lock className="w-3.5 h-3.5" />
               <span>Sign In</span>
@@ -88,78 +90,94 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Role Portal Entry Selection Banner */}
-      <section className="bg-surface border-b border-outline-variant/40 py-6 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Student Portal Card */}
-          <div
-            onClick={() => router.push('/login')}
-            className="p-5 rounded-2xl bg-surface-elevated border border-outline-variant/40 hover:border-accent-primary/50 cursor-pointer transition-all space-y-2 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-lg bg-accent-primary/20 text-accent-primary flex items-center justify-center">
-                <GraduationCap className="w-4 h-4" />
-              </div>
-              <span className="text-[10px] font-mono uppercase text-accent-primary font-bold">
-                Role 1
+      {/* Role Portal Selection Cards */}
+      <section className="bg-surface border-b border-outline-variant py-8 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-accent-primary">
+                Role-Separated Portals
               </span>
+              <h2 className="font-heading font-extrabold text-2xl text-text-primary tracking-tight">
+                Choose Your Workspace
+              </h2>
             </div>
-            <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-primary transition-colors flex items-center justify-between">
-              <span>Student Learning Portal</span>
-              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h3>
-            <p className="text-xs text-text-secondary">
-              Diagnostic assessment, interactive 9-concept topology DAG, adaptive practice, and personalized misconception remediation.
-            </p>
+            <span className="text-xs font-mono text-text-muted hidden sm:inline">
+              Class 10 Physics · Electricity
+            </span>
           </div>
 
-          {/* Teacher Portal Card */}
-          <div
-            onClick={() => router.push('/login')}
-            className="p-5 rounded-2xl bg-surface-elevated border border-outline-variant/40 hover:border-accent-secondary/50 cursor-pointer transition-all space-y-2 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-lg bg-accent-secondary/20 text-accent-secondary flex items-center justify-center">
-                <Users className="w-4 h-4" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Student Portal Card */}
+            <div
+              onClick={() => router.push('/login')}
+              className="p-6 rounded-2xl bg-canvas border border-outline-variant hover:border-accent-primary/60 hover:shadow-card cursor-pointer transition-all space-y-3 group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-accent-primaryLight text-accent-primary flex items-center justify-center font-bold">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-mono uppercase bg-accent-primaryLight text-accent-primary font-bold px-2 py-0.5 rounded">
+                  Student
+                </span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-accent-secondary font-bold">
-                Role 2
-              </span>
+              <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-primary transition-colors flex items-center justify-between">
+                <span>Student Learning Studio</span>
+                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Diagnostic baseline, 9-concept topology DAG, adaptive practice, and root-cause misconception diagnosis.
+              </p>
             </div>
-            <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-secondary transition-colors flex items-center justify-between">
-              <span>Teacher Analytics Portal</span>
-              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h3>
-            <p className="text-xs text-text-secondary">
-              Strictly assigned class heatmaps, learning bottleneck alerts, cognitive error distributions, and authorized report exports.
-            </p>
-          </div>
 
-          {/* Admin Command Center */}
-          <div
-            onClick={() => router.push('/login')}
-            className="p-5 rounded-2xl bg-surface-elevated border border-outline-variant/40 hover:border-accent-tertiary/50 cursor-pointer transition-all space-y-2 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-lg bg-accent-tertiary/20 text-accent-tertiary flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4" />
+            {/* Teacher Portal Card */}
+            <div
+              onClick={() => router.push('/login')}
+              className="p-6 rounded-2xl bg-canvas border border-outline-variant hover:border-accent-secondary/60 hover:shadow-card cursor-pointer transition-all space-y-3 group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-accent-secondaryLight text-accent-secondary flex items-center justify-center font-bold">
+                  <Users className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-mono uppercase bg-accent-secondaryLight text-accent-secondary font-bold px-2 py-0.5 rounded">
+                  Teacher
+                </span>
               </div>
-              <span className="text-[10px] font-mono uppercase text-accent-tertiary font-bold">
-                Role 3
-              </span>
+              <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-secondary transition-colors flex items-center justify-between">
+                <span>Teacher Analytics Studio</span>
+                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Assigned class heatmaps, common misconception frequencies, individual student drill-down, and CSV/JSON gradebook exports.
+              </p>
             </div>
-            <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-tertiary transition-colors flex items-center justify-between">
-              <span>Administrator Center</span>
-              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h3>
-            <p className="text-xs text-text-secondary">
-              Teacher/student account provisioning, class mapping assignments, session revocation, and security audit log trail.
-            </p>
+
+            {/* Admin Console Card */}
+            <div
+              onClick={() => router.push('/login')}
+              className="p-6 rounded-2xl bg-canvas border border-outline-variant hover:border-outline-variant/90 hover:shadow-card cursor-pointer transition-all space-y-3 group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-xl bg-surface-secondary text-text-primary flex items-center justify-center font-bold">
+                  <ShieldCheck className="w-5 h-5 text-mastery-mastered" />
+                </div>
+                <span className="text-[10px] font-mono uppercase bg-surface-secondary text-text-secondary font-bold px-2 py-0.5 rounded">
+                  Admin
+                </span>
+              </div>
+              <h3 className="font-heading font-bold text-base text-text-primary group-hover:text-accent-primary transition-colors flex items-center justify-between">
+                <span>Governance Console</span>
+                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                User provisioning, cohort-to-teacher mappings, session revocation control, and immutable security audit logs.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Preview Container */}
+      {/* Main Student Experience Preview */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         <CognitiveOverview
           profile={profile}
@@ -168,22 +186,11 @@ export default function HomePage() {
         />
       </main>
 
-      {/* Global Footer */}
-      <footer className="w-full border-t border-outline-variant/30 bg-surface/50 py-5 text-xs text-text-secondary font-mono">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>MEDHA © 2026 • Secure Role-Separated AI Intelligence Platform</span>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Class 10 Physics • Electricity (9 Concepts)</span>
-            <span className="text-accent-secondary">Bcrypt Authentication & Strict Data Isolation</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* Interactive Demonstration Runner Modal */}
+      {/* 60s Demo Runner Modal */}
       <HackathonDemoRunner
         isOpen={isDemoOpen}
         onClose={() => setIsDemoOpen(false)}
-        onNavigateToTab={(tab) => {
+        onComplete={() => {
           setIsDemoOpen(false);
           router.push('/login');
         }}

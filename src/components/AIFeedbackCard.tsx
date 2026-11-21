@@ -9,7 +9,9 @@ import {
   Lightbulb,
   ArrowRight,
   ShieldAlert,
-  Cpu
+  Cpu,
+  Sparkles,
+  Award
 } from 'lucide-react';
 
 interface AIFeedbackCardProps {
@@ -40,181 +42,157 @@ export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
   const getQualityBadge = (quality: MisconceptionAnalysis['reasoning_quality']) => {
     switch (quality) {
       case 'exceptional':
-        return { label: 'Exceptional Reasoning', color: 'bg-mastery-mastered/20 text-mastery-mastered border-mastery-mastered/40' };
+        return { label: 'Exceptional Reasoning', color: 'bg-mastery-masteredLight text-mastery-mastered border-mastery-mastered/30' };
       case 'good':
-        return { label: 'Sound Reasoning', color: 'bg-mastery-mastered/20 text-mastery-mastered border-mastery-mastered/40' };
+        return { label: 'Sound Reasoning', color: 'bg-mastery-masteredLight text-mastery-mastered border-mastery-mastered/30' };
       case 'fair':
-        return { label: 'Partial Reasoning', color: 'bg-mastery-learning/20 text-mastery-learning border-mastery-learning/40' };
+        return { label: 'Partial Reasoning', color: 'bg-mastery-learningLight text-mastery-learning border-mastery-learning/30' };
       case 'poor':
-        return { label: 'Flawed Reasoning', color: 'bg-mastery-atRisk/20 text-mastery-atRisk border-mastery-atRisk/40' };
+        return { label: 'Flawed Intuition', color: 'bg-mastery-atRiskLight text-mastery-atRisk border-mastery-atRisk/30' };
       case 'insufficient_evidence':
       default:
-        return { label: 'Insufficient Evidence', color: 'bg-mastery-unassessed/20 text-mastery-unassessed border-mastery-unassessed/40' };
+        return { label: 'Insufficient Evidence', color: 'bg-surface-secondary text-text-muted border-outline-variant' };
     }
   };
 
   const qualityBadge = getQualityBadge(analysis.reasoning_quality);
 
   return (
-    <div className="rounded-3xl bg-surface-elevated border border-outline-variant/40 p-5 lg:p-7 shadow-2xl space-y-5">
-      {/* Engine Source & Confidence Badge */}
-      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/30 flex-wrap gap-2">
+    <div className="rounded-3xl bg-surface border border-outline-variant p-6 sm:p-8 shadow-card space-y-6">
+      {/* Engine Source & Confidence Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-outline-variant flex-wrap gap-2 text-xs">
         <div className="flex items-center gap-2">
           {analysis.is_offline_fallback ? (
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-mastery-learning/15 text-mastery-learning border border-mastery-learning/30">
+            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono bg-accent-warmLight text-accent-warm border border-accent-warm/20 font-semibold">
               <Cpu className="w-3 h-3" />
-              Verified Diagnostic Heuristic (Demo Mode)
+              Diagnostic Heuristic Engine (Offline)
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-mastery-mastered/15 text-mastery-mastered border border-mastery-mastered/30">
-              <Cpu className="w-3 h-3" />
-              Live Gemini 2.5 Flash Reasoning Analysis
+            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono bg-accent-primaryLight text-accent-primary border border-accent-primary/20 font-semibold">
+              <Sparkles className="w-3 h-3" />
+              Live Gemini Reasoning Diagnosis
             </span>
           )}
-          <span className="text-xs text-text-secondary font-mono">
+          <span className="text-text-muted font-mono">
             Confidence: {Math.round(analysis.confidence * 100)}%
           </span>
         </div>
 
         {/* Score Change Badge */}
         {typeof scoreChange === 'number' && (
-          <div
-            className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border ${
+          <span
+            className={`font-mono font-bold px-2.5 py-1 rounded-lg text-xs ${
               scoreChange >= 0
-                ? 'bg-mastery-mastered/20 text-mastery-mastered border-mastery-mastered/40'
-                : 'bg-mastery-atRisk/20 text-mastery-atRisk border-mastery-atRisk/40'
+                ? 'bg-mastery-masteredLight text-mastery-mastered border border-mastery-mastered/30'
+                : 'bg-mastery-atRiskLight text-mastery-atRisk border border-mastery-atRisk/30'
             }`}
           >
-            Mastery {scoreChange >= 0 ? `+${scoreChange}` : scoreChange} pts
-          </div>
+            {scoreChange >= 0 ? `+${scoreChange}%` : `${scoreChange}%`} Mastery
+          </span>
         )}
       </div>
 
-      {/* Contextual Question Prompt */}
-      {questionPrompt && (
-        <div className="p-3.5 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-1">
-          <span className="text-[10px] font-mono uppercase text-accent-secondary flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-accent-secondary" />
-            Evaluated Question Prompt
-          </span>
-          <p className="text-xs text-text-primary font-medium">
-            {questionPrompt}
-          </p>
+      {/* Main Diagnostic Verdict */}
+      <div className="flex items-start gap-4">
+        <div
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+            isCorrect && !isMisconception
+              ? 'bg-mastery-masteredLight text-mastery-mastered border border-mastery-mastered/30'
+              : isMisconception
+              ? 'bg-mastery-atRiskLight text-mastery-atRisk border border-mastery-atRisk/30'
+              : 'bg-mastery-learningLight text-mastery-learning border border-mastery-learning/30'
+          }`}
+        >
+          {isCorrect && !isMisconception ? (
+            <CheckCircle2 className="w-6 h-6" />
+          ) : isMisconception ? (
+            <ShieldAlert className="w-6 h-6" />
+          ) : (
+            <AlertTriangle className="w-6 h-6" />
+          )}
         </div>
-      )}
-
-      {/* Outcome Banner */}
-      <div
-        className={`p-4 rounded-2xl border flex items-start gap-3.5 ${
-          isCorrect
-            ? 'bg-mastery-mastered/10 border-mastery-mastered/30 text-mastery-mastered'
-            : isMisconception
-            ? 'bg-mastery-atRisk/10 border-mastery-atRisk/30 text-mastery-atRisk'
-            : 'bg-mastery-learning/10 border-mastery-learning/30 text-mastery-learning'
-        }`}
-      >
-        {isCorrect ? (
-          <CheckCircle2 className="w-6 h-6 text-mastery-mastered shrink-0 mt-0.5" />
-        ) : isMisconception ? (
-          <ShieldAlert className="w-6 h-6 text-mastery-atRisk shrink-0 mt-0.5" />
-        ) : (
-          <AlertTriangle className="w-6 h-6 text-mastery-learning shrink-0 mt-0.5" />
-        )}
 
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-heading font-bold text-base text-text-primary">
-              {isCorrect
-                ? 'Accurate Conceptual Reasoning'
-                : isMisconception
-                ? `Specific Misconception: ${analysis.misconception_title || 'Cognitive Confusion'}`
-                : 'Incorrect Answer - Review Concept Foundations'}
-            </h4>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md border ${qualityBadge.color}`}>
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${qualityBadge.color}`}>
               {qualityBadge.label}
             </span>
-            {isMisconception && (
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-surface border border-outline-variant/30 text-text-secondary">
-                {status}
+            {isCorrect ? (
+              <span className="text-[10px] font-mono font-bold text-mastery-mastered bg-mastery-masteredLight px-2 py-0.5 rounded border border-mastery-mastered/20">
+                Correct Answer
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono font-bold text-mastery-atRisk bg-mastery-atRiskLight px-2 py-0.5 rounded border border-mastery-atRisk/20">
+                Incorrect Option
               </span>
             )}
           </div>
+
+          <h3 className="font-heading font-extrabold text-xl text-text-primary">
+            {isMisconception
+              ? analysis.misconception_title || 'Latent Misconception Detected'
+              : isCorrect
+              ? 'Sound Conceptual Understanding Demonstrated'
+              : 'Partial Understanding Observed'}
+          </h3>
           <p className="text-xs text-text-secondary leading-relaxed">
             {analysis.explanation}
           </p>
         </div>
       </div>
 
-      {/* Reasoning & Correct Principle Comparison Grid */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* Student reasoning and evidence */}
-        <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
-          <span className="text-[11px] font-mono uppercase text-accent-secondary flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5" />
-            Your Submitted Reasoning
+      {/* Reasoning Analysis Split */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        {/* Student Reasoning & Flagged Excerpts */}
+        <div className="p-4 rounded-2xl bg-canvas border border-outline-variant space-y-2">
+          <span className="text-[10px] font-mono font-bold uppercase text-text-muted block">
+            Your Submitted Reasoning:
           </span>
-          <p className="text-xs text-text-primary italic bg-surface p-2.5 rounded-xl border border-outline-variant/20">
-            &ldquo;{studentReasoning || studentAnswer}&rdquo;
+          <p className="italic text-text-primary leading-relaxed">
+            &ldquo;{studentReasoning || 'No written reasoning captured'}&rdquo;
           </p>
 
-          {analysis.evidence.length > 0 && (
-            <div className="pt-1">
-              <span className="text-[10px] font-mono uppercase text-mastery-learning block mb-1">
-                Extracted Evidence Points:
+          {analysis.evidence && analysis.evidence.length > 0 && (
+            <div className="pt-2 border-t border-outline-variant space-y-1">
+              <span className="text-[10px] font-mono font-bold text-mastery-atRisk uppercase block">
+                Flagged Cognitive Statement:
               </span>
-              <ul className="space-y-1">
-                {analysis.evidence.map((ev, i) => (
-                  <li key={i} className="text-xs text-text-secondary flex items-start gap-1.5">
-                    <span className="text-accent-primary font-bold">•</span>
-                    <span>{ev}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-mastery-atRisk font-medium">
+                &ldquo;{analysis.evidence.join('; ')}&rdquo;
+              </p>
             </div>
           )}
         </div>
 
-        {/* Correct Physics Principle & Action */}
-        <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
-          <span className="text-[11px] font-mono uppercase text-mastery-mastered flex items-center gap-1.5">
-            <Lightbulb className="w-3.5 h-3.5 text-mastery-mastered" />
-            Correct Physics Principle & Next Step
+        {/* Physical Principle / Clarification */}
+        <div className="p-4 rounded-2xl bg-mastery-masteredLight/40 border border-mastery-mastered/30 space-y-2">
+          <span className="text-[10px] font-mono font-bold uppercase text-mastery-mastered block">
+            Scientific Truth & Physical Principle:
           </span>
-          <div className="p-2.5 rounded-xl bg-surface border border-outline-variant/20 space-y-1.5">
-            <p className="text-xs font-semibold text-text-primary">
-              {analysis.correct_principle || analysis.next_learning_action}
-            </p>
-            <div className="flex items-center gap-1.5 pt-1 flex-wrap">
-              <span className="text-[10px] text-text-secondary font-mono">Target Concepts:</span>
-              {analysis.recommended_concept_ids.map((cId) => (
-                <span
-                  key={cId}
-                  className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-accent-primary/15 border border-accent-primary/30 text-accent-primary"
-                >
-                  {cId}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-1 text-[11px] text-text-secondary">
-            <strong>Expected Answer:</strong> {expectedAnswer}
-          </div>
+          <p className="text-text-primary leading-relaxed font-medium">
+            {analysis.correct_principle ||
+              'Electric charge is strictly conserved. Voltage acts as electrical pressure while current is the conserved rate of flow.'}
+          </p>
         </div>
       </div>
 
-      {/* Continue Action */}
-      {onContinue && (
-        <div className="flex items-center justify-end pt-2">
+      {/* Next Learning Action & Continue Button */}
+      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-outline-variant">
+        <div className="text-xs text-text-secondary">
+          <span className="font-semibold text-text-primary">Next Action: </span>
+          <span>{analysis.next_learning_action || 'Generate next targeted adaptive question to test mastery.'}</span>
+        </div>
+
+        {onContinue && (
           <button
             onClick={onContinue}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer hover:opacity-90 text-white text-xs font-bold shadow-neonPrimary transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent-primary text-white text-xs font-semibold shadow-cobalt hover:bg-accent-primaryHover transition-all shrink-0"
           >
             <span>{continueLabel}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
