@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { CONCEPTS } from '@/data/concepts';
 import { LearnerProfile, Attempt } from '@/types/mastery';
+import { MathText } from '@/components/MathRenderer';
 import {
   ShieldAlert,
   AlertTriangle,
@@ -165,7 +166,7 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
                 </div>
 
                 <div className="p-3 bg-surface rounded-xl border border-outline-variant text-xs text-text-primary italic leading-relaxed">
-                  &ldquo;{activeAttempt.writtenReasoning}&rdquo;
+                  &ldquo;<MathText text={activeAttempt.writtenReasoning} />&rdquo;
                 </div>
 
                 {activeAttempt.evidence && activeAttempt.evidence.length > 0 && (
@@ -173,15 +174,15 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
                     <span className="text-[10px] font-mono text-mastery-atRisk font-bold uppercase block">
                       Specific Flaw Flagged:
                     </span>
-                    <p className="text-xs text-mastery-atRisk font-medium">
-                      &ldquo;{activeAttempt.evidence.join('; ')}&rdquo;
-                    </p>
+                    <div className="text-xs text-mastery-atRisk font-medium">
+                      &ldquo;<MathText text={activeAttempt.evidence.join('; ')} />&rdquo;
+                    </div>
                   </div>
                 )}
 
-                <p className="text-xs text-text-secondary leading-relaxed pt-1">
-                  {activeAttempt.explanation}
-                </p>
+                <div className="text-xs text-text-secondary leading-relaxed pt-1">
+                  <MathText text={activeAttempt.explanation} />
+                </div>
               </div>
 
               {/* Box 2: What Actually Happens in Physics */}
@@ -192,17 +193,21 @@ export const MisconceptionView: React.FC<MisconceptionViewProps> = ({
                 </div>
 
                 <div className="p-3 bg-surface rounded-xl border border-mastery-mastered/20 text-xs font-medium text-text-primary leading-relaxed">
-                  {activeAttempt.correctPrinciple ||
-                    'Electric charge is strictly conserved. Charges are not consumed by resistors; they deliver electrical potential energy as heat or light, while the current flow rate remains constant throughout a series path.'}
+                  <MathText
+                    text={
+                      activeAttempt.correctPrinciple ||
+                      'Electric charge is strictly conserved. Charges are not consumed by resistors; they deliver electrical potential energy as heat or light, while the current flow rate remains constant throughout a series path.'
+                    }
+                  />
                 </div>
 
                 <div className="p-3 bg-surface rounded-xl border border-mastery-mastered/20 text-xs text-text-secondary space-y-1">
                   <span className="text-[10px] font-mono text-accent-primary font-bold block uppercase">
                     Scientific Law:
                   </span>
-                  <p className="text-xs text-text-primary">
-                    Kirchhoff&apos;s Current Law / Charge Conservation: I₁ = I₂ = I_total in series.
-                  </p>
+                  <div className="text-xs text-text-primary">
+                    <MathText text="Kirchhoff's Current Law / Charge Conservation: $I_1 = I_2 = I_{\text{total}}$ in series." />
+                  </div>
                 </div>
               </div>
             </div>

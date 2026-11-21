@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none">
+  <!-- MEDHA Primary Horizontal Logo: Symbol + Wordmark -->
+  <!-- Symbol: Tri-node knowledge graph forming abstract M -->
+  <!-- Three nodes: left (L), top-center (T), right (R), bottom-center (B) -->
+  <!-- Edges L-T, T-R (forming outer M strokes), L-B, R-B (inner valley) -->
+
+  <!-- Background: none (transparent) -->
+
+  <!-- === SYMBOL (40×40, centered at 20,16 to 20,56) === -->
+  <!-- Nodes positioned to form stylised M geometry -->
+  <!-- L=(8,52) T-left=(20,20) T-right=(36,20) R=(48,52) with midpoint dip=(28,38) -->
+
+  <!-- Edge: L to TL -->
+  <line x1="10" y1="50" x2="20" y2="22" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+  <!-- Edge: TL to valley dip -->
+  <line x1="20" y1="22" x2="29" y2="40" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+  <!-- Edge: valley to TR -->
+  <line x1="29" y1="40" x2="38" y2="22" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+  <!-- Edge: TR to R -->
+  <line x1="38" y1="22" x2="48" y2="50" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Accent connector: L to valley (knowledge link) -->
+  <line x1="10" y1="50" x2="29" y2="40" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.7"/>
+  <!-- Accent connector: R to valley -->
+  <line x1="48" y1="50" x2="29" y2="40" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.7"/>
+
+  <!-- Node: Left -->
+  <circle cx="10" cy="50" r="4" fill="#6366F1"/>
+  <circle cx="10" cy="50" r="2" fill="#22D3EE"/>
+  <!-- Node: Top-Left -->
+  <circle cx="20" cy="22" r="4" fill="#6366F1"/>
+  <circle cx="20" cy="22" r="2" fill="#ffffff"/>
+  <!-- Node: Valley / Mid -->
+  <circle cx="29" cy="40" r="3" fill="#14B8A6"/>
+  <circle cx="29" cy="40" r="1.5" fill="#ffffff"/>
+  <!-- Node: Top-Right -->
+  <circle cx="38" cy="22" r="4" fill="#6366F1"/>
+  <circle cx="38" cy="22" r="2" fill="#ffffff"/>
+  <!-- Node: Right -->
+  <circle cx="48" cy="50" r="4" fill="#6366F1"/>
+  <circle cx="48" cy="50" r="2" fill="#22D3EE"/>
+
+  <!-- === WORDMARK: MEDHA === -->
+  <!-- Using embedded path text for portability -->
+  <text x="68" y="47"
+        font-family="'Inter', 'DM Sans', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="700"
+        font-size="28"
+        letter-spacing="4"
+        fill="#111827">MEDHA</text>
+
+  <!-- Tagline: sub-brand label -->
+  <text x="69" y="60"
+        font-family="'Inter', 'DM Sans', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="400"
+        font-size="8"
+        letter-spacing="2.5"
+        fill="#6366F1">ADAPTIVE AI LEARNING</text>
+</svg>

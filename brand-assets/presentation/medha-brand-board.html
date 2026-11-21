@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEDHA — Brand Identity Board</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: #f8f9fb; color: #111827; }
+  .board { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+  h1 { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: #6366F1; text-transform: uppercase; margin-bottom: 6px; }
+  h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: #111827; margin-bottom: 4px; }
+  p.sub { font-size: 14px; color: #6B7280; margin-bottom: 48px; }
+
+  .section { margin-bottom: 56px; }
+  .section-title { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #9CA3AF; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #E5E7EB; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
+  .logo-card { border-radius: 16px; padding: 32px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
+  .card-light { background: #ffffff; border: 1px solid #E5E7EB; }
+  .card-dark  { background: #0B1224; }
+  .card-indigo { background: #6366F1; }
+  .card-mid   { background: #F3F4F6; border: 1px solid #E5E7EB; }
+
+  .caption { font-size: 11px; color: #9CA3AF; margin-top: 8px; text-align: center; }
+
+  .col { display: flex; flex-direction: column; }
+
+  /* Color swatches */
+  .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+  .swatch { border-radius: 12px; height: 72px; width: 100px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; }
+  .swatch span { font-size: 10px; font-weight: 600; }
+  .swatch .hex { font-size: 9px; opacity: 0.75; margin-top: 2px; }
+
+  /* Rationale */
+  .rationale { background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 32px; }
+  .rationale h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: #111827; }
+  .rationale p  { font-size: 13px; line-height: 1.7; color: #4B5563; margin-bottom: 16px; }
+  .rationale ul { padding-left: 20px; color: #4B5563; font-size: 13px; line-height: 1.8; }
+
+  img.logo-preview { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<div class="board">
+  <h1>Brand Identity System</h1>
+  <h2>MEDHA</h2>
+  <p class="sub">Adaptive AI Learning Intelligence Platform &nbsp;·&nbsp; "Know what you know. Fix what you don't."</p>
+
+  <!-- PRIMARY LOGO -->
+  <div class="section">
+    <div class="section-title">01 &mdash; Primary Horizontal Logo</div>
+    <div class="row">
+      <div class="col" style="flex:1; min-width:300px;">
+        <div class="logo-card card-light">
+          <img src="../logo/medha-logo-primary.svg" class="logo-preview" style="height:72px;" alt="MEDHA Primary Logo">
+        </div>
+        <div class="caption">Light background</div>
+      </div>
+      <div class="col" style="flex:1; min-width:300px;">
+        <div class="logo-card card-dark">
+          <img src="../logo/medha-logo-white.svg" class="logo-preview" style="height:72px;" alt="MEDHA White Logo">
+        </div>
+        <div class="caption">Dark background (white variant)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STACKED LOGO -->
+  <div class="section">
+    <div class="section-title">02 &mdash; Stacked Logo</div>
+    <div class="row">
+      <div class="col" style="flex:0 0 auto;">
+        <div class="logo-card card-light">
+          <img src="../logo/medha-logo-stacked.svg" class="logo-preview" style="height:120px;" alt="MEDHA Stacked Logo">
+        </div>
+        <div class="caption">Stacked – light</div>
+      </div>
+      <div class="col" style="flex:0 0 auto;">
+        <div class="logo-card card-dark">
+          <!-- White stacked not generated separately; reuse primary white version at stack ratio -->
+          <img src="../logo/medha-logo-white.svg" class="logo-preview" style="height:72px;" alt="MEDHA Stacked Dark">
+        </div>
+        <div class="caption">Stacked – dark background</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STANDALONE SYMBOL -->
+  <div class="section">
+    <div class="section-title">03 &mdash; Standalone Symbol</div>
+    <div class="row">
+      <div class="col">
+        <div class="logo-card card-light" style="width:100px; height:100px; border-radius:20px; padding:16px;">
+          <img src="../logo/medha-logo-symbol.svg" style="width:64px; height:64px;" alt="Symbol">
+        </div>
+        <div class="caption">Light</div>
+      </div>
+      <div class="col">
+        <div class="logo-card card-dark" style="width:100px; height:100px; border-radius:20px; padding:16px;">
+          <img src="../logo/medha-logo-symbol.svg" style="width:64px; height:64px;" alt="Symbol">
+        </div>
+        <div class="caption">Dark</div>
+      </div>
+      <div class="col">
+        <div class="logo-card card-indigo" style="width:100px; height:100px; border-radius:20px; padding:16px;">
+          <!-- Favicon on indigo bg -->
+          <img src="../logo/medha-favicon.svg" style="width:64px; height:64px;" alt="Favicon">
+        </div>
+        <div class="caption">Favicon (indigo)</div>
+      </div>
+      <div class="col">
+        <div class="logo-card card-mid" style="width:48px; height:48px; border-radius:12px; padding:6px;">
+          <img src="../logo/medha-favicon.svg" style="width:36px; height:36px;" alt="Favicon 32px">
+        </div>
+        <div class="caption">32px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONOCHROME -->
+  <div class="section">
+    <div class="section-title">04 &mdash; Monochrome Variants</div>
+    <div class="row">
+      <div class="col" style="flex:1; min-width:280px;">
+        <div class="logo-card card-mid">
+          <img src="../logo/medha-logo-dark.svg" class="logo-preview" style="height:60px;" alt="Dark Mono">
+        </div>
+        <div class="caption">Dark monochrome – for light surfaces</div>
+      </div>
+      <div class="col" style="flex:1; min-width:280px;">
+        <div class="logo-card card-dark">
+          <img src="../logo/medha-logo-white.svg" class="logo-preview" style="height:60px;" alt="White Mono">
+        </div>
+        <div class="caption">White monochrome – for dark surfaces</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section">
+    <div class="section-title">05 &mdash; Color System</div>
+    <div class="swatches">
+      <div class="swatch" style="background:#111827;">
+        <span style="color:#fff;">Primary</span>
+        <span class="hex" style="color:#fff;">#111827</span>
+      </div>
+      <div class="swatch" style="background:#0B1224;">
+        <span style="color:#fff;">Deep Navy</span>
+        <span class="hex" style="color:#fff;">#0B1224</span>
+      </div>
+      <div class="swatch" style="background:#6366F1;">
+        <span style="color:#fff;">Indigo</span>
+        <span class="hex" style="color:#fff;">#6366F1</span>
+      </div>
+      <div class="swatch" style="background:#22D3EE;">
+        <span style="color:#0B1224;">Cyan</span>
+        <span class="hex" style="color:#0B1224;">#22D3EE</span>
+      </div>
+      <div class="swatch" style="background:#14B8A6;">
+        <span style="color:#fff;">Teal</span>
+        <span class="hex" style="color:#fff;">#14B8A6</span>
+      </div>
+      <div class="swatch" style="background:#ffffff; border:1px solid #E5E7EB;">
+        <span style="color:#111827;">White</span>
+        <span class="hex" style="color:#6B7280;">#FFFFFF</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="section">
+    <div class="section-title">06 &mdash; Typography</div>
+    <div style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:32px; display:flex; flex-wrap:wrap; gap:32px;">
+      <div>
+        <div style="font-size:10px; color:#9CA3AF; letter-spacing:2px; margin-bottom:12px;">PRIMARY TYPEFACE</div>
+        <div style="font-size:32px; font-weight:800; letter-spacing:-0.5px; color:#111827;">Inter</div>
+        <div style="font-size:14px; color:#6B7280; margin-top:4px;">AaBbCcDd 0123456789</div>
+        <div style="font-size:12px; color:#9CA3AF; margin-top:8px;">Weights: 400 Regular · 500 Medium · 600 Semibold · 700 Bold · 800 Extrabold</div>
+      </div>
+      <div>
+        <div style="font-size:10px; color:#9CA3AF; letter-spacing:2px; margin-bottom:12px;">WORDMARK TRACKING</div>
+        <div style="font-size:28px; font-weight:700; letter-spacing:5px; color:#6366F1;">MEDHA</div>
+        <div style="font-size:11px; color:#9CA3AF; margin-top:8px;">letter-spacing: +5px &nbsp;|&nbsp; Weight: 700</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN RATIONALE -->
+  <div class="section">
+    <div class="section-title">07 &mdash; Symbol Design Rationale</div>
+    <div class="rationale">
+      <h3>The M-Graph Mark</h3>
+      <p>
+        The MEDHA symbol is a <strong>geometric knowledge graph</strong> in which five nodes connect through directed edges to form the
+        silhouette of the letter <strong>M</strong>. The five nodes represent five cognitive states in a learning journey:
+        beginning knowledge, two emerging understanding peaks, one reflective mid-point valley, and mastery.
+      </p>
+      <ul>
+        <li><strong>Indigo (#6366F1) edges</strong> — The primary learning path: structured, deliberate progression through concepts.</li>
+        <li><strong>Cyan (#22D3EE) dashed connectors</strong> — Associative links: how MEDHA surfaces hidden cross-concept relationships.</li>
+        <li><strong>Teal valley node (#14B8A6)</strong> — The adaptive inflection point: where MEDHA diagnoses misconceptions and re-routes.</li>
+        <li><strong>Cyan terminal nodes</strong> — Entry and mastery states: where a student begins and where they arrive.</li>
+      </ul>
+      <p style="margin-top:16px;">
+        The dashed cyan connectors are intentionally subtle — they signal intelligence working beneath the surface, not noise.
+        The mark scales from 16×16 favicon to billboard without losing its geometry. The letter M is structural, not decorative.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

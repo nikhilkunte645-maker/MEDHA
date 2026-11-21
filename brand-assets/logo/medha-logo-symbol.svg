@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- MEDHA Standalone Symbol — knowledge graph M-node motif -->
+  <!-- Scaled up for clarity at icon sizes -->
+  <!-- L=(10,54) TL=(22,14) TR=(42,14) R=(54,54) valley=(32,38) -->
+
+  <!-- Primary M strokes -->
+  <line x1="11" y1="53" x2="22" y2="15" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="22" y1="15" x2="32" y2="38" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="32" y1="38" x2="42" y2="15" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="42" y1="15" x2="53" y2="53" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Accent cross-links (knowledge connections) -->
+  <line x1="11" y1="53" x2="32" y2="38" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3.5 3.5" opacity="0.65"/>
+  <line x1="53" y1="53" x2="32" y2="38" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3.5 3.5" opacity="0.65"/>
+
+  <!-- Nodes -->
+  <circle cx="11"  cy="53" r="5"   fill="#6366F1"/>
+  <circle cx="11"  cy="53" r="2.5" fill="#22D3EE"/>
+  <circle cx="22"  cy="15" r="5"   fill="#6366F1"/>
+  <circle cx="22"  cy="15" r="2.5" fill="#ffffff"/>
+  <circle cx="32"  cy="38" r="4"   fill="#14B8A6"/>
+  <circle cx="32"  cy="38" r="2"   fill="#ffffff"/>
+  <circle cx="42"  cy="15" r="5"   fill="#6366F1"/>
+  <circle cx="42"  cy="15" r="2.5" fill="#ffffff"/>
+  <circle cx="53"  cy="53" r="5"   fill="#6366F1"/>
+  <circle cx="53"  cy="53" r="2.5" fill="#22D3EE"/>
+</svg>

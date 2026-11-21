@@ -5,7 +5,7 @@ export const CONCEPTS: Concept[] = [
     id: 'C01',
     code: 'C01',
     name: 'Electric Charge and Current',
-    description: 'Fundamentals of quantization of charge (Q = n·e), drift of charge carriers, rate of flow of charge (I = Q/t), and measurement using ammeters.',
+    description: 'Fundamentals of quantization of charge, drift of charge carriers, rate of flow of charge, and measurement using ammeters.',
     learningObjectives: [
       'Define electric charge (Q) and its SI unit (Coulomb).',
       'Define electric current as rate of flow of charge: I = Q/t.',
@@ -15,8 +15,8 @@ export const CONCEPTS: Concept[] = [
     prerequisiteIds: [],
     difficulty: 1,
     formulas: [
-      { latex: 'I = \\frac{Q}{t}', description: 'Current equals electric charge divided by time' },
-      { latex: 'Q = n \\cdot e', description: 'Quantization of charge (e = 1.6 × 10⁻¹⁹ C)' }
+      { latex: '\\[ I = \\frac{Q}{t} \\]', description: 'Current equals electric charge divided by time' },
+      { latex: '\\[ Q = n \\cdot e \\]', description: 'Quantization of charge (e = 1.6 × 10⁻¹⁹ C)' }
     ],
     commonMisconceptions: [
       {

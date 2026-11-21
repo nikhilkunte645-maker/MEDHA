@@ -1,5 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { MisconceptionAnalysis, GeneratedQuestion } from '@/types/mastery';
+import {
+  MisconceptionAnalysis,
+  GeneratedQuestion,
+  CognitiveErrorCategory,
+  DiagnosticConfidenceLevel
+} from '@/types/mastery';
+import { buildReasoningChain } from './prerequisiteEngine';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -19,14 +25,13 @@ Do not merely compare the final answer against the expected answer.
 Analyze the student's explanation step by step.
 
 Distinguish between:
-1. Conceptual misunderstanding.
-2. Incorrect formula selection.
-3. Mathematical calculation error.
-4. Unit conversion error.
-5. Misinterpretation of the question.
-6. Incomplete reasoning.
-7. Correct reasoning with an accidental final-answer error.
-8. Insufficient evidence to classify.
+1. Conceptual misunderstanding ("conceptual_misunderstanding").
+2. Incorrect formula selection ("formula_recall_failure").
+3. Mathematical calculation error ("calculation_error").
+4. Unit conversion error ("unit_conversion_error").
+5. Careless mistake / accidental slip ("careless_mistake").
+6. Sound conceptual understanding ("sound_understanding").
+7. Insufficient evidence to classify ("insufficient_evidence").
 
 Only identify a misconception when the student's reasoning provides supporting evidence.
 
@@ -38,6 +43,7 @@ EXPECTED JSON SCHEMA:
 {
   "is_correct": boolean,
   "reasoning_quality": "poor" | "fair" | "good" | "exceptional" | "insufficient_evidence",
+  "error_category": "conceptual_misunderstanding" | "calculation_error" | "formula_recall_failure" | "unit_conversion_error" | "careless_mistake" | "sound_understanding" | "insufficient_evidence",
   "misconception_detected": boolean,
   "misconception_status": "detected" | "suspected" | "unverified",
   "misconception_code": "STRING_IDENTIFIER" | null,
@@ -47,6 +53,7 @@ EXPECTED JSON SCHEMA:
   "correct_principle": "The fundamental physics principle that clarifies this topic",
   "recommended_concept_ids": ["C01", "C02"],
   "confidence": 0.0 to 1.0,
+  "confidence_level": "high" | "moderate" | "low" | "insufficient_evidence",
   "next_learning_action": "Clear actionable learning recommendation"
 }`;
 
@@ -95,7 +102,14 @@ EXPECTED JSON STRUCTURE:
 /**
  * Validates and sanitizes the LLM misconception response
  */
-export function validateMisconceptionResponse(data: unknown): MisconceptionAnalysis {
+export function validateMisconceptionResponse(
+  data: unknown,
+  context?: {
+    studentAnswer?: string;
+    studentReasoning?: string;
+    targetConceptId?: string;
+  }
+): MisconceptionAnalysis {
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid AI response: Expected JSON object');
   }
@@ -106,6 +120,24 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
   const reasoningQuality = validQualities.includes(String(d.reasoning_quality))
     ? (String(d.reasoning_quality) as MisconceptionAnalysis['reasoning_quality'])
     : 'insufficient_evidence';
+
+  const validCategories: CognitiveErrorCategory[] = [
+    'conceptual_misunderstanding',
+    'calculation_error',
+    'formula_recall_failure',
+    'unit_conversion_error',
+    'careless_mistake',
+    'sound_understanding',
+    'insufficient_evidence'
+  ];
+  let errorCategory: CognitiveErrorCategory = 'conceptual_misunderstanding';
+  if (d.error_category && validCategories.includes(String(d.error_category) as CognitiveErrorCategory)) {
+    errorCategory = String(d.error_category) as CognitiveErrorCategory;
+  } else if (Boolean(d.is_correct)) {
+    errorCategory = 'sound_understanding';
+  } else if (reasoningQuality === 'insufficient_evidence') {
+    errorCategory = 'insufficient_evidence';
+  }
 
   const evidence = Array.isArray(d.evidence)
     ? d.evidence.map(String).filter((s) => s.length > 0)
@@ -119,10 +151,41 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
     ? Math.max(0, Math.min(1, d.confidence))
     : 0.85;
 
+  let confidenceLevel: DiagnosticConfidenceLevel = 'high';
+  if (reasoningQuality === 'insufficient_evidence' || confidence < 0.5) {
+    confidenceLevel = 'insufficient_evidence';
+  } else if (confidence >= 0.85) {
+    confidenceLevel = 'high';
+  } else if (confidence >= 0.65) {
+    confidenceLevel = 'moderate';
+  } else {
+    confidenceLevel = 'low';
+  }
+
   let status: 'detected' | 'suspected' | 'unverified' = 'unverified';
   if (d.misconception_detected) {
     status = confidence >= 0.85 ? 'detected' : confidence >= 0.65 ? 'suspected' : 'unverified';
   }
+
+  const targetCId = context?.targetConceptId || recommendedConceptIds[0] || 'C01';
+  const ans = context?.studentAnswer || (Boolean(d.is_correct) ? 'Correct' : 'Incorrect');
+  const reasoning = context?.studentReasoning || (evidence[0] || 'Direct response evaluation');
+
+  const reasoningChain = buildReasoningChain({
+    studentAnswer: ans,
+    studentReasoning: reasoning,
+    isCorrect: Boolean(d.is_correct),
+    evidence: evidence.length > 0 ? evidence : [reasoning.slice(0, 120)],
+    misconceptionDetected: Boolean(d.misconception_detected),
+    misconceptionCode: d.misconception_code ? String(d.misconception_code) : undefined,
+    misconceptionTitle: d.misconception_title ? String(d.misconception_title) : undefined,
+    errorCategory,
+    confidence,
+    confidenceLevel,
+    targetConceptId: targetCId,
+    correctPrinciple: d.correct_principle ? String(d.correct_principle) : undefined,
+    nextLearningAction: String(d.next_learning_action || 'Reinforce foundational principles of this concept.')
+  });
 
   return {
     is_correct: Boolean(d.is_correct),
@@ -131,12 +194,15 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
     misconception_status: status,
     misconception_code: d.misconception_code ? String(d.misconception_code) : undefined,
     misconception_title: d.misconception_title ? String(d.misconception_title) : undefined,
+    error_category: errorCategory,
+    confidence_level: confidenceLevel,
     evidence: evidence.length > 0 ? evidence : ['Direct analysis of submitted student statement'],
     explanation: String(d.explanation || 'Step-by-step diagnostic evaluation of reasoning.'),
     correct_principle: d.correct_principle ? String(d.correct_principle) : undefined,
     recommended_concept_ids: recommendedConceptIds.length > 0 ? recommendedConceptIds : ['C01'],
     confidence,
     next_learning_action: String(d.next_learning_action || 'Review foundational principles of this concept.'),
+    reasoning_chain: reasoningChain,
     is_offline_fallback: false
   };
 }
@@ -154,33 +220,78 @@ export function runOfflineMisconceptionAnalysis(params: {
   const { expectedAnswer, studentAnswer, studentReasoning, targetConceptIds } = params;
   const reasoningLower = (studentReasoning || '').toLowerCase().trim();
   const isSelectedCorrect = studentAnswer.trim().toLowerCase() === expectedAnswer.trim().toLowerCase();
+  const primaryConceptId = targetConceptIds[0] || 'C01';
 
-  // If reasoning is empty
-  if (!reasoningLower || reasoningLower.length < 5) {
+  const makeResult = (cfg: {
+    is_correct: boolean;
+    reasoning_quality: MisconceptionAnalysis['reasoning_quality'];
+    error_category: CognitiveErrorCategory;
+    misconception_detected: boolean;
+    misconception_status: 'detected' | 'suspected' | 'unverified';
+    misconception_code?: string;
+    misconception_title?: string;
+    evidence: string[];
+    explanation: string;
+    correct_principle: string;
+    recommended_concept_ids: string[];
+    confidence: number;
+    next_learning_action: string;
+  }): MisconceptionAnalysis => {
+    const confidenceLevel: DiagnosticConfidenceLevel =
+      cfg.confidence >= 0.85 ? 'high' : cfg.confidence >= 0.65 ? 'moderate' : cfg.reasoning_quality === 'insufficient_evidence' ? 'insufficient_evidence' : 'low';
+
+    const reasoningChain = buildReasoningChain({
+      studentAnswer,
+      studentReasoning,
+      isCorrect: cfg.is_correct,
+      evidence: cfg.evidence,
+      misconceptionDetected: cfg.misconception_detected,
+      misconceptionCode: cfg.misconception_code,
+      misconceptionTitle: cfg.misconception_title,
+      errorCategory: cfg.error_category,
+      confidence: cfg.confidence,
+      confidenceLevel,
+      targetConceptId: primaryConceptId,
+      correctPrinciple: cfg.correct_principle,
+      nextLearningAction: cfg.next_learning_action
+    });
+
     return {
-      is_correct: isSelectedCorrect,
-      reasoning_quality: 'insufficient_evidence',
-      misconception_detected: false,
-      misconception_status: 'unverified',
-      evidence: ['No detailed reasoning provided.'],
-      explanation: 'The student provided insufficient written reasoning to reliably evaluate conceptual understanding.',
-      recommended_concept_ids: targetConceptIds,
-      confidence: 0.5,
-      next_learning_action: 'Please write out your chain of reasoning step-by-step to enable accurate diagnosis.',
+      ...cfg,
+      confidence_level: confidenceLevel,
+      reasoning_chain: reasoningChain,
       is_offline_fallback: true
     };
+  };
+
+  // 0. Empty or sub-5 character reasoning
+  if (!reasoningLower || reasoningLower.length < 5) {
+    return makeResult({
+      is_correct: isSelectedCorrect,
+      reasoning_quality: 'insufficient_evidence',
+      error_category: 'insufficient_evidence',
+      misconception_detected: false,
+      misconception_status: 'unverified',
+      evidence: ['No detailed written reasoning provided.'],
+      explanation: 'The student provided insufficient written reasoning to reliably evaluate conceptual understanding.',
+      correct_principle: 'Transparent step-by-step reasoning enables precise misconception diagnostics.',
+      recommended_concept_ids: targetConceptIds,
+      confidence: 0.5,
+      next_learning_action: 'Please write out your chain of reasoning step-by-step to enable accurate diagnosis.'
+    });
   }
 
-  // 1. Current vs Voltage Confusion / Current Consumption
+  // 1. Current vs Voltage Confusion / Current Consumption (C01, C02)
   if (
     reasoningLower.includes('push') && (reasoningLower.includes('current') || reasoningLower.includes('used up') || reasoningLower.includes('consumed')) ||
     reasoningLower.includes('current gets used') ||
     reasoningLower.includes('fewer electrons') ||
     reasoningLower.includes('voltage flows')
   ) {
-    return {
+    return makeResult({
       is_correct: false,
       reasoning_quality: 'poor',
+      error_category: 'conceptual_misunderstanding',
       misconception_detected: true,
       misconception_status: 'detected',
       misconception_code: 'CURRENT_VOLTAGE_CONFUSION',
@@ -190,19 +301,19 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'Electric charge is strictly conserved. Voltage provides the work done per unit charge; electrons carry energy without being consumed.',
       recommended_concept_ids: ['C01', 'C02'],
       confidence: 0.94,
-      next_learning_action: 'Review C01 (Electric Current) and C02 (Potential Difference) to understand that charge is strictly conserved and potential difference provides the energy transfer.',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Review C01 (Electric Current) and C02 (Potential Difference) to understand that charge is strictly conserved and potential difference provides the energy transfer.'
+    });
   }
 
-  // 2. Resistivity vs Resistance Confusion
+  // 2. Resistivity vs Resistance Confusion (C05)
   if (
     (reasoningLower.includes('cut') || reasoningLower.includes('stretch') || reasoningLower.includes('thin') || reasoningLower.includes('thick')) &&
     (reasoningLower.includes('resistivity changes') || reasoningLower.includes('higher resistivity') || reasoningLower.includes('more resistivity'))
   ) {
-    return {
+    return makeResult({
       is_correct: false,
       reasoning_quality: 'poor',
+      error_category: 'conceptual_misunderstanding',
       misconception_detected: true,
       misconception_status: 'detected',
       misconception_code: 'RESISTIVITY_DIMENSIONAL_DEPENDENCE',
@@ -212,20 +323,21 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'Resistivity is an intensive material property independent of object length or cross-sectional area.',
       recommended_concept_ids: ['C05'],
       confidence: 0.92,
-      next_learning_action: 'Review C05: Practice the distinction between material property (resistivity) and physical dimension opposition (resistance).',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Review C05: Practice the distinction between material property (resistivity) and physical dimension opposition (resistance).'
+    });
   }
 
-  // 3. Stretched Wire Volume Conservation Neglect
+  // 3. Stretched Wire Volume Conservation Neglect (C05)
   if (
-    reasoningLower.includes('stretch') &&
+    (reasoningLower.includes('stretch') || reasoningLower.includes('elongat') || params.questionPrompt.toLowerCase().includes('stretch')) &&
     (reasoningLower.includes('2r') || reasoningLower.includes('doubles') || reasoningLower.includes('length only')) &&
-    !reasoningLower.includes('area')
+    !reasoningLower.includes('cross-sectional area') &&
+    !reasoningLower.includes('area halves')
   ) {
-    return {
+    return makeResult({
       is_correct: false,
       reasoning_quality: 'fair',
+      error_category: 'conceptual_misunderstanding',
       misconception_detected: true,
       misconception_status: 'detected',
       misconception_code: 'STRETCHED_WIRE_AREA_NEGLECT',
@@ -235,19 +347,19 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'Volume V = A · L remains invariant during wire elongation.',
       recommended_concept_ids: ['C05'],
       confidence: 0.89,
-      next_learning_action: 'Remember volume conservation: V = A × L is constant during stretching.',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Remember volume conservation: V = A × L is constant during stretching.'
+    });
   }
 
-  // 4. Series Current Decay
+  // 4. Series Current Decay (C06)
   if (
     reasoningLower.includes('series') &&
     (reasoningLower.includes('uses up') || reasoningLower.includes('first resistor gets more') || reasoningLower.includes('less current'))
   ) {
-    return {
+    return makeResult({
       is_correct: false,
       reasoning_quality: 'poor',
+      error_category: 'conceptual_misunderstanding',
       misconception_detected: true,
       misconception_status: 'detected',
       misconception_code: 'SERIES_CURRENT_DECAY',
@@ -257,19 +369,19 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'In a single series loop, charge cannot accumulate or vanish; current is identical at all points.',
       recommended_concept_ids: ['C06'],
       confidence: 0.91,
-      next_learning_action: 'Review C06: In series circuits, current is strictly invariant.',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Review C06: In series circuits, current is strictly invariant.'
+    });
   }
 
-  // 5. Parallel Resistance Fallacy
+  // 5. Parallel Resistance Fallacy (C07)
   if (
     reasoningLower.includes('parallel') &&
     (reasoningLower.includes('increase') || reasoningLower.includes('adds up') || reasoningLower.includes('11') || reasoningLower.includes('greater'))
   ) {
-    return {
+    return makeResult({
       is_correct: false,
       reasoning_quality: 'poor',
+      error_category: 'conceptual_misunderstanding',
       misconception_detected: true,
       misconception_status: 'detected',
       misconception_code: 'PARALLEL_RESISTANCE_GREATER_FALLACY',
@@ -279,16 +391,82 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'Adding parallel branches provides alternative current paths, decreasing overall equivalent resistance.',
       recommended_concept_ids: ['C07'],
       confidence: 0.91,
-      next_learning_action: 'Review parallel equivalent resistance formula: 1/Rp = 1/R1 + 1/R2 + 1/R3.',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Review parallel equivalent resistance formula: 1/Rp = 1/R1 + 1/R2 + 1/R3.'
+    });
   }
 
-  // Sound Reasoning
+  // 6. Unit Conversion Error (e.g. minutes not converted to seconds, cm not to m)
+  if (
+    (reasoningLower.includes('minute') && !reasoningLower.includes('60') && (reasoningLower.includes('20 *') || reasoningLower.includes('10 *') || reasoningLower.includes('q = i * t'))) ||
+    reasoningLower.includes('forgot to convert') ||
+    reasoningLower.includes('without converting minutes')
+  ) {
+    return makeResult({
+      is_correct: false,
+      reasoning_quality: 'fair',
+      error_category: 'unit_conversion_error',
+      misconception_detected: false,
+      misconception_status: 'unverified',
+      evidence: [studentReasoning.slice(0, 150)],
+      explanation: 'The student correctly identified the physical formula Q = I·t, but neglected SI unit conversion (substituting minutes directly instead of seconds).',
+      correct_principle: 'Always convert time into standard SI units (1 minute = 60 seconds) before calculating charge.',
+      recommended_concept_ids: targetConceptIds,
+      confidence: 0.88,
+      next_learning_action: 'Practice SI unit conversions: Always check that time is in seconds and length is in meters before computing.'
+    });
+  }
+
+  // 7. Calculation Error (arithmetic slip while formula and concept are sound)
+  if (
+    reasoningLower.includes('calculation error') ||
+    reasoningLower.includes('multiplied incorrectly') ||
+    reasoningLower.includes('arithmetic slip') ||
+    reasoningLower.includes('math mistake') ||
+    (reasoningLower.includes('formula') && (reasoningLower.includes('arithmetic') || reasoningLower.includes('slip')))
+  ) {
+    return makeResult({
+      is_correct: false,
+      reasoning_quality: 'fair',
+      error_category: 'calculation_error',
+      misconception_detected: false,
+      misconception_status: 'unverified',
+      evidence: [studentReasoning.slice(0, 150)],
+      explanation: 'The student selected the correct physical formula and demonstrated sound conceptual reasoning, but committed a mathematical calculation slip in the final step.',
+      correct_principle: 'Physical intuition is correct. Double-check mental arithmetic and fraction simplification.',
+      recommended_concept_ids: targetConceptIds,
+      confidence: 0.86,
+      next_learning_action: 'Practice precision problem-solving: Write down step-by-step arithmetic to avoid mechanical calculation slips.'
+    });
+  }
+
+  // 8. Formula Recall Failure (e.g. inverted Ohm's law, V = I/R)
+  if (
+    reasoningLower.includes('v = i/r') ||
+    reasoningLower.includes('i = v * r') ||
+    reasoningLower.includes('r = v * i') ||
+    reasoningLower.includes('wrong formula')
+  ) {
+    return makeResult({
+      is_correct: false,
+      reasoning_quality: 'poor',
+      error_category: 'formula_recall_failure',
+      misconception_detected: false,
+      misconception_status: 'unverified',
+      evidence: [studentReasoning.slice(0, 150)],
+      explanation: 'The student recalled an incorrect algebraic form of the governing equation.',
+      correct_principle: "Ohm's law states V = I · R; therefore I = V / R and R = V / I.",
+      recommended_concept_ids: targetConceptIds,
+      confidence: 0.9,
+      next_learning_action: 'Memorize the foundational formula triangle: V at the top, I and R at the bottom (V = IR).'
+    });
+  }
+
+  // 9. Sound Reasoning (Correct answer + logically sound explanation)
   if (isSelectedCorrect) {
-    return {
+    return makeResult({
       is_correct: true,
       reasoning_quality: 'good',
+      error_category: 'sound_understanding',
       misconception_detected: false,
       misconception_status: 'unverified',
       evidence: [studentReasoning.slice(0, 150)],
@@ -296,14 +474,15 @@ export function runOfflineMisconceptionAnalysis(params: {
       correct_principle: 'Correctly applied governing physics principle.',
       recommended_concept_ids: targetConceptIds,
       confidence: 0.92,
-      next_learning_action: 'Advance to higher-difficulty application problems for this concept.',
-      is_offline_fallback: true
-    };
+      next_learning_action: 'Advance to higher-difficulty application problems for this concept.'
+    });
   }
 
-  return {
+  // 10. General / Ambiguous incorrect response
+  return makeResult({
     is_correct: false,
     reasoning_quality: 'fair',
+    error_category: 'careless_mistake',
     misconception_detected: false,
     misconception_status: 'suspected',
     evidence: [studentReasoning.slice(0, 150)],
@@ -311,13 +490,12 @@ export function runOfflineMisconceptionAnalysis(params: {
     correct_principle: 'Check algebraic steps and SI unit substitutions.',
     recommended_concept_ids: targetConceptIds,
     confidence: 0.72,
-    next_learning_action: 'Review the underlying formula and practice step-by-step problem solving.',
-    is_offline_fallback: true
-  };
+    next_learning_action: 'Review the underlying formula and practice step-by-step problem solving.'
+  });
 }
 
 /**
- * Server-side AI Misconception Diagnosis
+ * Server-side AI Misconception Diagnosis with 7s Timeout & Deterministic Fallback
  */
 export async function diagnoseStudentReasoning(params: {
   questionPrompt: string;
@@ -352,16 +530,27 @@ ${params.studentReasoning}
 
 Analyze the student's reasoning step-by-step according to the system instructions. Return valid JSON only.`;
 
-    const result = await model.generateContent([
+    // 7-second timeout race to guarantee responsive fallback
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Gemini API call timed out after 7000ms')), 7000)
+    );
+
+    const generatePromise = model.generateContent([
       { text: MISCONCEPTION_SYSTEM_PROMPT },
       { text: userPrompt }
     ]);
 
+    const result = await Promise.race([generatePromise, timeoutPromise]);
     const text = result.response.text();
     const parsed = JSON.parse(text);
-    return validateMisconceptionResponse(parsed);
+
+    return validateMisconceptionResponse(parsed, {
+      studentAnswer: params.studentAnswer,
+      studentReasoning: params.studentReasoning,
+      targetConceptId: params.targetConceptIds[0]
+    });
   } catch (err) {
-    console.warn('Gemini API call failed, falling back to deterministic heuristic:', err);
+    console.warn('Gemini API call failed or timed out, falling back to deterministic heuristic:', err);
     const fallback = runOfflineMisconceptionAnalysis(params);
     fallback.is_offline_fallback = true;
     return fallback;

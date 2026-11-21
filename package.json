@@ -6,13 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx tsx scripts/regression-suite.mjs && npx tsx scripts/role-security-regression.mjs && npx tsx scripts/qa-audit.mjs && npx tsx scripts/evaluate-diagnostic-engine.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@types/katex": "^0.16.8",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
+    "katex": "^0.19.1",
     "lucide-react": "^0.475.0",
     "next": "^15.1.7",
     "react": "^19.0.0",

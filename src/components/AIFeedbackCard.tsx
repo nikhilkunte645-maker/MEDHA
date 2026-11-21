@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MisconceptionAnalysis } from '@/types/mastery';
+import { MathText } from '@/components/MathRenderer';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -135,9 +136,9 @@ export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
               ? 'Sound Conceptual Understanding Demonstrated'
               : 'Partial Understanding Observed'}
           </h3>
-          <p className="text-xs text-text-secondary leading-relaxed">
-            {analysis.explanation}
-          </p>
+          <div className="text-xs text-text-secondary leading-relaxed">
+            <MathText text={analysis.explanation} />
+          </div>
         </div>
       </div>
 
@@ -148,18 +149,18 @@ export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
           <span className="text-[10px] font-mono font-bold uppercase text-text-muted block">
             Your Submitted Reasoning:
           </span>
-          <p className="italic text-text-primary leading-relaxed">
-            &ldquo;{studentReasoning || 'No written reasoning captured'}&rdquo;
-          </p>
+          <div className="italic text-text-primary leading-relaxed">
+            &ldquo;<MathText text={studentReasoning || 'No written reasoning captured'} />&rdquo;
+          </div>
 
           {analysis.evidence && analysis.evidence.length > 0 && (
             <div className="pt-2 border-t border-outline-variant space-y-1">
               <span className="text-[10px] font-mono font-bold text-mastery-atRisk uppercase block">
                 Flagged Cognitive Statement:
               </span>
-              <p className="text-mastery-atRisk font-medium">
-                &ldquo;{analysis.evidence.join('; ')}&rdquo;
-              </p>
+              <div className="text-mastery-atRisk font-medium">
+                &ldquo;<MathText text={analysis.evidence.join('; ')} />&rdquo;
+              </div>
             </div>
           )}
         </div>
@@ -169,12 +170,64 @@ export const AIFeedbackCard: React.FC<AIFeedbackCardProps> = ({
           <span className="text-[10px] font-mono font-bold uppercase text-mastery-mastered block">
             Scientific Truth & Physical Principle:
           </span>
-          <p className="text-text-primary leading-relaxed font-medium">
-            {analysis.correct_principle ||
-              'Electric charge is strictly conserved. Voltage acts as electrical pressure while current is the conserved rate of flow.'}
-          </p>
+          <div className="text-text-primary leading-relaxed font-medium">
+            <MathText
+              text={
+                analysis.correct_principle ||
+                'Electric charge is strictly conserved. Voltage acts as electrical pressure while current is the conserved rate of flow.'
+              }
+            />
+          </div>
         </div>
       </div>
+
+      {/* 8-Stage Reasoning-to-Intervention Engine Stepper (Judge-Ready Differentiation Flow) */}
+      {analysis.reasoning_chain && analysis.reasoning_chain.length > 0 && (
+        <div className="rounded-2xl bg-canvas border border-outline-variant p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-accent-primary" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-primary">
+                Reasoning-to-Intervention Engine · 8-Stage Trace
+              </span>
+            </div>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-primaryLight text-accent-primary font-semibold">
+              Evidence-Based
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-1 text-[11px]">
+            {analysis.reasoning_chain.map((step) => {
+              const borderCol =
+                step.status === 'passed'
+                  ? 'border-mastery-mastered/40 bg-mastery-masteredLight/20 text-mastery-mastered'
+                  : step.status === 'flagged'
+                  ? 'border-mastery-atRisk/40 bg-mastery-atRiskLight/20 text-mastery-atRisk'
+                  : step.status === 'warning'
+                  ? 'border-mastery-learning/40 bg-mastery-learningLight/20 text-mastery-learning'
+                  : 'border-outline-variant bg-surface text-text-secondary';
+
+              return (
+                <div key={step.step} className={`p-2.5 rounded-xl border ${borderCol} flex flex-col justify-between`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-mono text-[9px] font-bold opacity-75">
+                      0{step.step} · {step.label}
+                    </span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      step.status === 'passed' ? 'bg-mastery-mastered' :
+                      step.status === 'flagged' ? 'bg-mastery-atRisk' :
+                      step.status === 'warning' ? 'bg-mastery-learning' : 'bg-text-muted'
+                    }`} />
+                  </div>
+                  <p className="text-text-primary text-[10px] leading-snug line-clamp-2">
+                    {step.content}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Next Learning Action & Continue Button */}
       <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-outline-variant">

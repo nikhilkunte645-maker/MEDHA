@@ -3,6 +3,8 @@
 import React from 'react';
 import { CONCEPTS } from '@/data/concepts';
 import { LearnerProfile, ConceptMastery } from '@/types/mastery';
+import { generateAdaptiveRecommendation } from '@/lib/prerequisiteEngine';
+import { Formula, MathText } from './MathRenderer';
 import {
   Compass,
   Sparkles,
@@ -64,7 +66,7 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
     .reverse()
     .find((a) => a.misconceptionDetected);
 
-  // Dynamic editorial headline based on state
+  // Dynamic editorial headline based on state and prerequisite gap analysis
   const getEditorialNarrative = () => {
     if (!profile.diagnosticCompleted && assessedItems.length === 0) {
       return {
@@ -77,36 +79,19 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
         buttonText: "Begin Diagnostic Assessment"
       };
     }
-    if (atRiskCount > 0 && lowestConceptItem) {
-      return {
-        title: `Strengthening ${lowestConceptItem.concept.name}`,
-        subtitle: `You have ${masteredCount} concept${masteredCount === 1 ? '' : 's'} mastered. Let's resolve the conceptual friction detected in ${lowestConceptItem.concept.name}.`,
-        recommendation: `Understand ${lowestConceptItem.concept.name}`,
-        targetConcept: `${lowestConceptItem.concept.id} · ${lowestConceptItem.concept.name}`,
-        rationale: `Evidence indicates latent misconception risk (Score: ${lowestConceptItem.mastery?.score}%). Targeted practice will reinforce this prerequisite before advancing.`,
-        action: () => onNavigate('workspace', lowestConceptItem.concept.id),
-        buttonText: `Target ${lowestConceptItem.concept.id}`
-      };
-    }
-    if (learningCount > 0 && lowestConceptItem) {
-      return {
-        title: "Your conceptual understanding is expanding.",
-        subtitle: `You are actively developing mastery across ${learningCount} concept${learningCount === 1 ? '' : 's'}. Continued practice builds long-term retention.`,
-        recommendation: `Elevate ${lowestConceptItem.concept.name} to Mastery`,
-        targetConcept: `${lowestConceptItem.concept.id} · ${lowestConceptItem.concept.name}`,
-        rationale: `Current mastery is at ${lowestConceptItem.mastery?.score}%. 2 more solid reasoning attempts will promote this concept to Mastered.`,
-        action: () => onNavigate('workspace', lowestConceptItem.concept.id),
-        buttonText: `Practice ${lowestConceptItem.concept.id}`
-      };
-    }
+
+    // Run prerequisite-aware adaptive intelligence
+    const adaptive = generateAdaptiveRecommendation(profile);
+    const targetC = CONCEPTS.find(c => c.id === adaptive.recommendedConceptId);
+
     return {
-      title: "Comprehensive mastery achieved.",
-      subtitle: "All assessed concepts meet high-confidence mastery thresholds. Scheduled spaced reviews will maintain peak retrieval strength.",
-      recommendation: "Maintain Peak Retrieval Strength",
-      targetConcept: "Spaced Revision Protocol",
-      rationale: "Regular spaced repetition at 1, 3, and 7-day intervals permanently consolidates physical concepts.",
-      action: () => onNavigate('revision'),
-      buttonText: "Review Spaced Schedule"
+      title: adaptive.actionTitle,
+      subtitle: adaptive.actionDescription,
+      recommendation: adaptive.actionTitle,
+      targetConcept: `${adaptive.recommendedConceptId} · ${adaptive.recommendedConceptName}`,
+      rationale: adaptive.pedagogicalRationale,
+      action: () => onNavigate('workspace', adaptive.recommendedConceptId),
+      buttonText: `Target ${adaptive.recommendedConceptId}`
     };
   };
 
@@ -386,15 +371,23 @@ export const CognitiveOverview: React.FC<CognitiveOverviewProps> = ({
                   <h4 className="font-heading font-bold text-sm text-text-primary group-hover:text-accent-primary transition-colors">
                     {concept.name}
                   </h4>
-                  <p className="text-xs text-text-secondary mt-1 line-clamp-2">
-                    {concept.description}
-                  </p>
+                  <div className="text-xs text-text-secondary mt-1 line-clamp-2">
+                    <MathText text={concept.description} />
+                  </div>
                 </div>
 
                 {/* Mathematical Formula Preview */}
-                <div className="p-2 rounded-lg bg-surface-secondary/70 border border-outline-variant/60 flex items-center justify-between text-xs font-mono text-text-secondary">
-                  <span>Formula:</span>
-                  <span className="font-bold text-text-primary">{concept.formulas.map(f => f.latex).join(', ')}</span>
+                <div className="p-2 rounded-lg bg-surface-secondary/70 border border-outline-variant/60 flex items-center justify-between gap-2 text-xs font-mono text-text-secondary flex-wrap">
+                  <span className="shrink-0">Formula:</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {concept.formulas.length > 0 ? (
+                      concept.formulas.map((f, i) => (
+                        <Formula key={i} latex={f.latex} />
+                      ))
+                    ) : (
+                      <span className="italic text-text-muted">Schematic</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Mastery Progress Bar */}

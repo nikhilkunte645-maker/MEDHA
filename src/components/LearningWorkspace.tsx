@@ -11,6 +11,7 @@ import {
 } from '@/types/mastery';
 import { loadLearnerProfile, recordAttemptAndUpdateMastery } from '@/lib/storage';
 import { AIFeedbackCard } from './AIFeedbackCard';
+import { Formula, MathText } from './MathRenderer';
 import {
   Sparkles,
   Target,
@@ -286,11 +287,20 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
                 {currentConcept.name}
               </h3>
             </div>
-            <p className="text-xs text-text-secondary line-clamp-2">
-              {currentConcept.description}
-            </p>
-            <div className="text-xs font-mono text-text-muted pt-1">
-              Formula: <strong className="text-text-primary font-bold">{currentConcept.formulas.map(f => f.latex).join(', ')}</strong>
+            <div className="text-xs text-text-secondary line-clamp-2">
+              <MathText text={currentConcept.description} />
+            </div>
+            <div className="text-xs text-text-muted pt-1 flex items-center gap-2 flex-wrap">
+              <span className="font-mono text-text-secondary">Formula:</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {currentConcept.formulas.length > 0 ? (
+                  currentConcept.formulas.map((f, i) => (
+                    <Formula key={i} latex={f.latex} />
+                  ))
+                ) : (
+                  <span className="italic text-text-muted">Descriptive / Schematic</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -350,14 +360,14 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
               <span className="text-[10px] font-mono font-bold uppercase text-accent-warm block">
                 Guiding Conceptual Hint:
               </span>
-              <p className="leading-relaxed">{activeQuestion.hint}</p>
+              <MathText text={activeQuestion.hint} as="p" className="leading-relaxed" />
             </div>
           )}
 
           {/* Question Prompt */}
-          <h3 className="font-heading font-bold text-xl sm:text-2xl text-text-primary leading-snug">
-            {activeQuestion.question}
-          </h3>
+          <div className="font-heading font-bold text-xl sm:text-2xl text-text-primary leading-snug">
+            <MathText text={activeQuestion.question} />
+          </div>
 
           {/* Option Cards */}
           <div className="space-y-2.5">
@@ -389,9 +399,9 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
                   >
                     {letter}
                   </div>
-                  <span className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-text-primary' : 'text-text-primary'}`}>
-                    {opt}
-                  </span>
+                  <div className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-text-primary' : 'text-text-primary'}`}>
+                    <MathText text={opt} />
+                  </div>
                 </div>
               );
             })}

@@ -39,6 +39,32 @@ export interface Question {
 
 export type ReasoningQuality = 'poor' | 'fair' | 'good' | 'exceptional' | 'insufficient_evidence';
 
+export type CognitiveErrorCategory =
+  | 'conceptual_misunderstanding'
+  | 'calculation_error'
+  | 'formula_recall_failure'
+  | 'unit_conversion_error'
+  | 'careless_mistake'
+  | 'sound_understanding'
+  | 'insufficient_evidence';
+
+export type DiagnosticConfidenceLevel = 'high' | 'moderate' | 'low' | 'insufficient_evidence';
+
+export interface PrerequisiteGapInfo {
+  conceptId: string;
+  conceptName: string;
+  relationship: string;
+  rootGap: boolean;
+}
+
+export interface ReasoningChainStep {
+  step: number;
+  stage: string;
+  label: string;
+  content: string;
+  status: 'passed' | 'warning' | 'flagged' | 'neutral';
+}
+
 export interface MisconceptionAnalysis {
   is_correct: boolean;
   reasoning_quality: ReasoningQuality;
@@ -46,6 +72,10 @@ export interface MisconceptionAnalysis {
   misconception_code?: string;
   misconception_title?: string;
   misconception_status?: 'detected' | 'suspected' | 'unverified';
+  error_category?: CognitiveErrorCategory;
+  confidence_level?: DiagnosticConfidenceLevel;
+  prerequisite_gap?: PrerequisiteGapInfo | null;
+  reasoning_chain?: ReasoningChainStep[];
   evidence: string[];
   explanation: string;
   correct_principle?: string;
@@ -70,6 +100,10 @@ export interface Attempt {
   misconceptionCode?: string;
   misconceptionTitle?: string;
   misconceptionStatus?: 'detected' | 'suspected' | 'unverified';
+  errorCategory?: CognitiveErrorCategory;
+  confidenceLevel?: DiagnosticConfidenceLevel;
+  prerequisiteGap?: PrerequisiteGapInfo | null;
+  reasoningChain?: ReasoningChainStep[];
   evidence: string[];
   explanation: string;
   correctPrinciple?: string;

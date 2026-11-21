@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Concept, ConceptMastery } from '@/types/mastery';
 import { CONCEPTS } from '@/data/concepts';
+import { Formula, MathText } from './MathRenderer';
 import {
   Layers,
   BookOpen,
@@ -345,16 +346,22 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
             </div>
 
             {/* Description */}
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {activeModalConcept.description}
-            </p>
+            <div className="text-xs text-text-secondary leading-relaxed">
+              <MathText text={activeModalConcept.description} />
+            </div>
 
             {/* Formula Box */}
-            <div className="p-4 rounded-xl bg-canvas border border-outline-variant flex items-center justify-between text-xs font-mono">
-              <span className="text-text-secondary font-medium">Mathematical Formula:</span>
-              <span className="font-bold text-text-primary text-sm">
-                {activeModalConcept.formulas.map(f => f.latex).join(', ')}
-              </span>
+            <div className="p-4 rounded-xl bg-canvas border border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <span className="text-text-secondary font-mono font-medium shrink-0">Mathematical Formula:</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {activeModalConcept.formulas.length > 0 ? (
+                  activeModalConcept.formulas.map((f, i) => (
+                    <Formula key={i} latex={f.latex} />
+                  ))
+                ) : (
+                  <span className="italic text-text-muted">Descriptive / Schematic</span>
+                )}
+              </div>
             </div>
 
             {/* Prerequisites & Dependents */}

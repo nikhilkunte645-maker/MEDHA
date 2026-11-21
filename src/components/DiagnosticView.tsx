@@ -6,6 +6,7 @@ import { CONCEPTS } from '@/data/concepts';
 import { Attempt, MisconceptionAnalysis } from '@/types/mastery';
 import { calculateDiagnosticBaseline } from '@/lib/masteryEngine';
 import { saveLearnerProfile, loadLearnerProfile } from '@/lib/storage';
+import { MathText } from '@/components/MathRenderer';
 import {
   HelpCircle,
   CheckCircle2,
@@ -301,7 +302,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
             Concept Diagnostic
           </span>
           <h3 className="font-heading font-bold text-xl sm:text-2xl text-text-primary leading-snug">
-            {currentQuestion.prompt}
+            <MathText text={currentQuestion.prompt} />
           </h3>
         </div>
 
@@ -329,7 +330,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
                   {letter}
                 </div>
                 <span className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-text-primary' : 'text-text-primary'}`}>
-                  {option}
+                  <MathText text={option} />
                 </span>
               </div>
             );
