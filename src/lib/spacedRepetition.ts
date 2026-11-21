@@ -3,11 +3,11 @@ import { MasteryStatus } from '@/types/mastery';
 /**
  * Spaced Repetition Scheduling Engine.
  * 
- * Suggested initial intervals per specification:
- * - Weak understanding (needs_attention): 1 day
- * - Developing: 2 days
- * - Proficient: 4 days
- * - Strong mastery: 7 days
+ * Intervals calibrated to concept stability:
+ * - At Risk (<50%): 1 day
+ * - Learning (50-79%): 3 days
+ * - Mastered (>=80%): 7 days
+ * - Unassessed: 1 day
  * 
  * Incorporates review count multiplier for progressive spacing.
  */
@@ -20,16 +20,13 @@ export function calculateNextReview(
 
   let days = 1;
   switch (status) {
-    case 'needs_attention':
+    case 'atRisk':
       days = 1;
       break;
-    case 'developing':
-      days = 2;
+    case 'learning':
+      days = 3;
       break;
-    case 'proficient':
-      days = 4;
-      break;
-    case 'strong':
+    case 'mastered':
       days = 7;
       break;
     case 'unassessed':
@@ -39,7 +36,7 @@ export function calculateNextReview(
   }
 
   // Slight expansion for repeated successful reviews
-  if (reviewCount > 2 && (status === 'proficient' || status === 'strong')) {
+  if (reviewCount > 2 && status === 'mastered') {
     days = Math.round(days * 1.5);
   }
 

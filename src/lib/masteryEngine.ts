@@ -1,17 +1,17 @@
 import { ConceptMastery, MasteryStatus, ReasoningQuality, Attempt } from '@/types/mastery';
 import { calculateNextReview } from './spacedRepetition';
 
-export function getMasteryStatus(score: number): MasteryStatus {
-  if (score < 40) return 'needs_attention';
-  if (score < 70) return 'developing';
-  if (score < 85) return 'proficient';
-  return 'strong';
+export function getMasteryStatus(score: number | null): MasteryStatus {
+  if (score === null || score === undefined) return 'unassessed';
+  if (score < 50) return 'atRisk';
+  if (score < 80) return 'learning';
+  return 'mastered';
 }
 
 export function createInitialMastery(conceptId: string): ConceptMastery {
   return {
     conceptId,
-    score: 0,
+    score: null,
     status: 'unassessed',
     evidenceCount: 0,
     lastAssessed: null,
@@ -24,24 +24,9 @@ export function createInitialMastery(conceptId: string): ConceptMastery {
 /**
  * Deterministic evidence-based mastery update algorithm.
  * 
- * Target Evidence Target:
- * - Base difficulty multiplier: L1 = 15 pts, L2 = 22 pts, L3 = 30 pts
- * - Reasoning Quality Multiplier:
- *     - exceptional: 1.25x
- *     - good: 1.1x
- *     - fair: 0.9x
- *     - poor: 0.5x
- *     - insufficient_evidence: 0.8x
- * 
- * If Correct:
- * - Gains step size attenuated by current mastery (diminishing returns as score -> 100).
- * - Maximum single correct jump capped at 25 points so no single lucky guess leaps to mastery.
- * 
- * If Incorrect:
- * - Loss step size dampened by existing evidence count (inertia) and reasoning quality.
- * - If reasoning showed good understanding despite accidental mistake, deduction is minimal (-3 to -6 pts).
- * - If deep misconception is confirmed, deduction is calibrated (-8 to -15 pts).
- * - High mastery student (e.g. 85) does not crash to 20 from one mistake.
+ * - If current concept is unassessed (score === null), baseline is assigned based on answer correctness, difficulty, and reasoning.
+ * - If assessed, updates with inertia and diminishing return mathematics.
+ * - Score range: 0 - 100
  */
 export function calculateUpdatedMastery(
   current: ConceptMastery,
@@ -56,9 +41,9 @@ export function calculateUpdatedMastery(
 ): ConceptMastery {
   const { isCorrect, difficulty, reasoningQuality, misconceptionDetected, attemptId } = params;
   const now = params.timestamp || new Date().toISOString();
-  const isFirstAssessment = current.status === 'unassessed' || current.evidenceCount === 0;
+  const isFirstAssessment = current.score === null || current.evidenceCount === 0;
 
-  let newScore = current.score;
+  let newScore = current.score ?? 50;
   let scoreDelta = 0;
 
   // Base difficulty factor
@@ -86,40 +71,37 @@ export function calculateUpdatedMastery(
 
   if (isFirstAssessment) {
     if (isCorrect) {
-      // First baseline correct: starts between 55 and 75 depending on difficulty & reasoning
-      const baseline = 55 + (difficulty * 6) + (reasoningFactor > 1.0 ? 8 : 0);
-      newScore = Math.min(80, Math.round(baseline));
+      // First baseline correct: starts between 60 and 82 depending on difficulty & reasoning
+      const baseline = 62 + (difficulty * 5) + (reasoningFactor > 1.0 ? 6 : 0);
+      newScore = Math.min(84, Math.round(baseline));
     } else {
-      // First baseline incorrect: starts between 20 and 38
-      const baseline = 22 + (reasoningQuality === 'fair' || reasoningQuality === 'good' ? 12 : 5);
-      newScore = Math.min(38, Math.round(baseline));
+      // First baseline incorrect: starts between 25 and 45
+      const baseline = 28 + (reasoningQuality === 'fair' || reasoningQuality === 'good' ? 12 : 5);
+      newScore = Math.min(45, Math.round(baseline));
     }
-    scoreDelta = newScore - current.score;
+    scoreDelta = newScore;
   } else {
     if (isCorrect) {
-      // Room to grow
-      const headroom = 100 - current.score;
-      // Step: proportional to headroom with diminishing returns
+      // Headroom
+      const currentVal = current.score ?? 50;
+      const headroom = 100 - currentVal;
       const potentialGain = (18 * diffFactor * reasoningFactor * (headroom / 100));
-      // Cap maximum single gain at 22 points
       scoreDelta = Math.min(22, Math.max(4, Math.round(potentialGain)));
-      newScore = Math.min(100, current.score + scoreDelta);
+      newScore = Math.min(100, currentVal + scoreDelta);
     } else {
-      // Penalty: dampened if learner has high past evidence count (inertia)
+      const currentVal = current.score ?? 50;
       const inertia = Math.min(0.7, current.evidenceCount * 0.1); // up to 70% damping
       let baseDrop = 14 * diffFactor;
       
-      // If student had a conceptual misconception vs calculation slip
       if (misconceptionDetected) {
         baseDrop *= 1.2;
       } else if (reasoningQuality === 'fair' || reasoningQuality === 'good') {
-        baseDrop *= 0.6; // Accidental error or minor slip
+        baseDrop *= 0.6;
       }
 
       const dampenedDrop = baseDrop * (1 - inertia);
-      // Floor maximum single loss to 18 points so high mastery isn't wiped out
       scoreDelta = -Math.min(18, Math.max(3, Math.round(dampenedDrop)));
-      newScore = Math.max(0, current.score + scoreDelta);
+      newScore = Math.max(0, currentVal + scoreDelta);
     }
   }
 
@@ -163,7 +145,6 @@ export function calculateDiagnosticBaseline(
     masteryMap[cId] = createInitialMastery(cId);
   });
 
-  // Process attempts sequentially
   for (const attempt of diagnosticAttempts) {
     for (const cId of attempt.targetConceptIds) {
       if (masteryMap[cId]) {

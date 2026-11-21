@@ -4,7 +4,22 @@ import React, { useState } from 'react';
 import { Concept, ConceptMastery } from '@/types/mastery';
 import { CONCEPTS } from '@/data/concepts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, CheckCircle, AlertTriangle, ArrowRight, Zap, Target, HelpCircle, Layers } from 'lucide-react';
+import {
+  Layers,
+  BookOpen,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Zap,
+  Target,
+  Plus,
+  Minus,
+  RotateCcw,
+  HelpCircle,
+  Clock,
+  TrendingUp,
+  ShieldAlert
+} from 'lucide-react';
 
 interface ConceptGraphProps {
   masteryMap: Record<string, ConceptMastery>;
@@ -13,16 +28,17 @@ interface ConceptGraphProps {
   className?: string;
 }
 
-// 2D Layout coordinates for the 8 Electricity concepts in a clean DAG structure
+// Clean 2D DAG layout for all 9 concepts
 const NODE_POSITIONS: Record<string, { x: number; y: number; level: number }> = {
-  C01: { x: 120, y: 110, level: 1 }, // Charge & Current
-  C02: { x: 120, y: 270, level: 1 }, // Potential Difference
-  C03: { x: 320, y: 190, level: 2 }, // Circuit & Symbols
-  C04: { x: 500, y: 190, level: 3 }, // Ohm's Law
-  C05: { x: 680, y: 110, level: 4 }, // Resistance & Factors
-  C06: { x: 680, y: 270, level: 4 }, // Series & Parallel
-  C07: { x: 860, y: 110, level: 5 }, // Heating Effect
-  C08: { x: 860, y: 270, level: 5 }, // Electric Power & Energy
+  C01: { x: 100, y: 110, level: 1 }, // Electric Charge & Current
+  C02: { x: 100, y: 270, level: 1 }, // Potential Difference
+  C03: { x: 260, y: 190, level: 2 }, // Circuit Diagrams & Symbols
+  C04: { x: 420, y: 190, level: 3 }, // Ohm's Law
+  C05: { x: 580, y: 190, level: 4 }, // Resistivity
+  C06: { x: 740, y: 110, level: 5 }, // Resistors in Series
+  C07: { x: 740, y: 270, level: 5 }, // Resistors in Parallel
+  C08: { x: 900, y: 110, level: 6 }, // Heating Effect of Current
+  C09: { x: 900, y: 270, level: 6 }  // Electric Power
 };
 
 export const ConceptGraph: React.FC<ConceptGraphProps> = ({
@@ -33,51 +49,44 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
 }) => {
   const [hoveredConceptId, setHoveredConceptId] = useState<string | null>(null);
   const [activeModalConcept, setActiveModalConcept] = useState<Concept | null>(null);
+  const [filter, setFilter] = useState<'all' | 'mastered' | 'learning' | 'atRisk'>('all');
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
-  // Helper for colors
+  // Status badge & color resolver
   const getStatusColor = (mastery?: ConceptMastery) => {
-    if (!mastery || mastery.status === 'unassessed' || mastery.evidenceCount === 0) {
+    if (!mastery || mastery.status === 'unassessed' || mastery.evidenceCount === 0 || mastery.score === null) {
       return {
-        bg: 'fill-slate-800',
-        stroke: '#64748b',
-        text: 'text-slate-400',
-        glow: 'rgba(100, 116, 139, 0.2)',
+        bg: 'fill-surface-elevated',
+        stroke: '#565E71',
+        text: 'text-mastery-unassessed',
+        glow: 'rgba(86, 94, 113, 0.2)',
         label: 'Unassessed'
       };
     }
-    if (mastery.score < 40) {
+    if (mastery.status === 'atRisk') {
       return {
-        bg: 'fill-red-950/80',
-        stroke: '#ef4444',
-        text: 'text-red-400',
-        glow: 'rgba(239, 68, 68, 0.35)',
-        label: 'Needs Attention'
+        bg: 'fill-[#251016]',
+        stroke: '#FF657A',
+        text: 'text-mastery-atRisk',
+        glow: 'rgba(255, 101, 122, 0.35)',
+        label: 'At Risk (<50%)'
       };
     }
-    if (mastery.score < 70) {
+    if (mastery.status === 'learning') {
       return {
-        bg: 'fill-amber-950/80',
-        stroke: '#f59e0b',
-        text: 'text-amber-400',
-        glow: 'rgba(245, 158, 11, 0.35)',
-        label: 'Developing'
-      };
-    }
-    if (mastery.score < 85) {
-      return {
-        bg: 'fill-emerald-950/80',
-        stroke: '#10b981',
-        text: 'text-emerald-400',
-        glow: 'rgba(16, 185, 129, 0.35)',
-        label: 'Proficient'
+        bg: 'fill-[#241c10]',
+        stroke: '#F3B94F',
+        text: 'text-mastery-learning',
+        glow: 'rgba(243, 185, 79, 0.35)',
+        label: 'Learning (50–79%)'
       };
     }
     return {
-      bg: 'fill-teal-950/80',
-      stroke: '#059669',
-      text: 'text-teal-300',
-      glow: 'rgba(5, 150, 105, 0.45)',
-      label: 'Strong Mastery'
+      bg: 'fill-[#0e241c]',
+      stroke: '#38D99A',
+      text: 'text-mastery-mastered',
+      glow: 'rgba(56, 217, 154, 0.4)',
+      label: 'Mastered (≥80%)'
     };
   };
 
@@ -88,88 +97,120 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
     setActiveModalConcept(concept);
   };
 
+  // Node visibility by filter
+  const isNodeVisible = (conceptId: string) => {
+    if (filter === 'all') return true;
+    const m = masteryMap[conceptId];
+    if (!m || m.evidenceCount === 0 || m.score === null) return false;
+    return m.status === filter;
+  };
+
   return (
-    <div className={`relative rounded-2xl bg-surface border border-surface-border p-4 lg:p-6 shadow-2xl overflow-hidden ${className}`}>
-      {/* Graph Header / Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-surface-border/60 pb-3">
+    <div className={`relative rounded-3xl bg-surface border border-outline-variant/40 p-4 lg:p-6 shadow-2xl overflow-hidden ${className}`}>
+      {/* Topology Header & Filters */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-outline-variant/30 pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-brand-violet" />
-            <h3 className="font-heading font-semibold text-lg text-white">
-              Electricity Concept Knowledge Graph
+            <Layers className="w-5 h-5 text-accent-primary" />
+            <h3 className="font-heading font-semibold text-lg text-text-primary">
+              Electricity Knowledge Topology
             </h3>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-violet/20 border border-brand-violet/40 text-brand-violet font-medium">
-              Class 10 Physics
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-primary/15 border border-accent-primary/30 text-accent-primary font-bold">
+              9 Connected Concepts
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Prerequisite DAG with live mastery telemetry. Click any node to inspect pedagogical objectives and common misconceptions.
+          <p className="text-xs text-text-secondary mt-1">
+            Prerequisite DAG with live learner mastery telemetry. Click any node to open the concept intelligence drawer.
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-3 text-xs flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
-            <span className="text-slate-400">Unassessed</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
-            <span className="text-red-400">Needs Attention (&lt;40%)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
-            <span className="text-amber-400">Developing (40-69%)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-            <span className="text-emerald-400">Proficient (70-84%)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)]"></span>
-            <span className="text-teal-300">Strong (85%+)</span>
+        {/* Filter Pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-mono text-text-secondary mr-1">Filter:</span>
+          {(['all', 'mastered', 'learning', 'atRisk'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setFilter(mode)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-all ${
+                filter === mode
+                  ? 'bg-accent-primaryContainer text-white font-bold shadow-neonPrimary'
+                  : 'bg-surface-elevated hover:bg-surface-higher text-text-secondary border border-outline-variant/30'
+              }`}
+            >
+              {mode === 'all'
+                ? 'All Nodes'
+                : mode === 'atRisk'
+                ? 'At Risk (<50%)'
+                : mode === 'learning'
+                ? 'Learning (50-79%)'
+                : 'Mastered (80%+)'}
+            </button>
+          ))}
+
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1 ml-2 bg-surface-elevated p-1 rounded-xl border border-outline-variant/30">
+            <button
+              onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.1))}
+              className="p-1 hover:text-white text-text-secondary rounded"
+              title="Zoom In"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setZoomLevel((z) => Math.max(0.7, z - 0.1))}
+              className="p-1 hover:text-white text-text-secondary rounded"
+              title="Zoom Out"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(1)}
+              className="p-1 hover:text-white text-text-secondary rounded"
+              title="Reset Zoom"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Interactive SVG Area */}
-      <div className="relative w-full aspect-[16/7] min-h-[380px] bg-background/50 rounded-xl border border-surface-border/40 p-2 overflow-x-auto">
+      {/* Interactive SVG Canvas Area */}
+      <div className="relative w-full aspect-[16/7] min-h-[380px] bg-surface-deep/80 rounded-2xl border border-outline-variant/30 p-2 overflow-x-auto">
         <svg
-          viewBox="0 0 980 380"
-          className="w-full h-full min-w-[720px] select-none"
+          viewBox="0 0 1020 380"
+          className="w-full h-full min-w-[800px] select-none transition-transform duration-300"
+          style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
         >
           <defs>
-            {/* Arrow marker */}
             <marker
-              id="arrowhead"
+              id="edge-arrow"
               markerWidth="8"
               markerHeight="6"
               refX="10"
               refY="3"
               orient="auto"
             >
-              <polygon points="0 0, 8 3, 0 6" fill="#475569" opacity="0.7" />
+              <polygon points="0 0, 8 3, 0 6" fill="#494454" />
             </marker>
             <marker
-              id="arrowhead-highlight"
+              id="edge-arrow-highlight"
               markerWidth="8"
               markerHeight="6"
               refX="10"
               refY="3"
               orient="auto"
             >
-              <polygon points="0 0, 8 3, 0 6" fill="#8b5cf6" />
+              <polygon points="0 0, 8 3, 0 6" fill="#d0bcff" />
             </marker>
-            {/* Subtle grid pattern */}
-            <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+
+            <pattern id="topology-grid" width="40" height="40" patternUnits="userSpaceOnUse">
               <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
             </pattern>
           </defs>
 
-          {/* Background grid */}
-          <rect width="980" height="380" fill="url(#graph-grid)" />
+          <rect width="1020" height="380" fill="url(#topology-grid)" />
 
-          {/* Render Prerequisite Edges */}
+          {/* Prerequisite Edges */}
           {CONCEPTS.map((concept) => {
             const targetPos = NODE_POSITIONS[concept.id];
             if (!targetPos || concept.prerequisiteIds.length === 0) return null;
@@ -183,38 +224,37 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                 hoveredConceptId === prereqId ||
                 selectedConceptId === concept.id;
 
-              // Curvature path
               const dx = targetPos.x - sourcePos.x;
-              const dy = targetPos.y - sourcePos.y;
               const controlX1 = sourcePos.x + dx * 0.5;
               const controlY1 = sourcePos.y;
               const controlX2 = sourcePos.x + dx * 0.5;
               const controlY2 = targetPos.y;
 
-              const pathD = `M ${sourcePos.x + 38} ${sourcePos.y} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${targetPos.x - 38} ${targetPos.y}`;
+              const pathD = `M ${sourcePos.x + 36} ${sourcePos.y} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${targetPos.x - 36} ${targetPos.y}`;
 
               return (
                 <path
                   key={`${prereqId}->${concept.id}`}
                   d={pathD}
                   fill="none"
-                  stroke={isHighlighted ? '#8b5cf6' : '#334155'}
+                  stroke={isHighlighted ? '#d0bcff' : '#494454'}
                   strokeWidth={isHighlighted ? 2.5 : 1.5}
                   strokeDasharray={isHighlighted ? 'none' : '4,3'}
-                  markerEnd={isHighlighted ? 'url(#arrowhead-highlight)' : 'url(#arrowhead)'}
+                  markerEnd={isHighlighted ? 'url(#edge-arrow-highlight)' : 'url(#edge-arrow)'}
                   className="transition-colors duration-300"
                 />
               );
             });
           })}
 
-          {/* Render Concept Nodes */}
+          {/* 9 Concept Nodes */}
           {CONCEPTS.map((concept) => {
             const pos = NODE_POSITIONS[concept.id];
             const mastery = masteryMap[concept.id];
             const color = getStatusColor(mastery);
             const isHovered = hoveredConceptId === concept.id;
             const isSelected = selectedConceptId === concept.id;
+            const isVisible = isNodeVisible(concept.id);
 
             return (
               <g
@@ -223,27 +263,29 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                 onClick={() => handleNodeClick(concept)}
                 onMouseEnter={() => setHoveredConceptId(concept.id)}
                 onMouseLeave={() => setHoveredConceptId(null)}
-                className="cursor-pointer group"
+                className={`cursor-pointer group transition-opacity duration-300 ${
+                  isVisible ? 'opacity-100' : 'opacity-25'
+                }`}
               >
-                {/* Outer Glow Halo */}
+                {/* Glow Halo */}
                 <circle
                   r={isHovered || isSelected ? 44 : 36}
                   fill={color.glow}
                   className="transition-all duration-300"
                 />
 
-                {/* Main Node Circle */}
+                {/* Node Circle */}
                 <circle
                   r="34"
                   className={`${color.bg} transition-all duration-300 group-hover:scale-105`}
-                  stroke={isSelected ? '#c084fc' : color.stroke}
+                  stroke={isSelected ? '#d0bcff' : color.stroke}
                   strokeWidth={isSelected ? 3.5 : isHovered ? 2.5 : 1.8}
                   style={{
                     filter: isHovered || isSelected ? `drop-shadow(0 0 10px ${color.stroke})` : 'none'
                   }}
                 />
 
-                {/* Concept Code Badge */}
+                {/* Concept Code */}
                 <text
                   textAnchor="middle"
                   dy="-6"
@@ -256,24 +298,24 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                 <text
                   textAnchor="middle"
                   dy="14"
-                  className="text-[11px] font-semibold fill-slate-300 pointer-events-none"
+                  className="text-[11px] font-semibold fill-text-secondary pointer-events-none"
                 >
-                  {mastery && mastery.status !== 'unassessed' && mastery.evidenceCount > 0
+                  {mastery && mastery.status !== 'unassessed' && mastery.score !== null
                     ? `${mastery.score}%`
                     : '---'}
                 </text>
 
-                {/* Node Title Label under circle */}
+                {/* Node Label Below */}
                 <text
                   textAnchor="middle"
                   dy="52"
-                  className={`text-[10px] font-medium tracking-tight fill-slate-300 transition-colors duration-200 ${
+                  className={`text-[10px] font-medium tracking-tight fill-text-secondary transition-colors duration-200 ${
                     isHovered ? 'fill-white font-semibold' : ''
                   }`}
-                  style={{ maxWidth: '100px' }}
+                  style={{ maxWidth: '110px' }}
                 >
-                  {concept.name.length > 22
-                    ? `${concept.name.slice(0, 20)}...`
+                  {concept.name.length > 20
+                    ? `${concept.name.slice(0, 18)}...`
                     : concept.name}
                 </text>
               </g>
@@ -283,24 +325,24 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
 
         {/* Hover Tooltip Preview */}
         {hoveredConceptId && (
-          <div className="absolute bottom-3 left-3 bg-surface-elevated/95 border border-surface-border backdrop-blur-md rounded-xl p-3 shadow-xl max-w-sm pointer-events-none transition-all">
+          <div className="absolute bottom-3 left-3 bg-surface-elevated/95 border border-outline-variant/60 backdrop-blur-md rounded-xl p-3 shadow-glass max-w-xs pointer-events-none transition-all">
             {(() => {
               const c = CONCEPTS.find((item) => item.id === hoveredConceptId);
               const m = masteryMap[hoveredConceptId];
               const st = getStatusColor(m);
               if (!c) return null;
               return (
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-mono text-xs font-bold text-brand-violet">{c.code}</span>
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border border-current ${st.text}`}>
-                      {st.label} ({m ? `${m.score}%` : '0%'})
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-bold text-accent-primary">{c.code}</span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border border-current ${st.text}`}>
+                      {st.label}
                     </span>
                   </div>
-                  <h4 className="text-xs font-semibold text-white mb-1">{c.name}</h4>
-                  <p className="text-[11px] text-slate-400 line-clamp-2">{c.description}</p>
-                  <p className="text-[10px] text-brand-cyan mt-1.5 font-medium flex items-center gap-1">
-                    Click to view formulas & misconceptions <ArrowRight className="w-3 h-3" />
+                  <h4 className="text-xs font-semibold text-text-primary">{c.name}</h4>
+                  <p className="text-[11px] text-text-secondary line-clamp-2">{c.description}</p>
+                  <p className="text-[10px] text-accent-secondary pt-1 font-mono flex items-center gap-1">
+                    Click to open concept detail drawer <ArrowRight className="w-3 h-3" />
                   </p>
                 </div>
               );
@@ -309,46 +351,50 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
         )}
       </div>
 
-      {/* Modal Dialog for Concept Details */}
+      {/* Concept Detail Drawer / Dialog */}
       <AnimatePresence>
         {activeModalConcept && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-surface-elevated border border-surface-border rounded-2xl p-6 max-w-xl w-full shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="bg-surface-elevated border border-outline-variant rounded-3xl p-6 lg:p-7 max-w-xl w-full shadow-2xl max-h-[88vh] overflow-y-auto space-y-5"
             >
               {/* Header */}
-              <div className="flex items-start justify-between border-b border-surface-border pb-4 mb-4">
+              <div className="flex items-start justify-between border-b border-outline-variant/30 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded bg-brand-violet/20 border border-brand-violet/40 text-brand-violet font-mono text-xs font-bold">
+                    <span className="px-2.5 py-0.5 rounded bg-accent-primary/20 border border-accent-primary/40 text-accent-primary font-mono text-xs font-bold">
                       {activeModalConcept.code}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-text-secondary">
                       Difficulty Level {activeModalConcept.difficulty} of 3
                     </span>
                   </div>
-                  <h3 className="font-heading font-bold text-xl text-white mt-1">
+                  <h3 className="font-heading font-bold text-xl text-text-primary mt-1">
                     {activeModalConcept.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setActiveModalConcept(null)}
-                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-surface"
+                  className="text-text-secondary hover:text-text-primary p-1.5 rounded-lg hover:bg-surface"
                 >
                   ✕
                 </button>
               </div>
 
-              {/* Mastery Telemetry Status */}
-              <div className="mb-5 p-3.5 rounded-xl bg-background border border-surface-border flex items-center justify-between">
+              {/* Learner Telemetry Status */}
+              <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-slate-400 block">Learner Mastery</span>
+                  <span className="text-[11px] font-mono uppercase text-text-secondary block">
+                    Learner Mastery Status
+                  </span>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-heading text-2xl font-bold text-white">
-                      {masteryMap[activeModalConcept.id]?.score || 0}%
+                    <span className="font-heading text-2xl font-bold text-text-primary">
+                      {masteryMap[activeModalConcept.id]?.score !== null && masteryMap[activeModalConcept.id]?.score !== undefined
+                        ? `${masteryMap[activeModalConcept.id]?.score}%`
+                        : 'Unassessed'}
                     </span>
                     <span
                       className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
@@ -359,79 +405,92 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                     </span>
                   </div>
                 </div>
+
                 <div className="text-right">
-                  <span className="text-xs text-slate-400 block">Evidence Count</span>
-                  <span className="text-sm font-semibold text-slate-300">
-                    {masteryMap[activeModalConcept.id]?.evidenceCount || 0} attempts evaluated
+                  <span className="text-[11px] font-mono uppercase text-text-secondary block">
+                    Evidence Count
+                  </span>
+                  <span className="text-xs font-semibold text-text-primary">
+                    {masteryMap[activeModalConcept.id]?.evidenceCount || 0} evaluated attempts
                   </span>
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="mb-5">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-brand-cyan" /> Concept Overview
-                </h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  {activeModalConcept.description}
-                </p>
-              </div>
-
-              {/* Key Formulas */}
-              {activeModalConcept.formulas.length > 0 && (
-                <div className="mb-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-amber-400" /> Key Governing Formulas
-                  </h4>
-                  <div className="grid gap-2">
-                    {activeModalConcept.formulas.map((f, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded-lg bg-surface border border-surface-border flex items-center justify-between"
-                      >
-                        <code className="font-mono text-sm text-brand-cyan font-bold bg-background px-2 py-1 rounded">
-                          {f.latex}
-                        </code>
-                        <span className="text-xs text-slate-400">{f.description}</span>
+              {/* Historical Mastery Progression Curve */}
+              {masteryMap[activeModalConcept.id]?.history && masteryMap[activeModalConcept.id]!.history.length > 0 && (
+                <div className="p-3.5 rounded-2xl bg-surface border border-outline-variant/30 space-y-2">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-accent-primary font-bold flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    Historical Score Trajectory
+                  </span>
+                  <div className="flex items-center gap-2 overflow-x-auto py-1">
+                    {masteryMap[activeModalConcept.id]!.history.map((h, i) => (
+                      <div key={i} className="p-2 rounded-lg bg-surface-deep border border-outline-variant/20 text-center shrink-0">
+                        <span className="text-[10px] text-text-secondary font-mono block">Attempt {i + 1}</span>
+                        <span className="text-xs font-bold text-text-primary">{h.score}%</span>
+                        <span className={`text-[9px] font-mono block ${h.change >= 0 ? 'text-mastery-mastered' : 'text-mastery-atRisk'}`}>
+                          {h.change >= 0 ? `+${h.change}` : h.change}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Learning Objectives */}
-              <div className="mb-5">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-emerald-400" /> Learning Objectives
+              {/* Overview & Prerequisite Readiness */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-accent-secondary" /> Concept Overview & Prerequisites
                 </h4>
-                <ul className="space-y-1.5">
-                  {activeModalConcept.learningObjectives.map((obj, idx) => (
-                    <li key={idx} className="text-xs text-slate-300 flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{obj}</span>
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  {activeModalConcept.description}
+                </p>
+                <div className="text-[11px] font-mono text-accent-primary pt-1">
+                  <strong>Prerequisite Concept IDs:</strong>{' '}
+                  {activeModalConcept.prerequisiteIds.join(', ') || 'None (Foundational Entry Concept)'}
+                </div>
               </div>
+
+              {/* Key Formulas */}
+              {activeModalConcept.formulas.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-mastery-learning" /> Key Governing Formulas
+                  </h4>
+                  <div className="grid gap-2">
+                    {activeModalConcept.formulas.map((f, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-xl bg-surface-deep border border-outline-variant/30 flex items-center justify-between text-xs"
+                      >
+                        <code className="font-mono text-xs text-accent-secondary font-bold bg-surface px-2 py-1 rounded">
+                          {f.latex}
+                        </code>
+                        <span className="text-text-secondary text-[11px]">{f.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Common Misconceptions */}
               {activeModalConcept.commonMisconceptions.length > 0 && (
-                <div className="mb-5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Known Cognitive Misconceptions
+                <div className="space-y-2">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-mastery-atRisk flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-mastery-atRisk" /> Known Cognitive Misconceptions
                   </h4>
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {activeModalConcept.commonMisconceptions.map((m, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-red-950/20 border border-red-900/30 text-xs"
+                        className="p-3 rounded-xl bg-mastery-atRisk/10 border border-mastery-atRisk/30 text-xs space-y-1"
                       >
-                        <div className="font-semibold text-red-300 mb-1 flex items-center gap-1.5">
-                          <span>⚠️ {m.title}</span>
+                        <div className="font-semibold text-mastery-atRisk">
+                          ⚠️ {m.title}
                         </div>
-                        <p className="text-slate-400 mb-1.5">{m.description}</p>
-                        <p className="text-emerald-400 font-medium">
-                          <strong>Correction:</strong> {m.correction}
+                        <p className="text-text-secondary">{m.description}</p>
+                        <p className="text-mastery-mastered font-medium pt-1">
+                          <strong>Scientific Truth:</strong> {m.correction}
                         </p>
                       </div>
                     ))}
@@ -439,11 +498,11 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                 </div>
               )}
 
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-surface-border">
+              {/* Drawer Actions */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/30">
                 <button
                   onClick={() => setActiveModalConcept(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white bg-surface hover:bg-surface-border transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-surface hover:bg-surface-elevated transition-colors"
                 >
                   Close
                 </button>
@@ -453,9 +512,10 @@ export const ConceptGraph: React.FC<ConceptGraphProps> = ({
                       onSelectConcept(activeModalConcept.id);
                       setActiveModalConcept(null);
                     }}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-brand-violet hover:bg-brand-violet/90 transition-all flex items-center gap-1.5 shadow-lg shadow-brand-violet/20"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer shadow-neonPrimary hover:opacity-90 transition-all flex items-center gap-1.5"
                   >
-                    Target in Learning Workspace <ArrowRight className="w-3.5 h-3.5" />
+                    <span>Practice in Learning Workspace</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>

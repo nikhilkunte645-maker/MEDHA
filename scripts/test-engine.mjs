@@ -1,59 +1,54 @@
-// Automated Test Suite for MASTERY Core Engines
+// Automated Test Suite for MEDHA Core Engines
 import assert from 'node:assert';
 
-console.log('--- RUNNING AUTOMATED UNIT TEST SUITE FOR MASTERY ---');
+console.log('--- RUNNING AUTOMATED UNIT TEST SUITE FOR MEDHA ---');
 
 // Test 1: Spaced Repetition Scheduling
 function calculateNextReview(status, reviewCount, baseDateIso) {
   const base = baseDateIso ? new Date(baseDateIso) : new Date();
   let days = 1;
   switch (status) {
-    case 'needs_attention': days = 1; break;
-    case 'developing': days = 2; break;
-    case 'proficient': days = 4; break;
-    case 'strong': days = 7; break;
+    case 'atRisk': days = 1; break;
+    case 'learning': days = 3; break;
+    case 'mastered': days = 7; break;
     default: days = 1; break;
   }
-  if (reviewCount > 2 && (status === 'proficient' || status === 'strong')) {
+  if (reviewCount > 2 && status === 'mastered') {
     days = Math.round(days * 1.5);
   }
   return new Date(base.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 const baseIso = '2026-11-21T00:00:00.000Z';
-const revWeak = calculateNextReview('needs_attention', 1, baseIso);
-assert.strictEqual(new Date(revWeak).getDate(), 22, 'Weak mastery must schedule for +1 day');
+const revAtRisk = calculateNextReview('atRisk', 1, baseIso);
+assert.strictEqual(new Date(revAtRisk).getDate(), 22, 'At Risk mastery must schedule for +1 day');
 
-const revDev = calculateNextReview('developing', 1, baseIso);
-assert.strictEqual(new Date(revDev).getDate(), 23, 'Developing mastery must schedule for +2 days');
+const revLearning = calculateNextReview('learning', 1, baseIso);
+assert.strictEqual(new Date(revLearning).getDate(), 24, 'Learning mastery must schedule for +3 days');
 
-const revProf = calculateNextReview('proficient', 1, baseIso);
-assert.strictEqual(new Date(revProf).getDate(), 25, 'Proficient mastery must schedule for +4 days');
+const revMastered = calculateNextReview('mastered', 1, baseIso);
+assert.strictEqual(new Date(revMastered).getDate(), 28, 'Mastered mastery must schedule for +7 days');
 
-const revStrong = calculateNextReview('strong', 1, baseIso);
-assert.strictEqual(new Date(revStrong).getDate(), 28, 'Strong mastery must schedule for +7 days');
+console.log('✓ TEST PASS: Spaced Repetition intervals match MEDHA specification (1/3/7 days).');
 
-console.log('✓ TEST PASS: Spaced Repetition intervals correctly match specification (1/2/4/7 days).');
-
-// Test 2: Mastery Status Scale
+// Test 2: Mastery Status Scale (0-49: atRisk, 50-79: learning, 80-100: mastered, null: unassessed)
 function getMasteryStatus(score) {
-  if (score < 40) return 'needs_attention';
-  if (score < 70) return 'developing';
-  if (score < 85) return 'proficient';
-  return 'strong';
+  if (score === null || score === undefined) return 'unassessed';
+  if (score < 50) return 'atRisk';
+  if (score < 80) return 'learning';
+  return 'mastered';
 }
 
-assert.strictEqual(getMasteryStatus(0), 'needs_attention');
-assert.strictEqual(getMasteryStatus(39), 'needs_attention');
-assert.strictEqual(getMasteryStatus(40), 'developing');
-assert.strictEqual(getMasteryStatus(69), 'developing');
-assert.strictEqual(getMasteryStatus(70), 'proficient');
-assert.strictEqual(getMasteryStatus(84), 'proficient');
-assert.strictEqual(getMasteryStatus(85), 'strong');
-assert.strictEqual(getMasteryStatus(100), 'strong');
-console.log('✓ TEST PASS: Mastery scale boundaries correctly verified (0-39, 40-69, 70-84, 85-100).');
+assert.strictEqual(getMasteryStatus(null), 'unassessed');
+assert.strictEqual(getMasteryStatus(0), 'atRisk');
+assert.strictEqual(getMasteryStatus(49), 'atRisk');
+assert.strictEqual(getMasteryStatus(50), 'learning');
+assert.strictEqual(getMasteryStatus(79), 'learning');
+assert.strictEqual(getMasteryStatus(80), 'mastered');
+assert.strictEqual(getMasteryStatus(100), 'mastered');
+console.log('✓ TEST PASS: Mastery scale boundaries verified (atRisk: <50%, learning: 50-79%, mastered: >=80%, unassessed: null).');
 
-// Test 3: Offline Reasoning Evaluation Heuristics (Confusing Current with Voltage)
+// Test 3: Offline Reasoning Evaluation Heuristics (Current vs Voltage Confusion)
 function runOfflineMisconceptionAnalysis(studentReasoning, isSelectedCorrect) {
   const reasoningLower = (studentReasoning || '').toLowerCase().trim();
   if (
@@ -65,13 +60,15 @@ function runOfflineMisconceptionAnalysis(studentReasoning, isSelectedCorrect) {
       is_correct: false,
       reasoning_quality: 'poor',
       misconception_detected: true,
+      misconception_status: 'detected',
       misconception_code: 'CURRENT_VOLTAGE_CONFUSION'
     };
   }
   return {
     is_correct: isSelectedCorrect,
     reasoning_quality: isSelectedCorrect ? 'good' : 'fair',
-    misconception_detected: false
+    misconception_detected: false,
+    misconception_status: 'unverified'
   };
 }
 
@@ -79,6 +76,7 @@ const testReasoning1 = 'Current is the electrical push from the battery that get
 const res1 = runOfflineMisconceptionAnalysis(testReasoning1, false);
 assert.strictEqual(res1.misconception_detected, true, 'Misconception must be detected');
 assert.strictEqual(res1.misconception_code, 'CURRENT_VOLTAGE_CONFUSION', 'Correct code identified');
+assert.strictEqual(res1.misconception_status, 'detected');
 assert.strictEqual(res1.reasoning_quality, 'poor');
 console.log('✓ TEST PASS: Flawed student reasoning accurately triggers CURRENT_VOLTAGE_CONFUSION diagnosis.');
 
@@ -88,4 +86,4 @@ assert.strictEqual(res2.is_correct, true);
 assert.strictEqual(res2.misconception_detected, false);
 console.log('✓ TEST PASS: Sound conceptual reasoning correctly accepted.');
 
-console.log('--- ALL CORE ENGINE AUTOMATED TESTS PASSED! ---');
+console.log('--- ALL MEDHA CORE ENGINE AUTOMATED TESTS PASSED! ---');

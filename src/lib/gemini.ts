@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { MisconceptionAnalysis, GeneratedQuestion, QuestionType } from '@/types/mastery';
+import { MisconceptionAnalysis, GeneratedQuestion } from '@/types/mastery';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -8,9 +8,9 @@ export function hasGeminiApiKey(): boolean {
 }
 
 /**
- * Section 9 exact System Prompt for Misconception Detection
+ * Expert Physics Misconception Diagnostic System Prompt
  */
-const MISCONCEPTION_SYSTEM_PROMPT = `You are an expert Class 10 Physics educational diagnostic engine.
+const MISCONCEPTION_SYSTEM_PROMPT = `You are an expert Class 10 Physics educational diagnostic engine for the MEDHA platform.
 
 Your job is to identify the conceptual understanding and misconceptions revealed by a student's reasoning.
 
@@ -39,19 +39,21 @@ EXPECTED JSON SCHEMA:
   "is_correct": boolean,
   "reasoning_quality": "poor" | "fair" | "good" | "exceptional" | "insufficient_evidence",
   "misconception_detected": boolean,
+  "misconception_status": "detected" | "suspected" | "unverified",
   "misconception_code": "STRING_IDENTIFIER" | null,
   "misconception_title": "String title" | null,
   "evidence": ["Specific statement from the student's reasoning"],
   "explanation": "Why this reasoning indicates the misconception or correctness",
+  "correct_principle": "The fundamental physics principle that clarifies this topic",
   "recommended_concept_ids": ["C01", "C02"],
   "confidence": 0.0 to 1.0,
   "next_learning_action": "Clear actionable learning recommendation"
 }`;
 
 /**
- * Section 10 exact System Prompt for Adaptive Question Generation
+ * Adaptive Question Generation System Prompt
  */
-const QUESTION_GEN_SYSTEM_PROMPT = `You are an expert Class 10 Physics assessment designer.
+const QUESTION_GEN_SYSTEM_PROMPT = `You are an expert Class 10 Physics assessment designer for the MEDHA platform.
 
 Generate an educational question that tests the specified concept.
 
@@ -85,7 +87,9 @@ EXPECTED JSON STRUCTURE:
   "correct_answer": "Option B",
   "explanation": "Explanation",
   "reasoning_required": true,
-  "learning_objective": "Apply Ohm's law"
+  "learning_objective": "Apply Ohm's law",
+  "hint": "Optional helpful physics hint",
+  "selection_reason": "Why this question was selected for the student"
 }`;
 
 /**
@@ -115,14 +119,21 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
     ? Math.max(0, Math.min(1, d.confidence))
     : 0.85;
 
+  let status: 'detected' | 'suspected' | 'unverified' = 'unverified';
+  if (d.misconception_detected) {
+    status = confidence >= 0.85 ? 'detected' : confidence >= 0.65 ? 'suspected' : 'unverified';
+  }
+
   return {
     is_correct: Boolean(d.is_correct),
     reasoning_quality: reasoningQuality,
     misconception_detected: Boolean(d.misconception_detected),
+    misconception_status: status,
     misconception_code: d.misconception_code ? String(d.misconception_code) : undefined,
     misconception_title: d.misconception_title ? String(d.misconception_title) : undefined,
     evidence: evidence.length > 0 ? evidence : ['Direct analysis of submitted student statement'],
     explanation: String(d.explanation || 'Step-by-step diagnostic evaluation of reasoning.'),
+    correct_principle: d.correct_principle ? String(d.correct_principle) : undefined,
     recommended_concept_ids: recommendedConceptIds.length > 0 ? recommendedConceptIds : ['C01'],
     confidence,
     next_learning_action: String(d.next_learning_action || 'Review foundational principles of this concept.')
@@ -131,7 +142,6 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
 
 /**
  * Offline Rule-Based Fallback Engine for Misconception Detection
- * Guaranteed deterministic behavior when GEMINI_API_KEY is not set or network fails.
  */
 export function runOfflineMisconceptionAnalysis(params: {
   questionPrompt: string;
@@ -140,26 +150,27 @@ export function runOfflineMisconceptionAnalysis(params: {
   studentReasoning: string;
   targetConceptIds: string[];
 }): MisconceptionAnalysis {
-  const { questionPrompt, expectedAnswer, studentAnswer, studentReasoning, targetConceptIds } = params;
+  const { expectedAnswer, studentAnswer, studentReasoning, targetConceptIds } = params;
   const reasoningLower = (studentReasoning || '').toLowerCase().trim();
   const isSelectedCorrect = studentAnswer.trim().toLowerCase() === expectedAnswer.trim().toLowerCase();
 
-  // If reasoning is completely empty or trivial
+  // If reasoning is empty
   if (!reasoningLower || reasoningLower.length < 5) {
     return {
       is_correct: isSelectedCorrect,
       reasoning_quality: 'insufficient_evidence',
       misconception_detected: false,
+      misconception_status: 'unverified',
       evidence: ['No detailed reasoning provided.'],
-      explanation: 'The student provided little or no written reasoning to evaluate conceptual understanding.',
+      explanation: 'The student provided insufficient written reasoning to reliably evaluate conceptual understanding.',
       recommended_concept_ids: targetConceptIds,
-      confidence: 0.6,
-      next_learning_action: 'Please write out your chain of reasoning step-by-step.',
+      confidence: 0.5,
+      next_learning_action: 'Please write out your chain of reasoning step-by-step to enable accurate diagnosis.',
       is_offline_fallback: true
     };
   }
 
-  // 1. Current vs Voltage Confusion / Current Consumption (Central Hackathon Demo Scenario)
+  // 1. Current vs Voltage Confusion / Current Consumption
   if (
     reasoningLower.includes('push') && (reasoningLower.includes('current') || reasoningLower.includes('used up') || reasoningLower.includes('consumed')) ||
     reasoningLower.includes('current gets used') ||
@@ -170,12 +181,12 @@ export function runOfflineMisconceptionAnalysis(params: {
       is_correct: false,
       reasoning_quality: 'poor',
       misconception_detected: true,
+      misconception_status: 'detected',
       misconception_code: 'CURRENT_VOLTAGE_CONFUSION',
       misconception_title: 'Confusing current with voltage and violating charge conservation',
-      evidence: [
-        studentReasoning.slice(0, 150)
-      ],
-      explanation: 'The student confuses electric current (the rate of flow of charge) with electric potential difference (the energy push per unit charge), and incorrectly assumes that charges are consumed or destroyed inside circuit loads.',
+      evidence: [studentReasoning.slice(0, 150)],
+      explanation: 'The student confuses electric current (the rate of flow of charge) with electric potential difference (the energy push per unit charge), and incorrectly assumes that charges are consumed inside circuit loads.',
+      correct_principle: 'Electric charge is strictly conserved. Voltage provides the work done per unit charge; electrons carry energy without being consumed.',
       recommended_concept_ids: ['C01', 'C02'],
       confidence: 0.94,
       next_learning_action: 'Review C01 (Electric Current) and C02 (Potential Difference) to understand that charge is strictly conserved and potential difference provides the energy transfer.',
@@ -192,10 +203,12 @@ export function runOfflineMisconceptionAnalysis(params: {
       is_correct: false,
       reasoning_quality: 'poor',
       misconception_detected: true,
+      misconception_status: 'detected',
       misconception_code: 'RESISTIVITY_DIMENSIONAL_DEPENDENCE',
       misconception_title: 'Believing resistivity changes when wire dimensions change',
       evidence: [studentReasoning.slice(0, 150)],
       explanation: 'The student confuses extrinsic resistance (R = ρL/A) with intrinsic resistivity (ρ). Resistivity depends solely on material and temperature.',
+      correct_principle: 'Resistivity is an intensive material property independent of object length or cross-sectional area.',
       recommended_concept_ids: ['C05'],
       confidence: 0.92,
       next_learning_action: 'Review C05: Practice the distinction between material property (resistivity) and physical dimension opposition (resistance).',
@@ -213,10 +226,12 @@ export function runOfflineMisconceptionAnalysis(params: {
       is_correct: false,
       reasoning_quality: 'fair',
       misconception_detected: true,
+      misconception_status: 'detected',
       misconception_code: 'STRETCHED_WIRE_AREA_NEGLECT',
       misconception_title: 'Neglecting cross-sectional area reduction when a wire is stretched',
       evidence: [studentReasoning.slice(0, 150)],
       explanation: 'The student recognized that length doubled (2L), but neglected that volume is conserved, which forces the cross-sectional area to halve (A/2), resulting in 4R.',
+      correct_principle: 'Volume V = A · L remains invariant during wire elongation.',
       recommended_concept_ids: ['C05'],
       confidence: 0.89,
       next_learning_action: 'Remember volume conservation: V = A × L is constant during stretching.',
@@ -224,7 +239,29 @@ export function runOfflineMisconceptionAnalysis(params: {
     };
   }
 
-  // 4. Parallel Resistance Fallacy
+  // 4. Series Current Decay
+  if (
+    reasoningLower.includes('series') &&
+    (reasoningLower.includes('uses up') || reasoningLower.includes('first resistor gets more') || reasoningLower.includes('less current'))
+  ) {
+    return {
+      is_correct: false,
+      reasoning_quality: 'poor',
+      misconception_detected: true,
+      misconception_status: 'detected',
+      misconception_code: 'SERIES_CURRENT_DECAY',
+      misconception_title: 'Believing current decreases progressively across series resistors',
+      evidence: [studentReasoning.slice(0, 150)],
+      explanation: 'The student assumes resistors in series consume electric charge rather than energy, creating a supposed current gradient.',
+      correct_principle: 'In a single series loop, charge cannot accumulate or vanish; current is identical at all points.',
+      recommended_concept_ids: ['C06'],
+      confidence: 0.91,
+      next_learning_action: 'Review C06: In series circuits, current is strictly invariant.',
+      is_offline_fallback: true
+    };
+  }
+
+  // 5. Parallel Resistance Fallacy
   if (
     reasoningLower.includes('parallel') &&
     (reasoningLower.includes('increase') || reasoningLower.includes('adds up') || reasoningLower.includes('11') || reasoningLower.includes('greater'))
@@ -233,41 +270,46 @@ export function runOfflineMisconceptionAnalysis(params: {
       is_correct: false,
       reasoning_quality: 'poor',
       misconception_detected: true,
+      misconception_status: 'detected',
       misconception_code: 'PARALLEL_RESISTANCE_GREATER_FALLACY',
       misconception_title: 'Believing adding resistors in parallel increases total resistance',
       evidence: [studentReasoning.slice(0, 150)],
       explanation: 'The student applied series summation intuition to parallel resistors. In parallel, additional branches offer more paths for current, lowering total resistance.',
-      recommended_concept_ids: ['C06'],
+      correct_principle: 'Adding parallel branches provides alternative current paths, decreasing overall equivalent resistance.',
+      recommended_concept_ids: ['C07'],
       confidence: 0.91,
       next_learning_action: 'Review parallel equivalent resistance formula: 1/Rp = 1/R1 + 1/R2 + 1/R3.',
       is_offline_fallback: true
     };
   }
 
-  // 5. Correct selection with sound reasoning
+  // Sound Reasoning
   if (isSelectedCorrect) {
     return {
       is_correct: true,
       reasoning_quality: 'good',
       misconception_detected: false,
+      misconception_status: 'unverified',
       evidence: [studentReasoning.slice(0, 150)],
       explanation: 'The student correctly identified the physical relationship and justified the solution logically without conceptual misconceptions.',
+      correct_principle: 'Correctly applied governing physics principle.',
       recommended_concept_ids: targetConceptIds,
       confidence: 0.92,
-      next_learning_action: 'Advance to higher-difficulty multi-step application problems for this concept.',
+      next_learning_action: 'Advance to higher-difficulty application problems for this concept.',
       is_offline_fallback: true
     };
   }
 
-  // Generic incorrect fallback
   return {
     is_correct: false,
     reasoning_quality: 'fair',
     misconception_detected: false,
+    misconception_status: 'suspected',
     evidence: [studentReasoning.slice(0, 150)],
     explanation: 'The student selected an incorrect option. The written reasoning showed partial understanding with an error in mathematical execution or application of the rule.',
+    correct_principle: 'Check algebraic steps and SI unit substitutions.',
     recommended_concept_ids: targetConceptIds,
-    confidence: 0.78,
+    confidence: 0.72,
     next_learning_action: 'Review the underlying formula and practice step-by-step problem solving.',
     is_offline_fallback: true
   };
@@ -297,7 +339,7 @@ export async function diagnoseStudentReasoning(params: {
       }
     });
 
-    const userPrompt = `Class 10 Physics Assessment Diagnostic:
+    const userPrompt = `MEDHA Class 10 Physics Assessment Diagnostic:
 Question: ${params.questionPrompt}
 Target Concepts: ${params.targetConceptIds.join(', ')}
 Expected Correct Answer: ${params.expectedAnswer}
@@ -318,7 +360,7 @@ Analyze the student's reasoning step-by-step according to the system instruction
     const parsed = JSON.parse(text);
     return validateMisconceptionResponse(parsed);
   } catch (err) {
-    console.warn('Gemini API call failed or encountered error, falling back to deterministic heuristic:', err);
+    console.warn('Gemini API call failed, falling back to deterministic heuristic:', err);
     const fallback = runOfflineMisconceptionAnalysis(params);
     fallback.is_offline_fallback = true;
     return fallback;
@@ -326,7 +368,7 @@ Analyze the student's reasoning step-by-step according to the system instruction
 }
 
 /**
- * Curated offline generated question bank by concept & difficulty
+ * Curated offline generated question bank by concept (C01 to C09)
  */
 const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
   C01: [
@@ -341,19 +383,8 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
       explanation: 'Q = I × t = 0.75 A × (20 × 60 s) = 0.75 × 1200 s = 900 C.',
       reasoning_required: true,
       learning_objective: 'Apply Q = I × t with SI unit conversions.',
-      is_offline_fallback: true
-    },
-    {
-      question_id: 'GEN_C01_D2',
-      concept_id: 'C01',
-      question: 'If the charge on an electron is 1.6 × 10⁻¹⁹ C, calculate the number of electrons constituting one Coulomb of charge.',
-      question_type: 'multiple_choice',
-      difficulty: 2,
-      options: ['6.25 × 10¹⁸ electrons', '1.6 × 10¹⁹ electrons', '6.25 × 10¹⁷ electrons', '1.0 × 10¹⁸ electrons'],
-      correct_answer: '6.25 × 10¹⁸ electrons',
-      explanation: 'Q = n · e => n = Q / e = 1 / (1.6 × 10⁻¹⁹) = 6.25 × 10¹⁸ electrons.',
-      reasoning_required: true,
-      learning_objective: 'Understand quantization of charge.',
+      hint: 'Multiply 20 minutes by 60 to convert to seconds before multiplying by current.',
+      selection_reason: 'Targeted to reinforce foundational charge-current definition (Q = I·t).',
       is_offline_fallback: true
     }
   ],
@@ -374,6 +405,30 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
       explanation: 'A voltmeter is connected across components in parallel. High resistance ensures virtually no current is diverted through the meter, leaving the main circuit operation unaffected.',
       reasoning_required: true,
       learning_objective: 'Explain the working rationale of voltmeter placement and internal resistance.',
+      hint: 'Think about what would happen to circuit current if the meter had low resistance in parallel.',
+      selection_reason: 'Selected because your telemetry indicated uncertainty regarding parallel meter behavior.',
+      is_offline_fallback: true
+    }
+  ],
+  C03: [
+    {
+      question_id: 'GEN_C03_D1',
+      concept_id: 'C03',
+      question: 'In a schematic circuit diagram, what standard component is represented by a zig-zag line, and what is its primary function?',
+      question_type: 'multiple_choice',
+      difficulty: 1,
+      options: [
+        'A resistor; to oppose or regulate the flow of current',
+        'A battery; to generate new electric charges',
+        'A closed plug key; to break the connection',
+        'An ammeter; to measure potential difference'
+      ],
+      correct_answer: 'A resistor; to oppose or regulate the flow of current',
+      explanation: 'A zig-zag line designates a fixed resistor, which provides opposition to current flow in a circuit.',
+      reasoning_required: true,
+      learning_objective: 'Identify standard circuit symbols and their functions.',
+      hint: 'Recall standard NCERT schematic circuit symbols.',
+      selection_reason: 'Reinforces standard circuit schematic literacy.',
       is_offline_fallback: true
     }
   ],
@@ -394,21 +449,25 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
       explanation: "By Ohm's law, I = V / R = 20 V / 5 Ω = 4 A. Since V ∝ I at constant temperature, doubling V to 40 V directly doubles current to 8 A.",
       reasoning_required: true,
       learning_objective: "Apply Ohm's law proportionally.",
+      hint: "Use I = V/R and check the direct proportionality condition.",
+      selection_reason: "Strengthens proportional reasoning under Ohm's Law.",
       is_offline_fallback: true
     }
   ],
   C05: [
     {
-      question_id: 'GEN_C05_D3',
+      question_id: 'GEN_C05_D2',
       concept_id: 'C05',
-      question: 'A uniform metal wire of resistance R is cut into three equal pieces. These three pieces are then connected in parallel. What is the equivalent resistance of the parallel combination?',
+      question: 'A wire of given material having length l and area of cross-section A has a resistance of 4 Ω. What would be the resistance of another wire of the same material having length l/2 and area of cross-section 2A?',
       question_type: 'multiple_choice',
-      difficulty: 3,
-      options: ['R / 9', 'R / 3', '3R', '9R'],
-      correct_answer: 'R / 9',
-      explanation: 'Each piece has length L/3, so resistance of each piece is R/3. Connecting three such resistors in parallel gives 1/Rp = 3/(R/3) = 9/R => Rp = R/9.',
+      difficulty: 2,
+      options: ['1 Ω', '2 Ω', '8 Ω', '16 Ω'],
+      correct_answer: '1 Ω',
+      explanation: 'R1 = ρ·l/A = 4 Ω. R2 = ρ·(l/2)/(2A) = (1/4)·(ρ·l/A) = (1/4) × 4 Ω = 1 Ω.',
       reasoning_required: true,
-      learning_objective: 'Combine resistance factor laws with parallel equivalence.',
+      learning_objective: 'Apply R = ρ(L/A) across dimensional variations.',
+      hint: 'Divide the length by 2 and multiply the area by 2 in the denominator.',
+      selection_reason: 'Selected to test dimensional dependence of electrical resistance.',
       is_offline_fallback: true
     }
   ],
@@ -416,6 +475,23 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
     {
       question_id: 'GEN_C06_D2',
       concept_id: 'C06',
+      question: 'Three resistors of 5 Ω, 10 Ω, and 15 Ω are connected in series across a 30V battery. What is the potential difference across the 10 Ω resistor?',
+      question_type: 'multiple_choice',
+      difficulty: 2,
+      options: ['10 V', '5 V', '15 V', '30 V'],
+      correct_answer: '10 V',
+      explanation: 'Rs = 5 + 10 + 15 = 30 Ω. Total current I = V / Rs = 30 V / 30 Ω = 1 A. Potential difference across the 10 Ω resistor is V10 = I × R = 1 A × 10 Ω = 10 V.',
+      reasoning_required: true,
+      learning_objective: 'Calculate voltage division in series circuits.',
+      hint: 'Find total series resistance first, compute total current, then apply V = I·R to the 10 Ω resistor.',
+      selection_reason: 'Targeted to build confidence in series circuit voltage division.',
+      is_offline_fallback: true
+    }
+  ],
+  C07: [
+    {
+      question_id: 'GEN_C07_D2',
+      concept_id: 'C07',
       question: 'Why are domestic electric appliances connected in parallel rather than in series?',
       question_type: 'multiple_choice',
       difficulty: 2,
@@ -429,28 +505,32 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
       explanation: 'In parallel circuits, every branch receives full supply voltage (220 V) and operates independently. In series, if one appliance fails or is switched off, the entire circuit breaks.',
       reasoning_required: true,
       learning_objective: 'Analyze the engineering advantages of parallel domestic circuits.',
-      is_offline_fallback: true
-    }
-  ],
-  C07: [
-    {
-      question_id: 'GEN_C07_D2',
-      concept_id: 'C07',
-      question: 'An electric heater rated 1000 W operates on 220 V. What rating fuse should be installed in the circuit for safety?',
-      question_type: 'multiple_choice',
-      difficulty: 2,
-      options: ['2 A', '5 A', '10 A', '1 A'],
-      correct_answer: '5 A',
-      explanation: 'Operating current I = P / V = 1000 W / 220 V ≈ 4.55 A. The nearest standard safety fuse rating greater than 4.55 A is 5 A.',
-      reasoning_required: true,
-      learning_objective: 'Calculate operational current and select appropriate fuse ratings.',
+      hint: 'Consider what would happen if turning off one bedroom lamp shut off your refrigerator.',
+      selection_reason: 'Addresses common parallel circuit misconceptions.',
       is_offline_fallback: true
     }
   ],
   C08: [
     {
-      question_id: 'GEN_C08_D3',
+      question_id: 'GEN_C08_D2',
       concept_id: 'C08',
+      question: 'An electric heater rated 1000 W operates on 220 V. What rating fuse should be installed in the circuit for safety?',
+      question_type: 'multiple_choice',
+      difficulty: 2,
+      options: ['5 A', '2 A', '10 A', '1 A'],
+      correct_answer: '5 A',
+      explanation: 'Operating current I = P / V = 1000 W / 220 V ≈ 4.55 A. The nearest standard safety fuse rating greater than 4.55 A is 5 A.',
+      reasoning_required: true,
+      learning_objective: 'Calculate operational current and select appropriate fuse ratings.',
+      hint: 'Compute operational current using I = P/V, then choose the smallest fuse rating above this current.',
+      selection_reason: 'Practical application of Joule heating in household safety devices.',
+      is_offline_fallback: true
+    }
+  ],
+  C09: [
+    {
+      question_id: 'GEN_C09_D3',
+      concept_id: 'C09',
       question: 'Two electric bulbs rated (100 W, 220 V) and (40 W, 220 V) are connected in series across a 220 V supply. Which bulb will glow brighter?',
       question_type: 'multiple_choice',
       difficulty: 3,
@@ -464,14 +544,13 @@ const OFFLINE_GENERATED_QUESTION_BANK: Record<string, GeneratedQuestion[]> = {
       explanation: 'From rated P = V²/R, the 40 W bulb has higher resistance (R40 = 220²/40 = 1210 Ω vs R100 = 220²/100 = 484 Ω). In series, current I is identical. Actual power dissipated is P = I²R. Higher resistance dissipates more power, so the 40 W bulb glows brighter.',
       reasoning_required: true,
       learning_objective: 'Evaluate power dissipation across differing circuit topologies.',
+      hint: 'Calculate resistance from rated values, then compare series power using P = I²R.',
+      selection_reason: 'Challenging Level 3 question on series power dissipation.',
       is_offline_fallback: true
     }
   ]
 };
 
-/**
- * Validates generated question schema
- */
 export function validateGeneratedQuestion(data: unknown, fallbackConceptId: string): GeneratedQuestion {
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid question response format');
@@ -495,13 +574,12 @@ export function validateGeneratedQuestion(data: unknown, fallbackConceptId: stri
     correct_answer: correctAnswer,
     explanation: String(d.explanation || 'Detailed scientific explanation.'),
     reasoning_required: Boolean(d.reasoning_required ?? true),
-    learning_objective: String(d.learning_objective || 'Test conceptual mastery of this principle.')
+    learning_objective: String(d.learning_objective || 'Test conceptual mastery of this principle.'),
+    hint: d.hint ? String(d.hint) : undefined,
+    selection_reason: d.selection_reason ? String(d.selection_reason) : undefined
   };
 }
 
-/**
- * Adaptive question generation targeting weak concepts
- */
 export async function generateAdaptiveQuestion(params: {
   conceptId: string;
   currentMastery: number;

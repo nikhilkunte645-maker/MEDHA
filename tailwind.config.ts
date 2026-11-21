@@ -10,30 +10,50 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#080b14",
+        // Primary Neon-Glass Theme Tokens
         surface: {
-          DEFAULT: "#0f1523",
-          elevated: "#151d30",
-          border: "#1e293b",
-          hover: "#243147",
+          deep: "#0e0e13",
+          DEFAULT: "#131318",
+          elevated: "#1b1b20",
+          secondary: "#1f1f25",
+          higher: "#2a292f",
+          highest: "#35343a",
         },
-        brand: {
-          violet: "#8b5cf6",
-          cyan: "#06b6d4",
-          purple: "#a855f7",
-          glow: "rgba(139, 92, 246, 0.15)",
+        text: {
+          primary: "#e4e1e9",
+          secondary: "#cbc3d7",
+        },
+        outline: {
+          DEFAULT: "#958ea0",
+          variant: "#494454",
+        },
+        accent: {
+          primary: "#d0bcff",
+          primaryContainer: "#a078ff",
+          secondary: "#5de6ff",
+          secondaryContainer: "#00cbe6",
+          tertiary: "#ffb0cd",
+          tertiaryContainer: "#f751a1",
+          error: "#ffb4ab",
         },
         mastery: {
-          weak: "#ef4444",
-          developing: "#f59e0b",
-          proficient: "#10b981",
-          strong: "#059669",
-          unassessed: "#64748b",
+          mastered: "#38D99A",
+          learning: "#F3B94F",
+          atRisk: "#FF657A",
+          unassessed: "#565E71",
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        heading: ["Space Grotesk", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["Space Grotesk", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
+      boxShadow: {
+        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        neonPrimary: "0 0 20px -3px rgba(208, 188, 255, 0.35)",
+        neonSecondary: "0 0 20px -3px rgba(93, 230, 255, 0.35)",
+        neonAtRisk: "0 0 20px -3px rgba(255, 101, 122, 0.4)",
+        neonMastered: "0 0 20px -3px rgba(56, 217, 154, 0.4)",
       },
     },
   },

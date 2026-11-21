@@ -6,14 +6,15 @@ export const SAMPLE_COHORT: CohortStudent[] = [
     name: 'Aarav Sharma',
     avatarSeed: 'aarav',
     masteryMap: {
-      C01: 42,
-      C02: 38,
+      C01: 36,
+      C02: 34,
       C03: 65,
       C04: 45,
       C05: 50,
-      C06: 30,
-      C07: 55,
-      C08: 40
+      C06: 58,
+      C07: 30,
+      C08: 55,
+      C09: 40
     },
     recentMisconception: {
       code: 'CURRENT_VOLTAGE_CONFUSION',
@@ -33,9 +34,10 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 92,
       C04: 86,
       C05: 78,
-      C06: 82,
-      C07: 90,
-      C08: 75
+      C06: 85,
+      C07: 82,
+      C08: 90,
+      C09: 80
     },
     lastActive: '30 mins ago'
   },
@@ -49,9 +51,10 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 75,
       C04: 64,
       C05: 35,
-      C06: 40,
-      C07: 62,
-      C08: 58
+      C06: 60,
+      C07: 42,
+      C08: 62,
+      C09: 55
     },
     recentMisconception: {
       code: 'RESISTIVITY_DIMENSIONAL_DEPENDENCE',
@@ -71,9 +74,10 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 95,
       C04: 92,
       C05: 88,
-      C06: 91,
-      C07: 85,
-      C08: 89
+      C06: 94,
+      C07: 91,
+      C08: 86,
+      C09: 89
     },
     lastActive: '5 mins ago'
   },
@@ -87,14 +91,15 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 60,
       C04: 48,
       C05: 44,
-      C06: 28,
-      C07: 50,
-      C08: 35
+      C06: 52,
+      C07: 28,
+      C08: 50,
+      C09: 35
     },
     recentMisconception: {
       code: 'PARALLEL_RESISTANCE_GREATER_FALLACY',
       title: 'Parallel combination increases total resistance',
-      conceptId: 'C06',
+      conceptId: 'C07',
       timestamp: '2026-11-20T16:45:00Z'
     },
     lastActive: 'Yesterday'
@@ -109,9 +114,10 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 82,
       C04: 78,
       C05: 72,
-      C06: 65,
-      C07: 80,
-      C08: 71
+      C06: 74,
+      C07: 65,
+      C08: 80,
+      C09: 71
     },
     lastActive: '4 hours ago'
   },
@@ -125,13 +131,14 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 45,
       C04: 38,
       C05: 32,
-      C06: 22,
-      C07: 40,
-      C08: 25
+      C06: 40,
+      C07: 22,
+      C08: 40,
+      C09: 25
     },
     recentMisconception: {
       code: 'CURRENT_CONSUMPTION',
-      title: 'Current is consumed across resistors',
+      title: 'Current is consumed across loads',
       conceptId: 'C01',
       timestamp: '2026-11-21T11:20:00Z'
     },
@@ -147,9 +154,10 @@ export const SAMPLE_COHORT: CohortStudent[] = [
       C03: 88,
       C04: 80,
       C05: 68,
-      C06: 74,
+      C06: 78,
       C07: 72,
-      C08: 66
+      C08: 72,
+      C09: 66
     },
     lastActive: '3 hours ago'
   }

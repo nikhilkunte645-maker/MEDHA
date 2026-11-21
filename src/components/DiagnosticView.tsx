@@ -3,20 +3,19 @@
 import React, { useState } from 'react';
 import { DIAGNOSTIC_QUESTIONS } from '@/data/diagnosticQuestions';
 import { CONCEPTS } from '@/data/concepts';
-import { Attempt, LearnerProfile, MisconceptionAnalysis } from '@/types/mastery';
+import { Attempt, MisconceptionAnalysis } from '@/types/mastery';
 import { calculateDiagnosticBaseline } from '@/lib/masteryEngine';
 import { saveLearnerProfile, loadLearnerProfile } from '@/lib/storage';
-import { AIFeedbackCard } from './AIFeedbackCard';
 import {
   HelpCircle,
-  CheckCircle,
+  CheckCircle2,
   ArrowRight,
   ArrowLeft,
   Sparkles,
   AlertCircle,
-  BarChart3,
   Layers,
-  RotateCcw
+  Brain,
+  Lightbulb
 } from 'lucide-react';
 
 interface DiagnosticViewProps {
@@ -33,9 +32,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   const [writtenReasonings, setWrittenReasonings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
-  const [lastAnalysis, setLastAnalysis] = useState<MisconceptionAnalysis | null>(null);
   const [recordedAttempts, setRecordedAttempts] = useState<Attempt[]>([]);
-  const [evaluatingQuestionId, setEvaluatingQuestionId] = useState<string | null>(null);
 
   const currentQuestion = DIAGNOSTIC_QUESTIONS[currentIndex];
   const progressPercent = Math.round(((currentIndex + 1) / DIAGNOSTIC_QUESTIONS.length) * 100);
@@ -54,27 +51,23 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     }));
   };
 
-  // Submit current question and evaluate AI reasoning
   const handleNextOrSubmit = async () => {
     const selected = selectedAnswers[currentQuestion.id];
     if (!selected) {
-      alert('Please select an answer option before continuing.');
+      alert('Please select an option before continuing.');
       return;
     }
 
     if (currentQuestion.reasoningRequired && (!writtenReasonings[currentQuestion.id] || writtenReasonings[currentQuestion.id].trim().length < 5)) {
-      alert('Please provide a brief written explanation of your reasoning to evaluate conceptual understanding.');
+      alert('Please write a brief explanation of your reasoning to enable conceptual diagnosis.');
       return;
     }
 
     setIsSubmitting(true);
-    setEvaluatingQuestionId(currentQuestion.id);
 
     try {
       const reasoning = writtenReasonings[currentQuestion.id] || '';
-      const isCorrect = selected.trim().toLowerCase() === currentQuestion.correctAnswer.trim().toLowerCase();
 
-      // Call server-side diagnose-reasoning
       const res = await fetch('/api/diagnose-reasoning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -89,9 +82,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
 
       const data = await res.json();
       const analysis: MisconceptionAnalysis = data.analysis;
-      setLastAnalysis(analysis);
 
-      // Create Attempt Record
       const newAttempt: Attempt = {
         id: `att_diag_${currentQuestion.id}_${Date.now()}`,
         learnerId: 'active_student',
@@ -106,8 +97,10 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
         misconceptionDetected: analysis.misconception_detected,
         misconceptionCode: analysis.misconception_code,
         misconceptionTitle: analysis.misconception_title,
+        misconceptionStatus: analysis.misconception_status,
         evidence: analysis.evidence,
         explanation: analysis.explanation,
+        correctPrinciple: analysis.correct_principle,
         recommendedConceptIds: analysis.recommended_concept_ids,
         confidence: analysis.confidence,
         nextLearningAction: analysis.next_learning_action,
@@ -117,19 +110,15 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       const updatedAttempts = [...recordedAttempts, newAttempt];
       setRecordedAttempts(updatedAttempts);
 
-      // Advance or Finish
       if (currentIndex < DIAGNOSTIC_QUESTIONS.length - 1) {
         setCurrentIndex((prev) => prev + 1);
-        setLastAnalysis(null);
       } else {
-        // Complete Diagnostic Assessment!
         finishDiagnostic(updatedAttempts);
       }
     } catch (err) {
-      console.error('Error during diagnostic question evaluation:', err);
+      console.error('Error during diagnostic evaluation:', err);
     } finally {
       setIsSubmitting(false);
-      setEvaluatingQuestionId(null);
     }
   };
 
@@ -138,7 +127,6 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     profile.attempts.push(...allAttempts);
     profile.diagnosticCompleted = true;
 
-    // Calculate baseline mastery deterministically across all 8 concepts
     const conceptIds = CONCEPTS.map((c) => c.id);
     const baselineMap = calculateDiagnosticBaseline(allAttempts, conceptIds);
     profile.masteryMap = baselineMap;
@@ -147,84 +135,81 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     setDiagnosticCompleted(true);
   };
 
-  // Completion Screen
   if (diagnosticCompleted) {
     const profile = loadLearnerProfile();
-    const weakConcepts = CONCEPTS.filter((c) => (profile.masteryMap[c.id]?.score || 0) < 40);
-    const developingConcepts = CONCEPTS.filter((c) => {
-      const s = profile.masteryMap[c.id]?.score || 0;
-      return s >= 40 && s < 70;
-    });
-    const proficientConcepts = CONCEPTS.filter((c) => (profile.masteryMap[c.id]?.score || 0) >= 70);
+    const atRiskConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'atRisk');
+    const learningConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'learning');
+    const masteredConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'mastered');
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6 py-4">
-        <div className="bg-surface rounded-2xl border border-surface-border p-6 lg:p-8 text-center space-y-4 shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-violet to-brand-cyan mx-auto flex items-center justify-center shadow-lg shadow-brand-violet/25">
-            <CheckCircle className="w-8 h-8 text-white" />
+      <div className="max-w-4xl mx-auto space-y-6 py-6">
+        <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-10 text-center space-y-6 shadow-2xl">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-primaryContainer to-accent-secondaryContainer mx-auto flex items-center justify-center shadow-neonPrimary">
+            <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
 
-          <h2 className="font-heading text-2xl lg:text-3xl font-extrabold text-white">
-            Diagnostic Baseline Calibrated!
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
-            MASTERY has analyzed your answers and conceptual reasoning across all 8 Electricity concepts.
-            Your baseline concept mastery graph has been generated.
-          </p>
+          <div className="space-y-2">
+            <h2 className="font-heading text-2xl lg:text-3xl font-extrabold text-text-primary">
+              Diagnostic Baseline Successfully Calibrated
+            </h2>
+            <p className="text-xs sm:text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
+              MEDHA has evaluated your answers and conceptual reasoning across all 9 Electricity concepts. Your individualized prerequisite knowledge topology has been initialized.
+            </p>
+          </div>
 
-          {/* Quick Mastery Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 text-left">
-            {/* Weak Concepts */}
-            <div className="p-4 rounded-xl bg-red-950/30 border border-red-500/40">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-red-400 font-semibold block mb-1">
-                Priority Gaps (&lt;40%)
+          {/* 3 Status Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-left">
+            {/* At Risk */}
+            <div className="p-4 rounded-2xl bg-mastery-atRisk/10 border border-mastery-atRisk/30 space-y-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-atRisk font-bold block">
+                At Risk (&lt;50%)
               </span>
-              <div className="text-xl font-bold text-white mb-2">
-                {weakConcepts.length} Concept{weakConcepts.length !== 1 ? 's' : ''}
+              <div className="text-xl font-bold font-heading text-text-primary">
+                {atRiskConcepts.length} Concept{atRiskConcepts.length !== 1 ? 's' : ''}
               </div>
               <ul className="space-y-1">
-                {weakConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-red-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                    <span className="font-mono">{c.code}:</span>
+                {atRiskConcepts.map((c) => (
+                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-atRisk"></span>
+                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
                     <span className="truncate">{c.name}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Developing Concepts */}
-            <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/40">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-semibold block mb-1">
-                Developing (40-69%)
+            {/* Learning */}
+            <div className="p-4 rounded-2xl bg-mastery-learning/10 border border-mastery-learning/30 space-y-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-learning font-bold block">
+                Learning (50–79%)
               </span>
-              <div className="text-xl font-bold text-white mb-2">
-                {developingConcepts.length} Concept{developingConcepts.length !== 1 ? 's' : ''}
+              <div className="text-xl font-bold font-heading text-text-primary">
+                {learningConcepts.length} Concept{learningConcepts.length !== 1 ? 's' : ''}
               </div>
               <ul className="space-y-1">
-                {developingConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-amber-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span className="font-mono">{c.code}:</span>
+                {learningConcepts.map((c) => (
+                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-learning"></span>
+                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
                     <span className="truncate">{c.name}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Proficient Concepts */}
-            <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-semibold block mb-1">
-                Proficient (70%+)
+            {/* Mastered */}
+            <div className="p-4 rounded-2xl bg-mastery-mastered/10 border border-mastery-mastered/30 space-y-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-mastery-mastered font-bold block">
+                Mastered (≥80%)
               </span>
-              <div className="text-xl font-bold text-white mb-2">
-                {proficientConcepts.length} Concept{proficientConcepts.length !== 1 ? 's' : ''}
+              <div className="text-xl font-bold font-heading text-text-primary">
+                {masteredConcepts.length} Concept{masteredConcepts.length !== 1 ? 's' : ''}
               </div>
               <ul className="space-y-1">
-                {proficientConcepts.map((c) => (
-                  <li key={c.id} className="text-xs text-emerald-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="font-mono">{c.code}:</span>
+                {masteredConcepts.map((c) => (
+                  <li key={c.id} className="text-xs text-text-secondary flex items-center gap-1.5 truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-mastery-mastered"></span>
+                    <span className="font-mono text-accent-primary font-bold">{c.code}:</span>
                     <span className="truncate">{c.name}</span>
                   </li>
                 ))}
@@ -233,20 +218,20 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
               onClick={onViewGraph}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-elevated hover:bg-surface-border text-white text-sm font-semibold border border-surface-border transition-all"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-elevated hover:bg-surface-higher text-text-primary border border-outline-variant/60 font-semibold text-xs transition-all"
             >
-              <Layers className="w-4 h-4 text-brand-cyan" />
-              <span>Inspect Concept Knowledge Graph</span>
+              <Layers className="w-4 h-4 text-accent-secondary" />
+              <span>Inspect Concept Graph</span>
             </button>
             <button
               onClick={onCompleteDiagnostic}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-brand-violet to-brand-cyan text-white text-sm font-bold shadow-lg shadow-brand-violet/25 hover:opacity-90 transition-all"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer text-white font-bold text-xs shadow-neonPrimary hover:opacity-90 transition-all"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Begin Adaptive Targeted Practice</span>
+              <span>Begin Adaptive Practice</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -257,45 +242,44 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 py-4">
-      {/* Assessment Header / Progress */}
-      <div className="bg-surface rounded-2xl border border-surface-border p-5 shadow-xl">
-        <div className="flex items-center justify-between text-xs mb-2">
+      {/* Question Progress Header */}
+      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-5 shadow-xl space-y-3">
+        <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-brand-violet font-bold">
+            <span className="font-mono font-bold text-accent-primary">
               QUESTION {currentIndex + 1} OF {DIAGNOSTIC_QUESTIONS.length}
             </span>
-            <span className="px-2 py-0.5 rounded bg-surface-elevated border border-surface-border text-slate-400 font-mono text-[10px]">
-              Difficulty: {currentQuestion.difficulty}/3
+            <span className="px-2 py-0.5 rounded bg-surface-elevated border border-outline-variant/30 text-text-secondary font-mono text-[10px]">
+              Difficulty Level {currentQuestion.difficulty}/3
             </span>
-            <span className="px-2 py-0.5 rounded bg-brand-cyan/20 border border-brand-cyan/30 text-brand-cyan font-mono text-[10px]">
+            <span className="px-2 py-0.5 rounded bg-accent-secondary/15 border border-accent-secondary/30 text-accent-secondary font-mono text-[10px]">
               {currentQuestion.conceptIds.join(', ')}
             </span>
           </div>
-          <span className="font-mono text-slate-400">{progressPercent}% Completed</span>
+          <span className="font-mono text-text-secondary">{progressPercent}% Completed</span>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full h-2 rounded-full bg-surface-border overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-surface-deep overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-brand-violet to-brand-cyan transition-all duration-300"
+            className="h-full bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           ></div>
         </div>
       </div>
 
       {/* Main Question Card */}
-      <div className="bg-surface rounded-2xl border border-surface-border p-6 shadow-2xl space-y-6">
+      <div className="bg-surface rounded-3xl border border-outline-variant/40 p-6 lg:p-8 shadow-2xl space-y-6">
         <div>
-          <span className="text-xs text-brand-cyan font-medium block mb-1">
+          <span className="text-xs font-mono text-accent-secondary block mb-1">
             Learning Objective: {currentQuestion.learningObjective}
           </span>
-          <h3 className="font-heading text-lg lg:text-xl font-bold text-white leading-relaxed">
+          <h3 className="font-heading text-lg lg:text-xl font-bold text-text-primary leading-relaxed">
             {currentQuestion.prompt}
           </h3>
         </div>
 
-        {/* Options List */}
-        <div className="space-y-2.5">
+        {/* Options Selection */}
+        <div className="space-y-3">
           {currentQuestion.options.map((option, idx) => {
             const isSelected = selectedAnswers[currentQuestion.id] === option;
             const letter = String.fromCharCode(65 + idx);
@@ -305,17 +289,17 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
                 key={idx}
                 type="button"
                 onClick={() => handleSelectOption(option)}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${
+                className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
                   isSelected
-                    ? 'bg-brand-violet/20 border-brand-violet text-white shadow-md shadow-brand-violet/20 font-medium'
-                    : 'bg-background hover:bg-surface-elevated border-surface-border text-slate-300'
+                    ? 'bg-accent-primaryContainer/20 border-accent-primary text-text-primary shadow-neonPrimary font-semibold'
+                    : 'bg-surface-elevated hover:bg-surface-higher border-outline-variant/40 text-text-secondary'
                 }`}
               >
                 <span
                   className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${
                     isSelected
-                      ? 'bg-brand-violet text-white'
-                      : 'bg-surface-border text-slate-400'
+                      ? 'bg-accent-primaryContainer text-white'
+                      : 'bg-surface text-text-secondary border border-outline-variant/40'
                   }`}
                 >
                   {letter}
@@ -326,19 +310,19 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
           })}
         </div>
 
-        {/* Reasoning Text Input (Required for reasoning questions) */}
+        {/* Reasoning Text Input */}
         {currentQuestion.reasoningRequired && (
-          <div className="p-4 rounded-xl bg-background border border-surface-border space-y-2">
+          <div className="p-4 rounded-2xl bg-surface-deep border border-outline-variant/30 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-brand-cyan" />
-                Explain Your Thinking & Reasoning (AI Evaluated):
+              <label className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
+                <Brain className="w-3.5 h-3.5 text-accent-primary" />
+                Explain Your Thinking & Reasoning:
               </label>
-              <span className="text-[10px] text-brand-violet font-mono font-bold uppercase">
-                Mandatory for Diagnostic
+              <span className="text-[10px] text-accent-primary font-mono font-bold uppercase">
+                AI Diagnostic Input
               </span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-text-secondary">
               Why did you select this option? If there is a calculation or physical law, write out your thought process.
             </p>
             <textarea
@@ -346,23 +330,23 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
               value={writtenReasonings[currentQuestion.id] || ''}
               onChange={(e) => handleReasoningChange(e.target.value)}
               placeholder="e.g. By Ohm's law V = IR, when temperature is constant... or because charge cannot be destroyed inside the lamp..."
-              className="w-full rounded-lg bg-surface border border-surface-border p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-violet transition-colors resize-none"
+              className="w-full rounded-xl bg-surface border border-outline-variant/40 p-3 text-xs text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-accent-primary transition-colors resize-none"
             />
             {currentQuestion.hint && (
-              <p className="text-[11px] text-amber-400/90 italic flex items-center gap-1">
-                💡 Hint: {currentQuestion.hint}
+              <p className="text-[11px] text-mastery-learning italic flex items-center gap-1">
+                <Lightbulb className="w-3.5 h-3.5 text-mastery-learning" /> Hint: {currentQuestion.hint}
               </p>
             )}
           </div>
         )}
 
-        {/* Navigation & Submit Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-surface-border">
+        {/* Navigation & Submit Action */}
+        <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
           <button
             type="button"
             disabled={currentIndex === 0 || isSubmitting}
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Previous
@@ -372,7 +356,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
             type="button"
             disabled={isSubmitting || !selectedAnswers[currentQuestion.id]}
             onClick={handleNextOrSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-violet to-brand-cyan hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-lg shadow-brand-violet/25 transition-all"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-accent-primaryContainer to-accent-secondaryContainer hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-neonPrimary transition-all"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

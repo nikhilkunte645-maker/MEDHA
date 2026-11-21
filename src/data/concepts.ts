@@ -4,8 +4,8 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C01',
     code: 'C01',
-    name: 'Electric Charge & Electric Current',
-    description: 'Fundamentals of quantization of charge, drift of electrons, rate of flow of charge (I = Q/t), and measurement using ammeters.',
+    name: 'Electric Charge and Current',
+    description: 'Fundamentals of quantization of charge (Q = n·e), drift of charge carriers, rate of flow of charge (I = Q/t), and measurement using ammeters.',
     learningObjectives: [
       'Define electric charge (Q) and its SI unit (Coulomb).',
       'Define electric current as rate of flow of charge: I = Q/t.',
@@ -23,7 +23,7 @@ export const CONCEPTS: Concept[] = [
         code: 'CURRENT_CONSUMPTION',
         title: 'Current is consumed or used up by circuit loads',
         description: 'Believing that current leaves the source at high magnitude and gets diminished as it passes through light bulbs.',
-        correction: 'Charge is conserved. The rate of charge flowing into a component equals the rate flowing out. Energy is delivered, not the physical electrons.'
+        correction: 'Charge is strictly conserved. The rate of charge flowing into a component equals the rate flowing out. Energy is delivered, not the physical electrons.'
       },
       {
         code: 'CURRENT_VOLTAGE_CONFUSION',
@@ -36,7 +36,7 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C02',
     code: 'C02',
-    name: 'Electric Potential Difference',
+    name: 'Potential Difference',
     description: 'Work done per unit charge moving between two points (V = W/Q), role of electrochemical cells, and voltmeter connection in parallel.',
     learningObjectives: [
       'Define potential difference (V) as work done per unit charge: V = W/Q.',
@@ -68,7 +68,7 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C03',
     code: 'C03',
-    name: 'Electric Circuits & Circuit Symbols',
+    name: 'Circuit Diagrams and Symbols',
     description: 'Continuous and closed conductive paths, schematic representations of cells, batteries, switches, resistors, rheostats, and meters.',
     learningObjectives: [
       'Identify and draw standardized schematic symbols for electrical components.',
@@ -121,13 +121,13 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C05',
     code: 'C05',
-    name: 'Resistance & Factors Affecting Resistance',
-    description: 'Opposition to charge flow. Dependence on conductor length, cross-sectional area, material resistivity (ρ), and temperature.',
+    name: 'Resistivity',
+    description: 'Intrinsic material property governing opposition to charge flow. Dependence on length, cross-sectional area (R = ρL/A), material, and temperature.',
     learningObjectives: [
       'State the factors affecting conductor resistance: R ∝ L and R ∝ 1/A.',
       'Apply the formula R = ρ(L/A) to calculate resistance and resistivity.',
       'Understand resistivity (ρ) as an intrinsic material property independent of dimensions.',
-      'Analyze wire stretching/compressing problems preserving volume.'
+      'Analyze wire stretching/compressing problems preserving volume (V = A·L).'
     ],
     prerequisiteIds: ['C04'],
     difficulty: 2,
@@ -153,29 +153,21 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C06',
     code: 'C06',
-    name: 'Series & Parallel Combinations of Resistors',
-    description: 'Equivalent resistance, branch currents, voltage division in series, current division in parallel, and domestic wiring advantages.',
+    name: 'Resistors in Series',
+    description: 'Single continuous conduction loop. Equivalent resistance (Rs = R1 + R2 + ...), identical current throughout, and potential difference division.',
     learningObjectives: [
       'Derive and calculate equivalent resistance for series: Rs = R1 + R2 + ...',
-      'Derive and calculate equivalent resistance for parallel: 1/Rp = 1/R1 + 1/R2 + ...',
-      'Recognize that current is constant across series components and voltage is split.',
-      'Recognize that voltage is constant across parallel branches and current is split.',
-      'Explain advantages of parallel connection in household electrical circuits.'
+      'Understand that electric current is identical at all points in a series circuit.',
+      'Calculate voltage drops across individual series resistors using V_i = I·R_i.',
+      'Identify disadvantages of series circuits in practical home applications.'
     ],
     prerequisiteIds: ['C04', 'C05'],
-    difficulty: 3,
+    difficulty: 2,
     formulas: [
-      { latex: 'R_s = R_1 + R_2 + R_3', description: 'Equivalent resistance in series' },
-      { latex: '\\frac{1}{R_p} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3}', description: 'Equivalent resistance in parallel' },
-      { latex: 'R_p = \\frac{R_1 R_2}{R_1 + R_2}', description: 'Parallel equivalent for two resistors' }
+      { latex: 'R_s = R_1 + R_2 + \\dots + R_n', description: 'Equivalent resistance in series' },
+      { latex: 'V = V_1 + V_2 + \\dots + V_n', description: 'Total voltage equals sum of individual voltage drops' }
     ],
     commonMisconceptions: [
-      {
-        code: 'PARALLEL_RESISTANCE_GREATER_FALLACY',
-        title: 'Believing adding resistors in parallel increases total resistance',
-        description: 'Assuming adding any resistor must add to the total opposition.',
-        correction: 'Adding resistors in parallel adds new conductive pathways, reducing the overall equivalent resistance below the smallest individual resistor.'
-      },
       {
         code: 'SERIES_CURRENT_DECAY',
         title: 'Current decreases progressively across successive series resistors',
@@ -187,7 +179,33 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'C07',
     code: 'C07',
-    name: 'Heating Effect of Electric Current',
+    name: 'Resistors in Parallel',
+    description: 'Multiple conductive branches. Equivalent resistance (1/Rp = 1/R1 + 1/R2 + ...), identical potential difference across branches, and current division.',
+    learningObjectives: [
+      'Derive and calculate equivalent resistance for parallel: 1/Rp = 1/R1 + 1/R2 + ...',
+      'Recognize that potential difference across all parallel branches is identical.',
+      'Calculate branch currents using I_i = V/R_i and total current I = I1 + I2 + ...',
+      'Explain the key engineering advantages of parallel connections in domestic circuits.'
+    ],
+    prerequisiteIds: ['C04', 'C05'],
+    difficulty: 3,
+    formulas: [
+      { latex: '\\frac{1}{R_p} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\dots + \\frac{1}{R_n}', description: 'Equivalent resistance in parallel' },
+      { latex: 'R_p = \\frac{R_1 R_2}{R_1 + R_2}', description: 'Two resistors in parallel shortcut' }
+    ],
+    commonMisconceptions: [
+      {
+        code: 'PARALLEL_RESISTANCE_GREATER_FALLACY',
+        title: 'Believing adding resistors in parallel increases total resistance',
+        description: 'Assuming adding any resistor must add to the total opposition.',
+        correction: 'Adding resistors in parallel adds new conductive pathways, reducing the overall equivalent resistance below the smallest individual resistor.'
+      }
+    ]
+  },
+  {
+    id: 'C08',
+    code: 'C08',
+    name: 'Heating Effect of Current',
     description: "Joule's law of heating (H = I²Rt), conversion of electrical energy into thermal energy, electrical fuses, and heating appliances.",
     learningObjectives: [
       "State Joule's law of heating: H = I²Rt.",
@@ -195,7 +213,7 @@ export const CONCEPTS: Concept[] = [
       'Explain practical applications (electric iron, toaster, electric kettle).',
       'Explain the working principle and safety specifications of an electric fuse.'
     ],
-    prerequisiteIds: ['C04', 'C06'],
+    prerequisiteIds: ['C04', 'C06', 'C07'],
     difficulty: 2,
     formulas: [
       { latex: 'H = I^2 R t', description: "Joule's Law of heating" },
@@ -217,10 +235,10 @@ export const CONCEPTS: Concept[] = [
     ]
   },
   {
-    id: 'C08',
-    code: 'C08',
-    name: 'Electric Power & Electrical Energy',
-    description: 'Rate of electrical energy consumption (P = VI = I²R = V²/R), commercial unit kilowatt-hour (kWh), and calculating household electricity bills.',
+    id: 'C09',
+    code: 'C09',
+    name: 'Electric Power',
+    description: 'Rate of electrical energy consumption (P = VI = I²R = V²/R), commercial unit kilowatt-hour (kWh), and calculating household electricity costs.',
     learningObjectives: [
       'Define electric power and its SI unit (Watt).',
       'Apply power expressions: P = VI, P = I²R, and P = V²/R depending on context.',
@@ -228,7 +246,7 @@ export const CONCEPTS: Concept[] = [
       'Convert 1 kWh into Joules: 1 kWh = 3.6 × 10⁶ J.',
       'Calculate electrical energy consumption and electricity costs.'
     ],
-    prerequisiteIds: ['C04', 'C06', 'C07'],
+    prerequisiteIds: ['C04', 'C06', 'C07', 'C08'],
     difficulty: 3,
     formulas: [
       { latex: 'P = V \\cdot I = I^2 R = \\frac{V^2}{R}', description: 'Electric power expressions' },

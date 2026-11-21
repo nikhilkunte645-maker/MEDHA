@@ -2,7 +2,7 @@ import { LearnerProfile, Attempt, ConceptMastery } from '@/types/mastery';
 import { CONCEPTS } from '@/data/concepts';
 import { createInitialMastery, calculateUpdatedMastery } from './masteryEngine';
 
-const STORAGE_KEY = 'mastery_learner_profile_v1';
+const STORAGE_KEY = 'medha_learner_profile_v2';
 
 export function getInitialLearnerProfile(): LearnerProfile {
   const masteryMap: Record<string, ConceptMastery> = {};
@@ -12,7 +12,7 @@ export function getInitialLearnerProfile(): LearnerProfile {
 
   return {
     id: `student_${Date.now().toString(36)}`,
-    name: 'Student Learner',
+    name: 'Ananya Student',
     masteryMap,
     attempts: [],
     diagnosticCompleted: false,
@@ -34,7 +34,7 @@ export function loadLearnerProfile(): LearnerProfile {
       return initial;
     }
     const profile = JSON.parse(raw) as LearnerProfile;
-    // Ensure all 8 concepts exist in masteryMap
+    // Ensure all 9 concepts exist
     CONCEPTS.forEach((c) => {
       if (!profile.masteryMap[c.id]) {
         profile.masteryMap[c.id] = createInitialMastery(c.id);
@@ -66,10 +66,8 @@ export function recordAttemptAndUpdateMastery(
 ): LearnerProfile {
   const profile = loadLearnerProfile();
 
-  // Add attempt to list
   profile.attempts.push(attempt);
 
-  // Update mastery for each targeted concept
   attempt.targetConceptIds.forEach((conceptId) => {
     const currentMastery = profile.masteryMap[conceptId] || createInitialMastery(conceptId);
     const updated = calculateUpdatedMastery(currentMastery, {
@@ -88,50 +86,60 @@ export function recordAttemptAndUpdateMastery(
 }
 
 /**
- * Prepares a demo learner state specifically illustrating Section 18:
- * The student has completed the diagnostic and struggles with C01/C02 (Current vs Voltage Confusion).
+ * Prepares an authentic demo learner state with actual assessment data
  */
 export function loadPreparedDemoLearner(): LearnerProfile {
   const profile = getInitialLearnerProfile();
-  profile.name = 'Demo Student (Pre-calibrated)';
+  profile.name = 'Priya Demo Learner';
   profile.diagnosticCompleted = true;
 
-  // Set initial mastery profile
+  // C01: At Risk (36%)
   profile.masteryMap['C01'].score = 36;
-  profile.masteryMap['C01'].status = 'needs_attention';
+  profile.masteryMap['C01'].status = 'atRisk';
   profile.masteryMap['C01'].evidenceCount = 2;
   profile.masteryMap['C01'].nextReviewAt = new Date(Date.now() - 3600000).toISOString(); // overdue!
 
+  // C02: At Risk (34%)
   profile.masteryMap['C02'].score = 34;
-  profile.masteryMap['C02'].status = 'needs_attention';
+  profile.masteryMap['C02'].status = 'atRisk';
   profile.masteryMap['C02'].evidenceCount = 2;
   profile.masteryMap['C02'].nextReviewAt = new Date().toISOString();
 
+  // C03: Learning (72%)
   profile.masteryMap['C03'].score = 72;
-  profile.masteryMap['C03'].status = 'proficient';
+  profile.masteryMap['C03'].status = 'learning';
   profile.masteryMap['C03'].evidenceCount = 2;
 
+  // C04: Learning (55%)
   profile.masteryMap['C04'].score = 55;
-  profile.masteryMap['C04'].status = 'developing';
+  profile.masteryMap['C04'].status = 'learning';
   profile.masteryMap['C04'].evidenceCount = 2;
 
+  // C05: At Risk (48%)
   profile.masteryMap['C05'].score = 48;
-  profile.masteryMap['C05'].status = 'developing';
+  profile.masteryMap['C05'].status = 'atRisk';
   profile.masteryMap['C05'].evidenceCount = 2;
 
-  profile.masteryMap['C06'].score = 40;
-  profile.masteryMap['C06'].status = 'developing';
+  // C06: Learning (65%)
+  profile.masteryMap['C06'].score = 65;
+  profile.masteryMap['C06'].status = 'learning';
   profile.masteryMap['C06'].evidenceCount = 2;
 
-  profile.masteryMap['C07'].score = 68;
-  profile.masteryMap['C07'].status = 'developing';
+  // C07: At Risk (38%)
+  profile.masteryMap['C07'].score = 38;
+  profile.masteryMap['C07'].status = 'atRisk';
   profile.masteryMap['C07'].evidenceCount = 2;
 
-  profile.masteryMap['C08'].score = 52;
-  profile.masteryMap['C08'].status = 'developing';
+  // C08: Learning (68%)
+  profile.masteryMap['C08'].score = 68;
+  profile.masteryMap['C08'].status = 'learning';
   profile.masteryMap['C08'].evidenceCount = 2;
 
-  // Add recorded initial diagnostic attempt reflecting C01/C02 misconception
+  // C09: Learning (52%)
+  profile.masteryMap['C09'].score = 52;
+  profile.masteryMap['C09'].status = 'learning';
+  profile.masteryMap['C09'].evidenceCount = 2;
+
   profile.attempts.push({
     id: 'att_demo_01',
     learnerId: profile.id,
@@ -146,8 +154,10 @@ export function loadPreparedDemoLearner(): LearnerProfile {
     misconceptionDetected: true,
     misconceptionCode: 'CURRENT_VOLTAGE_CONFUSION',
     misconceptionTitle: 'Confusing current with voltage and violating charge conservation',
+    misconceptionStatus: 'detected',
     evidence: ['Current is the electrical push from the battery that gets used up'],
     explanation: 'The student treats current as the push and presumes current is consumed by bulbs.',
+    correctPrinciple: 'Potential difference (voltage) provides the electrical pressure; electric charge is strictly conserved.',
     recommendedConceptIds: ['C01', 'C02'],
     confidence: 0.94,
     nextLearningAction: 'Practice distinguishing charge rate (current) from energy push (potential difference).',

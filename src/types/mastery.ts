@@ -1,4 +1,4 @@
-export type MasteryStatus = 'unassessed' | 'needs_attention' | 'developing' | 'proficient' | 'strong';
+export type MasteryStatus = 'mastered' | 'learning' | 'atRisk' | 'unassessed';
 
 export interface Concept {
   id: string;
@@ -45,8 +45,10 @@ export interface MisconceptionAnalysis {
   misconception_detected: boolean;
   misconception_code?: string;
   misconception_title?: string;
+  misconception_status?: 'detected' | 'suspected' | 'unverified';
   evidence: string[];
   explanation: string;
+  correct_principle?: string;
   recommended_concept_ids: string[];
   confidence: number;
   next_learning_action: string;
@@ -67,8 +69,10 @@ export interface Attempt {
   misconceptionDetected: boolean;
   misconceptionCode?: string;
   misconceptionTitle?: string;
+  misconceptionStatus?: 'detected' | 'suspected' | 'unverified';
   evidence: string[];
   explanation: string;
+  correctPrinciple?: string;
   recommendedConceptIds: string[];
   confidence: number;
   nextLearningAction: string;
@@ -77,7 +81,7 @@ export interface Attempt {
 
 export interface ConceptMastery {
   conceptId: string;
-  score: number; // 0 - 100
+  score: number | null; // null if unassessed, 0-100 if assessed
   status: MasteryStatus;
   evidenceCount: number;
   lastAssessed: string | null;
@@ -105,7 +109,7 @@ export interface CohortStudent {
   id: string;
   name: string;
   avatarSeed: string;
-  masteryMap: Record<string, number>; // conceptId -> score 0-100
+  masteryMap: Record<string, number | null>; // conceptId -> score 0-100 or null
   recentMisconception?: {
     code: string;
     title: string;
@@ -126,5 +130,7 @@ export interface GeneratedQuestion {
   explanation: string;
   reasoning_required: boolean;
   learning_objective: string;
+  hint?: string;
+  selection_reason?: string;
   is_offline_fallback?: boolean;
 }
