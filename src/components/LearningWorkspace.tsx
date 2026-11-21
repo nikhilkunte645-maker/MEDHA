@@ -189,7 +189,7 @@ export const LearningWorkspace: React.FC<LearningWorkspaceProps> = ({
         await fetch('/api/student/attempts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ attempt })
+          body: JSON.stringify({ ...attempt, attempt })
         });
       } catch (syncErr) {
         console.error('Server attempt sync error:', syncErr);

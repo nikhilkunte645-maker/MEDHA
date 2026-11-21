@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
+    const rawBody = await req.json();
+    const body = ((rawBody && typeof rawBody === 'object' && 'attempt' in rawBody && rawBody.attempt)
+      ? rawBody.attempt
+      : rawBody) as Partial<Attempt>;
+
     const {
       questionId,
       selectedAnswer,
