@@ -1,7 +1,7 @@
 # MEDHA — Diagnostic Evaluation & Benchmark Report
 **Target Syllabus:** CBSE Class 10 Physics · Chapter 12: Electricity (Concepts C01–C09)  
 **Evaluation Standard:** Master Hackathon Level (PS-2: Diagnostic Tutor with Knowledge Graph & Learner Model)  
-**Generated:** 2026-11-21T19:20:19.865Z  
+**Generated:** 2026-11-21T19:53:39.981Z  
 **Evaluation Runner:** scripts/evaluate-diagnostic-engine.mjs  
 
 ---
