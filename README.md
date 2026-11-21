@@ -1,194 +1,280 @@
-<div align="center">
+<p align="center">
+  <img src="public/brand/medha-banner-final.png" alt="MEDHA — Adaptive AI Learning Intelligence Platform" width="100%" />
+</p>
 
-<img src="public/brand/medha-banner-final.png" alt="MEDHA - Adaptive AI Learning Intelligence Platform" width="100%">
+<div align="center">
 
 # MEDHA
 ### Adaptive AI Learning Intelligence Platform
 
-**Learn Smarter. Understand Deeper. Grow Beyond Limits.**
+**Know what you know. Fix what you don't.**
 
-An AI-powered learning intelligence platform designed to understand how students learn, identify knowledge gaps, and enable personalized academic improvement.
+An evidence-driven learning intelligence platform that aims to identify conceptual gaps, diagnose misconceptions and guide students toward deeper understanding.
+
+[**LIVE DEMO**](https://medha-vofd.onrender.com/) · [**SOURCE CODE**](https://github.com/nikhilkunte645-maker/MEDHA)
 
 </div>
 
----
-
-## About MEDHA
-
-Traditional learning systems often measure what students get right or wrong without sufficiently understanding why they struggle.
-
-MEDHA aims to address this problem through adaptive learning intelligence.
-
-It combines assessment, concept mastery tracking, reasoning analysis, misconception detection, and personalized practice to help students understand their learning progress and identify what they should improve next.
-
-MEDHA is designed around one central idea:
-
-> Every student learns differently. Learning systems should adapt accordingly.
-
-## The Problem
-
-Conventional academic platforms frequently focus on:
-- Marks and scores rather than conceptual understanding.
-- Static assessments rather than adaptive practice.
-- Generic feedback rather than personalized diagnosis.
-- Performance reporting rather than actionable learning recommendations.
-
-This can make it difficult for students and teachers to identify the actual reasons behind learning difficulties.
-
-## Our Solution
-
-MEDHA aims to provide a more intelligent learning experience through:
-
-- Assessment-driven learning insights.
-- Concept-level mastery tracking.
-- Reasoning and misconception analysis.
-- Adaptive practice recommendations.
-- Structured revision support.
-- Teacher-facing academic intelligence.
-- Administrative management and governance.
-
-## Key Features
-
-### Student Portal
-
-- Personalized learning dashboard.
-- Cognitive baseline assessment.
-- Concept mastery tracking.
-- Learning progress visualization.
-- Adaptive practice activities.
-- Reasoning analysis.
-- Misconception identification.
-- Personalized learning recommendations.
-- Spaced revision support.
-- Assessment results and learning history.
-
-### AI-Powered Learning Intelligence
-
-- AI-assisted question generation where configured.
-- Assessment evaluation.
-- Concept-level learning analysis.
-- Reasoning and misconception insights.
-- Adaptive learning recommendations.
-- Bayesian mastery updates where implemented.
-- Gemini integration.
-- Deterministic offline fallback for supported workflows.
-
-### Teacher Portal
-
-- Class and cohort analytics.
-- Student performance overview.
-- Individual student drilldowns.
-- Concept-level learning insights.
-- Misconception and learning-gap visibility.
-- Assessment-related insights.
-- Data export where supported.
-
-### Admin Portal
-
-- User management.
-- Class management.
-- Administrative governance.
-- Audit-log visibility.
-- Role-based access.
-
-*Feature availability depends on the implemented application workflows and configured services.*
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/AI-Gemini%20%2B%20Fallback-4285F4" alt="AI architecture" />
+  <img src="https://img.shields.io/badge/Deployment-Render-46E3B7" alt="Render" />
+</p>
 
 ---
 
-## How MEDHA Works
+## 1. Experience MEDHA
 
-```text
-Student
-   |
-   v
-Assessment / Practice
-   |
-   v
-Question Generation
-   |
-   v
-Student Response
-   |
-   v
-Answer Evaluation
-   |
-   v
-Learning Diagnosis
-   |
-   v
-Concept Mastery Analysis
-   |
-   v
-Personalized Learning Insights
-   |
-   v
-Adaptive Practice & Revision
+| Resource | Link |
+|---|---|
+| Live application | https://medha-vofd.onrender.com/ |
+| GitHub repository | https://github.com/nikhilkunte645-maker/MEDHA |
+| Application domain | AI-powered adaptive education |
+| Academic demonstration scope | Class 10 Physics — Electricity |
+| Learning model | Nine-concept prerequisite topology |
+
+**Start with the live demo:** explore the available workspaces and the student learning experience. Demo account access should be provided separately by the project team; passwords are intentionally not published in this repository.
+
+---
+
+## 2. The Problem: A Correct Answer Does Not Always Mean Understanding
+
+Most conventional digital learning systems emphasize scores, completion rates and right-or-wrong answers.
+
+But these signals do not necessarily explain what a student understands.
+
+A student may select the correct option by guessing. Another may arrive at an incorrect answer because of a deeper misconception rather than a simple calculation error.
+
+These situations require different educational interventions.
+
+The core problem MEDHA addresses is:
+
+**How can a learning platform move beyond evaluating answers and begin understanding the learner's conceptual gaps?**
+
+### The gaps in conventional learning
+
+- **Guessing versus understanding:** A correct answer alone may not establish genuine conceptual mastery.
+- **Surface-level feedback:** Marking an answer wrong does not explain the underlying misconception.
+- **Disconnected concepts:** Weakness in a prerequisite concept can affect performance in later topics.
+- **Limited personalization:** Identical practice for every student does not address individual learning needs.
+- **Insufficient teacher visibility:** Scores alone may not reveal recurring conceptual difficulties across a class.
+
+---
+
+## 3. The MEDHA Approach
+
+MEDHA is designed around a continuous learning-intelligence cycle:
+
+1. Establish a student's conceptual baseline.
+2. Collect assessment responses and reasoning evidence.
+3. Analyze the student's understanding.
+4. Map performance to individual curriculum concepts.
+5. Identify possible misconceptions.
+6. Update concept-level mastery estimates.
+7. Guide targeted practice and revision.
+8. Use subsequent learning evidence to refine the learner profile.
+
+The intended shift is from:
+
+**Score tracking → Understanding analysis → Targeted intervention**
+
+MEDHA is not positioned as another generic question-answer chatbot. Its central product idea is a structured representation of what a learner understands, where that understanding breaks down and what should happen next.
+
+---
+
+## 4. Core Innovation: A Nine-Concept Learning Topology
+
+The current demonstration focuses on Class 10 Physics — Electricity.
+
+Rather than treating the chapter as one undifferentiated unit, MEDHA models nine concepts and their prerequisite relationships as a directed acyclic graph (DAG).
+
+| ID | Concept | Learning focus |
+|---|---|---|
+| C01 | Electric Charge and Current | Charge, current and drift of charge carriers |
+| C02 | Potential Difference | Work done per unit charge |
+| C03 | Circuit Diagrams and Symbols | Circuit representation and components |
+| C04 | Ohm's Law | Relationship between voltage, current and resistance |
+| C05 | Resistivity | Material properties and resistance |
+| C06 | Resistors in Series | Equivalent resistance and current |
+| C07 | Resistors in Parallel | Branches, equivalent resistance and voltage |
+| C08 | Heating Effect of Current | Joule's law and electrical heating |
+| C09 | Electric Power | Power, energy and consumption |
+
+### Why the topology matters
+
+Concepts are not independent.
+
+For example, a student struggling with current and potential difference may also struggle with Ohm's law and resistor networks.
+
+A prerequisite-aware model can make those dependencies visible and help direct attention toward foundational gaps instead of repeatedly practicing only the final topic.
+
+---
+
+## 5. Product Features
+
+### Student Learning Studio
+
+- **Cognitive Overview:** A consolidated view of learning progress and actionable insights.
+- **Diagnostic Assessment:** An 11-question baseline assessment for the current Electricity demonstration.
+- **Concept Topology:** A nine-concept curriculum map with prerequisite relationships.
+- **Concept Mastery:** Evidence-oriented concept-level progress tracking.
+- **Misconception Studio:** A dedicated experience for examining potential conceptual misunderstandings.
+- **Adaptive Practice:** Targeted practice based on identified learning needs.
+- **Spaced Revision:** Revision scheduling using the implemented learning workflow.
+- **Learning Workspace:** A central environment for student learning activities.
+
+### Teacher Analytics Studio
+
+- Class and cohort-level learning visibility.
+- Misconception frequency analysis.
+- Individual student drill-down.
+- Student learning evidence and mastery insights.
+- CSV and JSON gradebook exports.
+
+### Admin Governance Console
+
+- User provisioning.
+- Cohort and teacher mapping.
+- Session management controls.
+- Administrative audit visibility.
+
+These portals separate the needs of learners, educators and administrators rather than forcing every role into one generic dashboard.
+
+---
+
+## 6. AI and Cognitive Intelligence
+
+MEDHA uses a dual-mode reasoning architecture.
+
+### Online AI mode
+
+The application integrates Google's Generative AI SDK for supported reasoning-analysis workflows.
+
+When configured with a valid Gemini API key, the AI pipeline can be used to analyze submitted reasoning and produce structured diagnostic insights.
+
+### Deterministic fallback mode
+
+AI availability should not be a single point of failure.
+
+The project also includes deterministic heuristic fallback logic for supported diagnostic workflows when the external AI service is unavailable or not configured.
+
+The distinction between live AI processing and fallback processing is important: a deterministic response should never be presented as though it was generated by a live model.
+
+### Learning intelligence
+
+The current project design includes:
+
+- Concept-level mastery updates.
+- Bayesian-style evidence calibration and inertia damping.
+- Misconception classification.
+- Prerequisite-aware learning insights.
+- Spaced revision intervals of 1, 3 and 7 days.
+
+These mechanisms are intended to make learning progress more meaningful than a single assessment score.
+
+---
+
+## 7. System Architecture
+
+```mermaid
+flowchart TD
+    A[Student / Teacher / Admin] --> B[Next.js 15 Application]
+    B --> C{Role-Based Workspace}
+
+    C --> D[Student Learning Studio]
+    C --> E[Teacher Analytics Studio]
+    C --> F[Admin Governance Console]
+
+    D --> G[Diagnostic Assessment]
+    G --> H[Response and Reasoning Analysis]
+
+    H --> I{Intelligence Engine}
+    I --> J[Gemini AI - When Configured]
+    I --> K[Deterministic Fallback]
+
+    J --> L[Structured Diagnostic Insights]
+    K --> L
+
+    L --> M[Concept Mastery Updates]
+    M --> N[Misconception Insights]
+    M --> O[Adaptive Practice]
+    M --> P[Spaced Revision]
+
+    E --> Q[Cohort Analytics and Exports]
+    F --> R[User Governance and Audit]
 ```
 
-The intended workflow connects student responses with learning analysis and actionable improvement.
-
-## Platform Architecture
-
-MEDHA is built as a web-based application with separate experiences for students, teachers, and administrators.
-
-Its architecture includes:
-
-- Frontend application and role-based interfaces.
-- Server-side API routes and business logic.
-- Assessment and learning-analysis modules.
-- Database persistence.
-- AI integration and supported offline fallback mechanisms.
-
-## Technology Stack
+### Technology stack
 
 | Layer | Technology |
 |---|---|
-| Application Framework | Next.js |
-| Frontend | React |
-| Language | TypeScript |
+| Framework | Next.js 15 |
+| Frontend | React 19 |
+| Language | TypeScript 5.7 |
+| Styling | Tailwind CSS |
+| Motion | Framer Motion |
+| Icons | Lucide React |
+| AI SDK | Google Generative AI |
+| Authentication support | bcryptjs and server-side session workflows |
 | Runtime | Node.js |
-| AI Integration | Google Gemini (configured workflows) |
-| Data Storage | Existing server-side JSON database implementation |
-| Architecture | Next.js App Router |
+| Deployment | Render |
 
-The exact dependencies and configuration are defined in `package.json` and the project source code.
+---
 
-## Getting Started
+## 8. Security and Responsible Design
+
+Learning platforms handle student-related information, so security and role separation matter.
+
+The project includes security-oriented design elements such as:
+
+- Role-based access to student, teacher and administrator workspaces.
+- Server-side authentication workflows.
+- Password hashing support through bcryptjs.
+- Session controls.
+- Teacher cohort-scoping workflows.
+- Administrative audit visibility.
+- Separation of local runtime data from source-controlled application code.
+
+These are implementation claims, not a substitute for an independent production security certification. Any public deployment should undergo a fresh authorization, privacy and data-persistence review.
+
+**Security note:** Never commit `.env.local`, API keys, session secrets, real student records or passwords. Demo credentials are deliberately excluded from this README.
+
+---
+
+## 9. Run MEDHA Locally
 
 ### Prerequisites
 
-- Node.js
-- npm
-- Git
+- Node.js 20 or later.
+- npm.
+- Git.
 
-### 1. Clone the repository
+### Clone
 
 ```bash
 git clone https://github.com/nikhilkunte645-maker/MEDHA.git
 cd MEDHA
 ```
 
-### 2. Install dependencies
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configure environment variables
+### Configure environment
 
-Inspect the provided `.env.example` file.
-
-Create your local environment file:
-
-```bash
+```powershell
 Copy-Item .env.example .env.local
 ```
 
-Configure the required values using your own credentials.
+Configure the required environment variables locally. For Gemini-enabled functionality, supply the appropriate API key through the server-side environment configuration.
 
-Never commit `.env.local` or expose API keys.
+Do not commit `.env.local`.
 
-### 4. Start the development server
+### Start development
 
 ```bash
 npm run dev
@@ -198,80 +284,119 @@ Open:
 
 http://localhost:3000
 
-### 5. Production build
+### Production build
 
 ```bash
 npm run build
-npm run start
 ```
 
-## Project Structure
+### TypeScript verification
 
-```text
-MEDHA/
-├── public/
-│   └── brand/
-│       └── medha-banner-final.png
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   └── ...
-│   └── lib/
-│       └── server/
-├── data/
-│   └── medha_seed.json
-├── scripts/
-├── package.json
-├── .env.example
-└── README.md
+```bash
+npx tsc --noEmit
 ```
 
-*This is a high-level representation. Refer to the repository for the complete and current structure.*
+---
 
-## Project Objectives
+## 10. Deployment
 
-MEDHA aims to:
+The current public demonstration is hosted on Render.
 
-1. Make learning more personalized.
-2. Help students identify conceptual weaknesses.
-3. Make learning progress easier to understand.
-4. Provide teachers with actionable academic insights.
-5. Support continuous improvement through adaptive practice and revision.
+**Live application:** https://medha-vofd.onrender.com/
 
-## Future Scope
+The deployed environment requires appropriate server-side environment configuration for integrations that depend on secrets or external services.
 
-Potential areas of further development include:
+### Persistence consideration
 
-- More advanced learner modeling.
-- Richer concept dependency mapping.
-- Expanded adaptive assessment capabilities.
-- Deeper learning analytics.
-- Improved accessibility and multilingual learning.
-- Additional integrations with educational platforms.
+The current project uses a server-side JSON persistence implementation. This is appropriate to describe as a prototype architecture, but it should not be assumed to provide durable multi-instance production storage.
 
-These are future directions, not claims of already completed functionality.
+For larger deployments, a managed database such as PostgreSQL would be a more suitable next step, with explicit backup, migration and access-control policies.
 
-## Security and Data
+---
 
-- Keep API keys and credentials in environment variables.
-- Do not publish private student information.
-- Follow role-based access restrictions.
-- Use demo accounts and synthetic data for public demonstrations.
-- Review database and deployment configuration before production use.
+## 11. What Makes MEDHA Different?
 
-## Hackathon Project
+| Conventional learning platform | MEDHA's approach |
+|---|---|
+| Primarily tracks marks | Tracks concept-level evidence |
+| Treats answers as isolated events | Connects concepts through prerequisites |
+| Reports right or wrong | Aims to analyze reasoning and misconceptions |
+| Gives generic practice | Supports targeted practice |
+| Shows basic student progress | Provides student and teacher learning insights |
+| Depends on one AI path | Includes a deterministic fallback path for supported workflows |
 
-MEDHA is developed as an AI-powered educational technology project exploring how adaptive intelligence can improve the learning experience.
+The differentiation is not simply the use of an LLM. It is the combination of structured curriculum relationships, reasoning analysis, mastery estimation, remediation and role-specific learning intelligence.
 
-The goal is not simply to measure student performance, but to make learning gaps more understandable and improvement more actionable.
+---
+
+## 12. Current Scope and Limitations
+
+MEDHA is a hackathon prototype with a focused academic demonstration scope.
+
+Current scope:
+
+- Class 10 Physics — Electricity.
+- Nine modeled curriculum concepts.
+- Student, teacher and admin workspaces.
+- AI-assisted reasoning analysis where configured.
+- Deterministic fallback for supported workflows.
+- Concept mastery and revision mechanisms.
+
+Important limitations:
+
+- The current academic demonstration is not a complete multi-subject curriculum.
+- AI-generated diagnostic insights require evaluation against expert-reviewed student reasoning.
+- Heuristic fallback cannot replace unrestricted human pedagogical judgment.
+- JSON persistence requires architectural improvement before production-scale deployment.
+- A live deployment does not by itself establish production-grade security, reliability or learning outcomes.
+
+---
+
+## 13. Future Roadmap
+
+Potential next development stages:
+
+1. Expand the curriculum beyond Class 10 Electricity.
+2. Introduce expert-reviewed diagnostic datasets.
+3. Improve misconception detection and reasoning evaluation.
+4. Add richer longitudinal mastery analytics.
+5. Improve teacher intervention recommendations.
+6. Introduce scalable relational database persistence.
+7. Add more comprehensive privacy and security testing.
+8. Evaluate learning outcomes through controlled student studies.
+
+---
+
+## 14. Project Information
+
+| Field | Information |
+|---|---|
+| Project name | MEDHA |
+| Full name | Adaptive AI Learning Intelligence Platform |
+| Domain | Artificial Intelligence / EdTech |
+| Project type | Hackathon prototype |
+| Academic scope | Class 10 Physics — Electricity |
+| Repository | GitHub |
+| Live demo | Render |
+
+### Repository
+
+https://github.com/nikhilkunte645-maker/MEDHA
+
+### Live Demo
+
+https://medha-vofd.onrender.com/
 
 ---
 
 <div align="center">
 
-### MEDHA
-**Learn Smarter. Understand Deeper. Grow Beyond Limits.**
+# MEDHA
 
-Built with a vision to make learning more intelligent and personalized.
+### Know what you know. Fix what you don't.
+
+**Moving learning beyond scores — toward understanding.**
+
+[Open Live Demo](https://medha-vofd.onrender.com/) · [Explore Source Code](https://github.com/nikhilkunte645-maker/MEDHA)
 
 </div>
