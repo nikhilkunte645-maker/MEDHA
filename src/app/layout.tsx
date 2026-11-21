@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MASTERY — Adaptive AI Learning Intelligence Platform',
-  description: 'Evidence-based conceptual knowledge tracking, reasoning diagnosis, and adaptive question generation for Class 10 Physics.',
+  title: 'MEDHA — Adaptive AI Learning Intelligence Platform',
+  description: 'Know what you know. Fix what you don\'t. Evidence-based conceptual knowledge tracking, reasoning diagnosis, and adaptive question generation for Class 10 Physics.',
 };
 
 export default function RootLayout({

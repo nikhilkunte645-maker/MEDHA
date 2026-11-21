@@ -26,14 +26,12 @@ export const RevisionScheduleView: React.FC<RevisionScheduleViewProps> = ({
   onPracticeConcept,
   onViewGraph
 }) => {
-  const [profile, setProfile] = useState<LearnerProfile | null>(null);
+  const [profile, setProfile] = useState<LearnerProfile>(loadLearnerProfile);
   const [filter, setFilter] = useState<'all' | 'overdue' | 'upcoming'>('all');
 
   useEffect(() => {
     setProfile(loadLearnerProfile());
   }, []);
-
-  if (!profile) return null;
 
   const revisionItems = CONCEPTS.map((concept) => {
     const mastery = profile.masteryMap[concept.id];

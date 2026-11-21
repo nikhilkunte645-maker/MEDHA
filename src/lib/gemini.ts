@@ -136,7 +136,8 @@ export function validateMisconceptionResponse(data: unknown): MisconceptionAnaly
     correct_principle: d.correct_principle ? String(d.correct_principle) : undefined,
     recommended_concept_ids: recommendedConceptIds.length > 0 ? recommendedConceptIds : ['C01'],
     confidence,
-    next_learning_action: String(d.next_learning_action || 'Review foundational principles of this concept.')
+    next_learning_action: String(d.next_learning_action || 'Review foundational principles of this concept.'),
+    is_offline_fallback: false
   };
 }
 
@@ -576,7 +577,8 @@ export function validateGeneratedQuestion(data: unknown, fallbackConceptId: stri
     reasoning_required: Boolean(d.reasoning_required ?? true),
     learning_objective: String(d.learning_objective || 'Test conceptual mastery of this principle.'),
     hint: d.hint ? String(d.hint) : undefined,
-    selection_reason: d.selection_reason ? String(d.selection_reason) : undefined
+    selection_reason: d.selection_reason ? String(d.selection_reason) : undefined,
+    is_offline_fallback: false
   };
 }
 

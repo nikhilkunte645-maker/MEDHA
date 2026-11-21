@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CONCEPTS } from '@/data/concepts';
 import { SAMPLE_COHORT } from '@/data/sampleCohort';
-import { loadLearnerProfile } from '@/lib/storage';
-import { CohortStudent } from '@/types/mastery';
+import { loadLearnerProfile, getInitialLearnerProfile } from '@/lib/storage';
+import { CohortStudent, LearnerProfile } from '@/types/mastery';
 import {
   Users,
   BarChart3,
@@ -26,8 +26,11 @@ export const TeacherAnalyticsView: React.FC = () => {
   const [activeCohortMode, setActiveCohortMode] = useState<'sample' | 'live'>('sample');
   const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month'>('all');
   const [selectedStudent, setSelectedStudent] = useState<CohortStudent | null>(null);
+  const [activeProfile, setActiveProfile] = useState<LearnerProfile>(getInitialLearnerProfile);
 
-  const activeProfile = loadLearnerProfile();
+  useEffect(() => {
+    setActiveProfile(loadLearnerProfile());
+  }, []);
 
   // Cohort setup
   const cohort: CohortStudent[] = activeCohortMode === 'sample'

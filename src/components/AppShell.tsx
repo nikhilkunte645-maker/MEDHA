@@ -233,6 +233,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             <button
               onClick={onResetData}
               title="Reset state to initial unassessed baseline"
+              aria-label="Reset learner profile data to initial unassessed baseline"
               className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />

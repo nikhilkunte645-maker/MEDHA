@@ -32,6 +32,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   const [writtenReasonings, setWrittenReasonings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
+  const [calibratedProfile, setCalibratedProfile] = useState<import('@/types/mastery').LearnerProfile | null>(null);
   const [recordedAttempts, setRecordedAttempts] = useState<Attempt[]>([]);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
 
@@ -138,11 +139,12 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
     profile.masteryMap = baselineMap;
 
     saveLearnerProfile(profile);
+    setCalibratedProfile(profile);
     setDiagnosticCompleted(true);
   };
 
   if (diagnosticCompleted) {
-    const profile = loadLearnerProfile();
+    const profile = calibratedProfile || loadLearnerProfile();
     const atRiskConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'atRisk');
     const learningConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'learning');
     const masteredConcepts = CONCEPTS.filter((c) => profile.masteryMap[c.id]?.status === 'mastered');

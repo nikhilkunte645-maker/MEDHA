@@ -15,7 +15,7 @@ import { LearnerProfile } from '@/types/mastery';
 
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
-  const [profile, setProfile] = useState<LearnerProfile | null>(null);
+  const [profile, setProfile] = useState<LearnerProfile>(getInitialLearnerProfile);
   const [selectedWorkspaceConceptId, setSelectedWorkspaceConceptId] = useState<string>('C01');
   const [isDemoOpen, setIsDemoOpen] = useState<boolean>(false);
 
