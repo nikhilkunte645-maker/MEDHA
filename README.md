@@ -1,223 +1,277 @@
-# MEDHA — Adaptive AI Learning Intelligence Platform
-> *"Know what you know. Fix what you don't."*
+<div align="center">
 
-**Hero Headline:** Meet Medha. The tutor that knows what you don't.  
-**Academic Scope:** Class 10 Physics — *Electricity* (Concepts C01 to C09)  
-**Hackathon:** Product Space Agentic AI Hackathon (Problem Statement PS-2)  
-**Architecture:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Google Gemini 2.5 Flash, Framer Motion  
-**Design System:** The Intelligent Learning Studio (Minimal, editorial, high-contrast typography, calm surface design)
+<img src="public/brand/medha-banner-final.png" alt="MEDHA - Adaptive AI Learning Intelligence Platform" width="100%">
 
----
+# MEDHA
+### Adaptive AI Learning Intelligence Platform
 
-## 1. Executive Summary & The Problem
+**Learn Smarter. Understand Deeper. Grow Beyond Limits.**
 
-Generic AI tutors and LLM chatbots answer student questions or grade multiple-choice options, but they suffer from critical pedagogical shortcomings:
-1. **Lucky Guesses vs. Real Understanding:** They treat correct multiple-choice guesses as genuine conceptual mastery.
-2. **Surface Corrections vs. Root Misconceptions:** They correct the final arithmetic without diagnosing the underlying mental model that caused the mistake.
-3. **Black-Box Progress Tracking:** They cannot pinpoint where in a prerequisite chain a student's confusion originated.
+An AI-powered learning intelligence platform designed to understand how students learn, identify knowledge gaps, and enable personalized academic improvement.
 
-**MEDHA** is an evidence-based cognitive learning intelligence platform that:
-- Diagnoses a student's existing understanding across an **authentic 9-concept prerequisite Directed Acyclic Graph (DAG)**.
-- Analyzes the student's **written reasoning** using server-side **Google Gemini 2.5 Flash** (with verified offline heuristic fallback).
-- Detects specific cognitive misconceptions (e.g., *Current vs. Voltage confusion*, *Series current decay*, *Parallel resistance fallacies*).
-- Calibrates mastery deterministically on a 0–100 scale using **Bayesian inertia damping and headroom decay**.
-- Schedules **spaced revision** (1 / 3 / 7 day intervals) calibrated to concept stability.
-- Empowers teachers with **class-wide cohort heatmaps, misconception frequency analytics**, and student drill-downs.
+</div>
 
 ---
 
-## 2. The 9 Core Physics Concepts (Class 10 Electricity)
+## About MEDHA
 
-Knowledge is modeled as a strictly acyclic prerequisite DAG:
+Traditional learning systems often measure what students get right or wrong without sufficiently understanding why they struggle.
 
-| Concept Code | Concept Name | Key Formulas | Prerequisites | Difficulty |
-|---|---|---|---|:---:|
-| **C01** | Electric Charge and Current | $I = \frac{Q}{t}$, $Q = n \cdot e$ | None (Entry) | Level 1 |
-| **C02** | Potential Difference | $V = \frac{W}{Q}$, $1\text{ V} = \frac{1\text{ J}}{1\text{ C}}$ | C01 | Level 2 |
-| **C03** | Circuit Diagrams and Symbols | Standard NCERT schematics | C01, C02 | Level 1 |
-| **C04** | Ohm's Law | $V = I \cdot R$ (at const. temp) | C01, C02, C03 | Level 2 |
-| **C05** | Resistivity | $R = \rho \frac{L}{A}$, $V_{\text{vol}} = A \cdot L$ | C04 | Level 2 |
-| **C06** | Resistors in Series | $R_s = R_1 + R_2 + \dots$, $I_1 = I_2 = I_{\text{total}}$ | C04, C05 | Level 2 |
-| **C07** | Resistors in Parallel | $\frac{1}{R_p} = \frac{1}{R_1} + \frac{1}{R_2} + \dots$, $V_1 = V_2 = V_{\text{total}}$ | C04, C05 | Level 3 |
-| **C08** | Heating Effect of Current | $H = I^2 R t$, Fuse rating | C04, C06, C07 | Level 2 |
-| **C09** | Electric Power | $P = VI = I^2R = \frac{V^2}{R}$, kWh billing | C04, C06, C07, C08 | Level 3 |
+MEDHA aims to address this problem through adaptive learning intelligence.
 
----
+It combines assessment, concept mastery tracking, reasoning analysis, misconception detection, and personalized practice to help students understand their learning progress and identify what they should improve next.
 
-## 3. Product Architecture & Portals
+MEDHA is designed around one central idea:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Next.js 15 App Router                  │
-│                     Edge & Session Middleware               │
-└──────────────┬──────────────────────┬───────────────────────┘
-               │                      │                       │
-      Role: Student          Role: Teacher           Role: Admin
-               ▼                      ▼                       ▼
-   ┌──────────────────────┐┌──────────────────────┐┌──────────────────────┐
-   │    Student Studio    ││    Teacher Studio    ││  Governance Console  │
-   │  (/student)          ││  (/teacher)          ││  (/admin)            │
-   │                      ││                      ││                      │
-   │ • Cognitive Overview ││ • Scoped Cohort View ││ • User Provisioning  │
-   │ • Diagnostic Test    ││ • Misconception Dist.││ • Class Mapping      │
-   │ • Concept Topology   ││ • Student Drill-down ││ • Security Audit Log │
-   │ • Misconception Hub  ││ • Gradebook Export   ││ • Session Control    │
-   │ • Adaptive Practice  ││                      ││                      │
-   │ • Spaced Revision    ││                      ││                      │
-   └───────────┬──────────┘└──────────┬───────────┘└──────────┬───────────┘
-               │                      │                       │
-               └──────────────────────┼───────────────────────┘
-                                      ▼
-               ┌──────────────────────────────────────────────┐
-               │              Backend REST API Layer          │
-               │  /api/student/*   /api/teacher/*  /api/admin │
-               │  /api/diagnose-reasoning  /api/status        │
-               └──────────────────────┬───────────────────────┘
-                                      ▼
-               ┌──────────────────────────────────────────────┐
-               │        Cognitive Intelligence Engine         │
-               │ • Google Gemini 2.5 Flash (Live Online)      │
-               │ • Curated Deterministic Heuristics (Fallback)│
-               │ • Bayesian Mastery Updates with Inertia      │
-               │ • 1 / 3 / 7-Day Spaced Repetition Protocol   │
-               └──────────────────────────────────────────────┘
-```
+> Every student learns differently. Learning systems should adapt accordingly.
 
----
+## The Problem
 
-## 4. The Student Experience (7 Core Views)
+Conventional academic platforms frequently focus on:
+- Marks and scores rather than conceptual understanding.
+- Static assessments rather than adaptive practice.
+- Generic feedback rather than personalized diagnosis.
+- Performance reporting rather than actionable learning recommendations.
 
-1. **Cognitive Overview:** Unified learning command center displaying overall mastery percentage, active misconceptions, next actionable recommendation, and prerequisite health breakdown.
-2. **Diagnostic Assessment:** Adaptive baseline calibration test requiring step-by-step written reasoning to uncover cognitive gaps before practice begins.
-3. **Concept Topology:** Interactive 9-node DAG visualization illustrating prerequisite paths, completion states, and concept formula reference sheets.
-4. **Misconception Studio:** Signature remediation experience that extracts student written statements, explains why the mental model is physically flawed, and presents the correct scientific law.
-5. **Adaptive Practice:** Targeted question generator synthesizing challenges calibrated to the student's weakest concept nodes with step-by-step feedback.
-6. **Spaced Revision:** Retention calendar scheduling overdue and upcoming concept reviews using evidence-based 1, 3, and 7-day decay intervals.
-7. **60-Second Walkthrough Modal:** One-click automated simulation demonstrating end-to-end diagnosis for evaluators and judges.
+This can make it difficult for students and teachers to identify the actual reasons behind learning difficulties.
 
----
+## Our Solution
 
-## 5. The Teacher & Admin Experiences
+MEDHA aims to provide a more intelligent learning experience through:
 
-### Teacher Studio (`/teacher`)
-- **Strict Cohort Scoping:** Teachers view only their assigned classrooms (e.g. Dr. Sharma is scoped strictly to Class 10-A, with 403 Forbidden enforced on unassigned sections).
-- **Class Misconception Frequencies:** Aggregates top classroom fallacies (e.g., `SERIES_CURRENT_DECAY`) so teachers can tailor lesson plans.
-- **Individual Student Drill-Down:** Deep-dive inspection into any student's historical mastery curves and attempt reasoning evidence.
-- **Gradebook Telemetry Export:** Instant one-click export of cohort telemetry in CSV and JSON formats.
+- Assessment-driven learning insights.
+- Concept-level mastery tracking.
+- Reasoning and misconception analysis.
+- Adaptive practice recommendations.
+- Structured revision support.
+- Teacher-facing academic intelligence.
+- Administrative management and governance.
 
-### Governance Console (`/admin`)
-- **User Provisioning:** Create students and teachers with automatic bcrypt password hashing (10 salt rounds).
-- **Class Management:** Associate teachers and enrolled students with academic sections.
-- **Immutable Audit Trail:** Real-time log of security events (logins, session expirations, and blocked cross-class access attempts).
-- **Zero Credential Exposure:** Password hashes are strictly omitted from all client-facing API responses.
+## Key Features
+
+### Student Portal
+
+- Personalized learning dashboard.
+- Cognitive baseline assessment.
+- Concept mastery tracking.
+- Learning progress visualization.
+- Adaptive practice activities.
+- Reasoning analysis.
+- Misconception identification.
+- Personalized learning recommendations.
+- Spaced revision support.
+- Assessment results and learning history.
+
+### AI-Powered Learning Intelligence
+
+- AI-assisted question generation where configured.
+- Assessment evaluation.
+- Concept-level learning analysis.
+- Reasoning and misconception insights.
+- Adaptive learning recommendations.
+- Bayesian mastery updates where implemented.
+- Gemini integration.
+- Deterministic offline fallback for supported workflows.
+
+### Teacher Portal
+
+- Class and cohort analytics.
+- Student performance overview.
+- Individual student drilldowns.
+- Concept-level learning insights.
+- Misconception and learning-gap visibility.
+- Assessment-related insights.
+- Data export where supported.
+
+### Admin Portal
+
+- User management.
+- Class management.
+- Administrative governance.
+- Audit-log visibility.
+- Role-based access.
+
+*Feature availability depends on the implemented application workflows and configured services.*
 
 ---
 
-## 6. AI & Educational Accuracy
+## How MEDHA Works
 
-### Dual-Pipeline Cognitive Reasoning Engine
-When a student submits written physical reasoning, MEDHA evaluates it through a dual-mode pipeline:
-1. **Online Mode (Google Gemini 2.5 Flash):** Evaluates reasoning against expert physics diagnostic system prompts, returning structured JSON with detected misconception codes, evidence quotes, and remedial actions.
-2. **Offline Fallback Heuristic:** If the Gemini API key is omitted, exhausted, or network-constrained, MEDHA transparently switches to verified deterministic heuristics.
-3. **Radical Transparency:** Every question generation and diagnostic response explicitly carries `is_offline_fallback: true/false`. Offline heuristics are never falsely represented as live AI.
-
----
-
-## 7. Security & Data Isolation Architecture
-
-- **IDOR Protection:** Verified student-to-student data isolation. Student queries derive identity strictly from the cryptographically verified session token (`medha_session`), ignoring spoofed query or body IDs.
-- **Role-Based Access Control:** Next.js middleware guards `/student`, `/teacher`, and `/admin`. Role elevation via client payloads is blocked at the database tier.
-- **Brute-Force Rate Limiting:** Account login throttles and blocks automated attacks after 5 consecutive failures.
-- **Pristine Seed Architecture:** Runtime database mutations are decoupled from git (`.gitignore`), with a canonical seed template (`data/medha_seed.json`) for fresh deployments.
-
----
-
-## 8. Demo Persona Credentials
-
-For live demonstration and testing on `http://localhost:3000`:
-
-| Persona | Email | Password | Role | Scoped Context |
-| :--- | :--- | :--- | :--- | :--- |
-| **Student (Priya)** | `priya@student.medha.edu` | `Medha@2026!` | `student` | Completed diagnostic, 9 concepts mapped, C03 misconception detected |
-| **Student (Aarav)** | `aarav@student.medha.edu` | `Medha@2026!` | `student` | Fresh clean-slate baseline for testing onboarding |
-| **Teacher (Dr. Sharma)** | `sharma@teacher.medha.edu` | `Medha@2026!` | `teacher` | Class 10-A (CBSE Physics), student drill-down, CSV/JSON export |
-| **Administrator** | `admin@medha.edu` | `Medha@2026!` | `admin` | User provisioning, class mapping, immutable security audit log |
-
----
-
-## 9. Verification & Automated Testing
-
-### 1. TypeScript Strictness
-```bash
-npx tsc --noEmit
-# Output: Exit code 0 (0 type errors)
+```text
+Student
+   |
+   v
+Assessment / Practice
+   |
+   v
+Question Generation
+   |
+   v
+Student Response
+   |
+   v
+Answer Evaluation
+   |
+   v
+Learning Diagnosis
+   |
+   v
+Concept Mastery Analysis
+   |
+   v
+Personalized Learning Insights
+   |
+   v
+Adaptive Practice & Revision
 ```
 
-### 2. Comprehensive Full-System Regression Suite
-```bash
-npx tsx scripts/regression-suite.mjs
-# Output: 100% PASS across DAG topology, inertia mathematics, Cases A-H reasoning
-```
+The intended workflow connects student responses with learning analysis and actionable improvement.
 
-### 3. Role-Based Security & IDOR Isolation Suite
-```bash
-npx tsx scripts/role-security-regression.mjs
-# Output: 100% PASS across bcrypt verification, teacher class isolation, and rate-limiting
-```
+## Platform Architecture
 
-### 4. Independent QA Engine Audit
-```bash
-npx tsx scripts/qa-audit.mjs
-# Output: 100% PASS across diagnostic coverage and 1/3/7-day spaced repetition
-```
+MEDHA is built as a web-based application with separate experiences for students, teachers, and administrators.
 
-### 5. Production Server Route Verification
-```bash
-node scripts/verify-live-routes.mjs
-# Output: 100% PASS across public, student, teacher, and admin HTTP endpoints
-```
+Its architecture includes:
 
----
+- Frontend application and role-based interfaces.
+- Server-side API routes and business logic.
+- Assessment and learning-analysis modules.
+- Database persistence.
+- AI integration and supported offline fallback mechanisms.
 
-## 10. Installation & Local Execution
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Application Framework | Next.js |
+| Frontend | React |
+| Language | TypeScript |
+| Runtime | Node.js |
+| AI Integration | Google Gemini (configured workflows) |
+| Data Storage | Existing server-side JSON database implementation |
+| Architecture | Next.js App Router |
+
+The exact dependencies and configuration are defined in `package.json` and the project source code.
+
+## Getting Started
 
 ### Prerequisites
-- Node.js v20+ (tested on Node v24.19.0)
-- npm v10+
 
-### Step-by-Step Setup
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd MEDHA
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Configure Environment Variables:**
-   ```bash
-   cp .env.example .env.local
-   ```
-   *(Optional)* Add your Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey):
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-   *(If omitted, MEDHA operates in verified offline heuristic mode).*
+- Node.js
+- npm
+- Git
 
-4. **Run Production Build:**
-   ```bash
-   npm run build
-   ```
-5. **Start Production Server:**
-   ```bash
-   npm run start
-   ```
-   Open `http://localhost:3000` in your browser.
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/nikhilkunte645-maker/MEDHA.git
+cd MEDHA
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Inspect the provided `.env.example` file.
+
+Create your local environment file:
+
+```bash
+Copy-Item .env.example .env.local
+```
+
+Configure the required values using your own credentials.
+
+Never commit `.env.local` or expose API keys.
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+Open:
+
+http://localhost:3000
+
+### 5. Production build
+
+```bash
+npm run build
+npm run start
+```
+
+## Project Structure
+
+```text
+MEDHA/
+├── public/
+│   └── brand/
+│       └── medha-banner-final.png
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   └── ...
+│   └── lib/
+│       └── server/
+├── data/
+│   └── medha_seed.json
+├── scripts/
+├── package.json
+├── .env.example
+└── README.md
+```
+
+*This is a high-level representation. Refer to the repository for the complete and current structure.*
+
+## Project Objectives
+
+MEDHA aims to:
+
+1. Make learning more personalized.
+2. Help students identify conceptual weaknesses.
+3. Make learning progress easier to understand.
+4. Provide teachers with actionable academic insights.
+5. Support continuous improvement through adaptive practice and revision.
+
+## Future Scope
+
+Potential areas of further development include:
+
+- More advanced learner modeling.
+- Richer concept dependency mapping.
+- Expanded adaptive assessment capabilities.
+- Deeper learning analytics.
+- Improved accessibility and multilingual learning.
+- Additional integrations with educational platforms.
+
+These are future directions, not claims of already completed functionality.
+
+## Security and Data
+
+- Keep API keys and credentials in environment variables.
+- Do not publish private student information.
+- Follow role-based access restrictions.
+- Use demo accounts and synthetic data for public demonstrations.
+- Review database and deployment configuration before production use.
+
+## Hackathon Project
+
+MEDHA is developed as an AI-powered educational technology project exploring how adaptive intelligence can improve the learning experience.
+
+The goal is not simply to measure student performance, but to make learning gaps more understandable and improvement more actionable.
 
 ---
 
-## 11. Deployment Considerations
+<div align="center">
 
-- **Server-Side Compatibility:** Built with standard Next.js 15 App Router and Node.js server runtimes. Fully compatible with Node.js container environments (Docker, Google Cloud Run, Railway, AWS ECS).
-- **Persistent Storage Note:** The application currently utilizes a server-side JSON database (`data/medha_server_db.json`) seeded from `data/medha_seed.json`. For stateless ephemeral serverless deployments (e.g. Vercel), a persistent database adapter (PostgreSQL / Supabase / Redis) is recommended for long-term production state persistence.
+### MEDHA
+**Learn Smarter. Understand Deeper. Grow Beyond Limits.**
+
+Built with a vision to make learning more intelligent and personalized.
+
+</div>
